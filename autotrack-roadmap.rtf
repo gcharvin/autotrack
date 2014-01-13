@@ -1,0 +1,101 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265
+\cocoascreenfonts1{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww22640\viewh11200\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural
+
+\f0\fs24 \cf0 Roadmap for the autotrack software:\
+\
+- Load project : \
+\
+simple command line interface to load project and set analysis parameters \
+detect if data are already segmented using autotrack DONE\
+\
+stores param\'e8tres in global autotrack variable DONE\
+\
+%autotrack.position\
+%autotrack.path\
+%autotrack.parameters\
+- test processing data : determine appropriate threshold level, etc\'85 display results obtained for specific frames DONE\
+\
+- Batch engine to process data\
+loop on positions, segment, and map objects, save segmentation variables DONE\
+\
+MAPPING : add fluo intensity to fix some M/D assignment errors. \
+\
+-log file generator DONE\
+\
+- check lost cells and mapping errors : Camille function to check DONE\
+\
+- pedigree analysis to determine parentage and list errors : PEDIGREE DONE, BUT NOT USED TO CHECK ERRORS\
+\
+- use nucleus mapping to perform cell mapping backwards TO DO\
+\
+-Fit gaussian to determine true flu level DONE\
+\
+-Extract cell cycle phase\
+TO DO : \
+*separate detection of division from cell cycle phase  ( 1 parameter to add) : example possibility to track div times in HTB2-mCherry DONE\
+\
+*div time should be defined as end of anaphase (and not middle of anaphase) : definition based on minimum value obtained for nucleus fluo DONE\
+\
+* dual fit to extract both ramp up  (S phase) and ramp down (anaphase) DONE\
+\
+- GUI to plot results and load raw data from scatter plots DONE\
+\
+- data analysis program\
+\
+the program should be modular so that data could be checked and errors detected  at each step.  DONE\
+\
+\
+To do : filter to discard wrongly fitted data  DONE\
+\
+- time filter DONE\
+- G1 and post anaphase fluo level should be in the same range TO DO ?\
+\
+\
+- make movie corresponding to ne cell cycle\
+\
+\'97\'97\'97\'97\'97\'97\'97\'97\'97\'97\
+\
+Strategy to add phase contrast image // cell size : \
+\
+- segment cells using a better watershed algo - DONE\
+\
+procedure : \
+\
+\
+segment and map nuclei  - potential tracking error due to M/D swapping upon nuclear division\
+quantify nuclei\
+\
+segment cells using watershed\
+\
+To DO : \
+1) assign nucleus to cell\
+2) assign bud to cell and track bud over time\
+3) assign daughter nucleus to mother \
+4) fix M/D nucleus tracking error using cell volume\
+\
+\
+Way to do it  : \
+1) segment, ma and quantify nuclei\
+2) segment cells\
+3) for each frame : a- assign nucleus to cell b- map non nucleated cell to previous frame ; map just divided cell to previous frame\
+\
+\
+\
+setNuclear links Errors : \
+\
+- remove short trajectories <10 frames (takes care of G2/M arrest, edge cells )\
+- \
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+}
