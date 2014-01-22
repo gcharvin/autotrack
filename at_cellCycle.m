@@ -206,9 +206,14 @@ if nargin==2
 end
 
  if nargin==3
+     if ischar(nosave)
     if  strcmp(nosave,'overwrite')
         at_export(stats,'overwrite');
     end
+     else
+        at_export(stats,nosave);
+     end
+ 
  end
         
 %         handles=at_displayHandles;

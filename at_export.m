@@ -28,8 +28,14 @@ if nargin==1 % append
         stats=statstemp;
     end
 else % overwrite
+    if ischar(option)
     if strcmp(option,'overwrite')
         stats=statstemp;
+    end
+    else
+      str=strcat(timeLapse.realPath,timeLapse.filename,'-pos',num2str(option),'-stats-autotrack.mat');
+      stats=statstemp;
+      
     end
 end
 
