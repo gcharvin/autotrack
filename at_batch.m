@@ -125,35 +125,30 @@ nstore=0;
         
         
         if segCells
-            imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1));
-            
             updateProgressMonitor(['Segment Cells - pos:' num2str(pos)], cc,  size(frames, 2));
+            imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1));
         end
         
         if segNucleus
-            imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1));
             updateProgressMonitor(['Segment Nuclei - pos:' num2str(pos)], cc,  size(frames, 2));
+            imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1));
         end
         
       
         if gaufit
+            updateProgressMonitor(['2D gaussian fit - pos:' num2str(pos)], cc,  size(frames, 2));
             cha=timeLapse.autotrack.processing.nucleus(1);
             gaussianFluoFit(i,cha);
-            updateProgressMonitor(['2D gaussian fit - pos:' num2str(pos)], cc,  size(frames, 2));
         end
         
         
         
         
         if mapNucleus
-            nstore=mappeNucleus(cc,nstore,i);
             updateProgressMonitor(['Map Nuclei - pos:' num2str(pos)], cc,  size(frames, 2));
+            nstore=mappeNucleus(cc,nstore,i);
         end
         
-        if mapCells
-            
-            updateProgressMonitor(['Map Cells - pos:' num2str(pos)], cc,  size(frames, 2));
-        end
         
         if display
             
@@ -166,11 +161,24 @@ nstore=0;
         
         cc=cc+1;
     end
+    
+    if mapCells % cells mapping is donne afterwards, since all nuclei must segmented ans mapped
+            at_setNucleusLinks; % establish mother/ daughter parentage for nuclei
+            
+            swap=at_mapCells;
+            
+            if numel(swap) % some swapping events were detected; rerun function
+                swap=at_mapCells;
+                
+            end
+                
+            updateProgressMonitor(['Map Cells - pos:' num2str(pos)], cc,  size(frames, 2));
+        end
+    
+    
+    
     fprintf(['Done with pos ' num2str(pos) '\n\n']);
     
-    if mapCells
-        %  phy_mapCellBackwards(frames(end),frames(1));
-    end
     
     if segCells
         segmentation.cells1Segmented(frames(1):frames(end))=1;
@@ -204,8 +212,8 @@ nstore=0;
 %
      if cellcycle
         at_cellCycle(1:1:numel(segmentation.tnucleus),0);
-%         stat(l)=phy_extractCellCyclePhase(1:max([segmentation.tnucleus.N]),1);
-%         save(fullfile(timeLapse.realPath,'cellcyclestat.mat'),'stat');
+         stat(l)=phy_extractCellCyclePhase(1:max([segmentation.tnucleus.N]),1);
+         save(fullfile(timeLapse.realPath,'cellcyclestat.mat'),'stat');
      end
     
 end

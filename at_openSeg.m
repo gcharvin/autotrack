@@ -29,5 +29,5 @@ if fraC==0 && fraN==0
     save(fullfile(timeLapse.realPath,[timeLapse.filename '-project.mat']),'timeLapse');
 else
     open previous ssegmentation for position
-    phy_openSegmentationProject(position,'segmentation-autotrack.mat');
+    out=phy_openSegmentationProject(position,'segmentation-autotrack.mat');
 end
