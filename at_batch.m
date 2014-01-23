@@ -12,8 +12,9 @@
 % 'cellcycle':extract cellcycle phase
 % 'display' : display running segmentation
 % 'gaufit' : gaussian fit
-% 'link' : establish M/D links using setNuclearLinks
 % 
+% example :
+% at_batch(1:175,5,'cells','nucleus','mapnucleus','mapcells','gaufit','cellcycle','display')
 
 %%
 
@@ -69,7 +70,7 @@ if nargin==0
         segNucleus=1;
         segCells=1;
         mapNucleus=1;
-        mapCells=0;
+        mapCells=1;
         gaufit=1;
         display=1;
     end
