@@ -52,7 +52,7 @@ firstCells=[];
 minDivisionTime=20;%segmentation.pedigree.minDivisionTime;
 exclude=firstMCell;
 
-tcells=segmentation.(['t' object])  ;
+tcells=segmentation.(['t' object]) ;
 
 % init parentage -
 for i=1:numel(tcells)
@@ -84,11 +84,14 @@ tcells=tcells(filtre);
 order=[];
 for i=1:numel(tcells)
     if numel(find(firstMCell==tcells(i).N))
+
            continue
     end
     
     if tcells(i).N~=0
+
         if tcells(i).mother==0
+
             if tcells(i).detectionFrame>=segmentation.pedigree.start && tcells(i).detectionFrame<segmentation.pedigree.end
                 
                if ~numel(find(find(segmentation.discardImage)==tcells(i).detectionFrame))
@@ -103,7 +106,6 @@ for i=1:numel(tcells)
     end
     % i,a=order(i)
 end
-
 
 [narr sortindex]=sortrows(order,2);
 

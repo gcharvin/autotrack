@@ -22,7 +22,7 @@ function varargout = at_display(varargin)
 
 % Edit the above text to modify the response to help at_display
 
-% Last Modified by GUIDE v2.5 28-Nov-2013 13:16:56
+% Last Modified by GUIDE v2.5 27-Jan-2014 11:36:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -59,7 +59,14 @@ handles.output = hObject;
 
 %format scater plots
 str={};
-str{1}='Div'; str{2}='G1'; str{3}='S'; str{4}='G2/M'; str{5}='Anacyt';
+
+str{1}='TDiv'; str{2}='TG1'; str{3}='TS'; str{4}='TG2/M'; str{5}='TAnacyt'; 
+str{6}='TBud'; 
+str(7:11)={'V_Cell_div','V_Cell_G1','V_Cell_S','V_Cell_G2/M','V_Cell_Anacyt'};
+str(12:16)={'V_Bud_div','V_Bud_G1','V_Bud_S','V_Bud_G2/M','V_Bud_Anacyt'};
+str(17:21)={'V_Nucl_div','V_Nucl_G1','V_Nucl_S','V_Nucl_G2/M','V_Nucl_Anacyt'};
+str(22:26)={'V_Tot_div','V_Tot_G1','V_Tot_S','V_Tot_G2/M','V_Tot_Anacyt'};
+
 
 set(handles.scatter1,'String',str);
 set(handles.scatter1,'Value',1);
@@ -131,13 +138,27 @@ if numel(pix)==0
 end
 
 stats=datastat(pix).stats;
-ind=9;
-dt1=stats(:,ind+val1);
-dt2=stats(:,ind+val2);
+ind=9; ind2=9;
+
+if val1>5
+   ind=15+199-5; 
+end
+if val2>5
+   ind2=15+199-5; 
+end
+
+ind2,val2
+dt1=stats(:,ind+val1)
+dt2=stats(:,ind2+val2)
+
+if val1>22 % plot total cel volume
+   dt1=stats(:,ind+val1-10)+stats(:,ind+val1-15)
+end
+if val2>22 % plot total cel volume
+   dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15)
+end
 
 axes(handles.scatterplot);
-
-
 
 if val1~=val2
 M=find(stats(:,5)==1 & stats(:,6)==0);
@@ -156,38 +177,39 @@ str='';
 if numel(dt2M)~=0   
 h1=plot(dt2M,dt1M,'Color','r','Marker','.','MarkerSize',15,'LineStyle','none'); hold on;
 cM=corrcoef(dt2,dt1);
+if size(cM,2)>=2
 str=[str 'Corr M: ' num2str(cM(1,2))];
+end
+
 set(h1,'ButtonDownFcn',{@plothit,handles});
 end
+
+str=[ str ' - '];
 
 if numel(dt2D)~=0  
 h2=plot(dt2D,dt1D,'Color','b','Marker','.','MarkerSize',15,'LineStyle','none'); hold on;
 set(h2,'ButtonDownFcn',{@plothit,handles});
 cD=corrcoef(dt2D,dt1D);
+if size(cD,2)>=2
 str=[str 'Corr D: ' num2str(cD(1,2))];
 end
-
-
+end
 
 if nargin==4
     dt1p=stats(sel,ind+val1);
-    dt2p=stats(sel,ind+val2);
+    dt2p=stats(sel,ind2+val2);
     h3=plot(dt2p,dt1p,'Color','k','Marker','.','MarkerSize',25,'LineStyle','none'); hold off
 end
 
 title(str);
 
-
-
 hold off;
-
 
 else
  hist(dt1,20,'FaceColor','r');
 xlim([0 max(dt1)])
 title(['Mean: ' num2str(mean(dt1)) ';  COV= ' num2str(std(dt1)/mean(dt1))]);
 end
-
 
 
 function plothit(hObject, eventdata, handles)
@@ -211,9 +233,23 @@ if numel(pix)==0
 end
 
 stats=datastat(pix).stats;
-ind=9;
+ind=9; ind2=9;
+if val1>5
+   ind=15+199-5; 
+end
+if val2>5
+   ind2=15+199-5; 
+end
+
 dt1=stats(:,ind+val1);
-dt2=stats(:,ind+val2);
+dt2=stats(:,ind2+val2);
+
+if val1>22 % plot total cel volume
+   dt1=stats(:,ind+val1-10)+stats(:,ind+val1-15);
+end
+if val2>22 % plot total cel volume
+   dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
+end
 
 [mi ix]=min(abs(dt2-p(1)));
 
@@ -227,6 +263,16 @@ lin=lin(find(lin~=0));
 fi=stats(ix,15+100:15+199);
 fi=fi(find(fi~=0));
 
+vc=stats(ix,31+200:31+299);
+pix=find(vc~=0);
+vc=vc(pix);
+
+vb=stats(ix,31+300:31+399);
+vb=vb(pix);
+
+v=stats(ix,31+400:31+499);
+v=v(pix);
+
 %x=stats(ix,8:9);
 
 x=stats(ix,8)  ;
@@ -238,6 +284,18 @@ plot(x+(1:length(lin))-1,lin,'Color','k','LineWidth',2); hold on
 
 plot(x+(1:length(fi))-1,fi,'Color','r','LineWidth',2,'LineStyle','--'); hold off;
 
+ylabel('HTB2 fluo');
+
+axes(handles.timeplot2);
+
+plot(x+(1:length(vc))-1,vc,'Color','k','LineWidth',2); hold on
+
+plot(x+(1:length(vb))-1,vb+vc,'Color','r','LineWidth',2);
+
+plot(x+(1:length(v))-1,v/max(v)*max(vc+vb),'Color','g','LineWidth',2); hold off
+
+ylabel('Cell size');
+xlabel('Time (frames)');
 
 %mtable = uitable('Parent',gcf)
 mtable=handles.table;
@@ -428,13 +486,22 @@ set(handles.statlist,'Value',pix);
 
 % format table 
 dt=datastat(pix).stats;
-dt=round(dt(:,1:14));
+dt=[round(dt(:,1:14)) round(dt(:,15+200:30+200))];
 
 set(handles.table,'Data',dt);
-set(handles.table,'ColumnWidth',{40 25 30 30 30 30 30 30 30 40  40 40 40 60})
+set(handles.table,'ColumnWidth',{40 25 30 30 30 30 30 30 30 40  40 40 40 60   70 70 70 70 70 70 70 70 70 70 70 70 70 70 70 70})
 str{1}='ID'; str{2}='Pos'; str{3}='Cell'; str{4}='Div'; str{5}='M/D'; str{6}='Out'; 
 str{7}='1st F'; str{8}='Min'; str{9}='Max'; str{10}='Div'; 
 str{11}='G1'; str{12}='S'; str{13}='G2/M'; str{14}='AnaCyt';
+
+
+str{15}='TBud'; 
+str(16:20)={'V_Cell_div','V_Cell_G1','V_Cell_S','V_Cell_G2/M','V_Cell_Anacyt'};
+str(21:25)={'V_Bud_div','V_Bud_G1','V_Bud_S','V_Bud_G2/M','V_Bud_Anacyt'};
+str(26:30)={'V_Nucl_div','V_Nucl_G1','V_Nucl_S','V_Nucl_G2/M','V_Nucl_Anacyt'};
+
+
+
 set(handles.table,'ColumnName',str);
 
 % plot scatter1 vs scatter2
@@ -881,5 +948,3 @@ xlim(sca*[stats(row,8) stats(row,14)+stats(row,13)+stats(row,12)+stats(row,11)+s
 
 
 % PLOT DATA AS A MATRIX
-
-

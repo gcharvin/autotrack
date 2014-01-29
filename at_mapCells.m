@@ -239,7 +239,6 @@ for k=1:size(swap,1)
                 %tobj(n2).addObject(segmentation.selectedTObj.Obj(i));
                 c=c+1;
                 objectMoved1(c)=tobj(n1).Obj(i);
-                
             end
         end
         for i=1:c
@@ -288,24 +287,9 @@ end
 
 if numel(swap)
     swap
-fprintf('Nuclei swap events were detected; You MUST run this function one more time with no argument !\n');
+fprintf('Nuclei swap events were detected; You MUST run at_setNuclearLinks again and then this function one more time with no argument !\n');
 end
         
 %TO DO :  force link between nucleus and bud when correcting segmentation
 %problems by hand - how to do that ???
-
-
-% TO DO : cell 19 has swapped nucleus between mother and bud. Make sure
-%  to fix this assignment by computing volume of daughter at birth: if
-%  volume of daughter at birth is close to volume of mother right
-%  before then there is a swap
-
-
-
-% check D and M vol at division. If change in M vol upon div is
-% comparable to M / D vol difference at division, then a swap should be
-% done from this frame. In addition the bud cell number before division
-% must be identified ans linked to D cell after division : redo entire
-% mapping ??? No
-% do the check on the fly while attributing cell number....
 

@@ -10,20 +10,21 @@ function at_cellCycle(cellindex,display,nosave)
 
 
 % output matrix stats that contains
-% Cll position, Cell ID, cell division number, cycle start, cycle end, tdiv, tg1, ts,
-% tg2, tanaphase, array htb2 fluo, array cell area
+% Cll position, Cell ID, cell division number, cycle start, cycle end, 
+% tdiv, tg1, ts, tg2, tanaphase, % timings 
+% array htb2 fluo, 
+% 
+% vbirth, vg1, vs, vg2, vana % cell size
+% tbud % interpolated timing at which budding occurs
+%array cell area
 
 %stats=[zeros(1,10) zeros(1,100) zeros(1,100)];
 stats=[];
-
-%at_cellCycleDisplay ?
 
 % plot sample traj using traj.
 % plot mean traj using traj
 
 global segmentation timeLapse at_displayHandles
-
-
 
 minTraceDur=60/(timeLapse.interval/60); % 1 peak every 60 minutes at the most
 
@@ -93,14 +94,77 @@ for i=1:length(cellindex)
     tstr.S=[];
     tstr.G2=[];
     tstr.A=[];
+    tstr.VstartM=[];
+    tstr.VG1M=[];
+    tstr.VSM=[];
+    tstr.VG2M=[];
+    tstr.AM=[];
+    tstr.VstartD=[];
+    tstr.VG1D=[];
+    tstr.VSD=[];
+    tstr.VG2D=[];
+    tstr.AD=[];
     
+   areaM=[segmentation.tcells1(id).Obj.area];
+   dauM=segmentation.tnucleus(id).daughterList;
+   divtimeM=segmentation.tnucleus(id).divisionTimes;
+   firstM=segmentation.tnucleus(id).detectionFrame;
+   icM=[segmentation.tcells1(id).Obj.image];
+        
+   
     for i=1:size(cellcycle,1)
+        
+        
         if cellcycle(i,3)==0 % Daughter;  no defining birth peak
             mother=0;
             
             mine=max(1,cellcycle(i,1)-2);
             maxe=min(length(fluo),cellcycle(i,2)+4);
+
+             areaC=zeros(1,length(mine:maxe));
+             areaD=zeros(1,length(mine:maxe));
+%         
+             nucleusMframes=mine+firstM-1:maxe+firstM-1; % index of tcells
+%             
+             [ic ia ib]=intersect(nucleusMframes,icM);
+%             
+             
+             areaC(ia)= areaM(ib);
             
+            % bud area
+            
+           % [firstM divtimeM]
+           % mine+firstM-1
+           % maxe+firstM-1
+            
+             pM=find(divtimeM>mine+firstM-1 & divtimeM<maxe+firstM-1,1,'last');
+             
+             if numel(pM)~=0         
+             bud=dauM(pM);
+             areaB=[segmentation.tcells1(bud).Obj.area];
+             imB=[segmentation.tcells1(bud).Obj.image];
+             
+             fitint=min(length(areaB),4);
+             
+             if fitint>=2
+             p = polyfit(imB(1:fitint),areaB(1:fitint),1);
+             xf=icM(1):1:imB(1)-1;
+             f = polyval(p,xf);
+             pixf=find(f>0,1,'first');
+             
+             imB=[xf(pixf:end) imB];
+             areaB=[f(pixf:end) areaB];
+
+              tbud=xf(pixf)-(firstM-1);
+             else
+              tbud=imB(1)-(firstM-1);
+             end
+             
+            [ic ia ib]=intersect(nucleusMframes,imB);
+            areaD(ia) = areaB(ib);
+             else
+                tbud=0; 
+             end
             
             rangz=mine:maxe;
             
@@ -128,6 +192,47 @@ for i=1:length(cellindex)
             
             mine=max(1,cellcycle(i,1)-2);
             maxe=min(length(fluo),cellcycle(i,2)+4);
+%             
+             areaC=zeros(1,length(mine:maxe));
+             areaD=zeros(1,length(mine:maxe));
+%         
+             nucleusMframes=mine+firstM-1:maxe+firstM-1; % index of tcells
+%             
+             [ic ia ib]=intersect(nucleusMframes,icM);
+%             
+             areaC(ia)= areaM(ib);
+            
+            % bud area
+               pM=find(divtimeM>mine+firstM-1 & divtimeM<maxe+firstM-1,1,'last');
+             
+             if numel(pM)~=0         
+             bud=dauM(pM);
+             areaB=[segmentation.tcells1(bud).Obj.area];
+               imB=[segmentation.tcells1(bud).Obj.image];
+             
+             fitint=min(length(areaB),4);
+             
+             if fitint>=2
+             p = polyfit(imB(1:fitint),areaB(1:fitint),1);
+             xf=icM(1):1:imB(1)-1;
+             f = polyval(p,xf);
+             pixf=find(f>0,1,'first');
+             
+             imB=[xf(pixf:end) imB];
+             areaB=[f(pixf:end) areaB];
+
+              tbud=xf(pixf)-(firstM-1);
+             else
+              tbud=imB(1)-(firstM-1);
+             end
+             
+            [ic ia ib]=intersect(nucleusMframes,imB);
+            areaD(ia) = areaB(ib);
+             else
+                tbud=0; 
+             end
+            
+            
             
             if cellcycle(i,3)==1
                 mother=1;
@@ -136,7 +241,7 @@ for i=1:length(cellindex)
             end
             
             rangz=mine:maxe;
-            
+
             nknots=6;
             lo = -inf(1,nknots);
             up = +inf(1,nknots);
@@ -166,24 +271,32 @@ for i=1:length(cellindex)
         end
         %'ok1'
         if numel(stats)==0
-            stats=[zeros(1,14) zeros(1,100) zeros(1,100)];
+            stats=[zeros(1,14) zeros(1,100) zeros(1,100) zeros(1,16) zeros(1,100) zeros(1,100) zeros(1,100)];
             a=1;
         else
             a=size(stats,1)+1;
         end
         
-        [stats tstr]=addToStats(stats,a,id,i,mother,pp,fluo(rangz),rangz,yfit,firstFrame,chi2,tstr);
+        [stats tstr]=addToStats(stats,a,id,i,mother,pp,fluo(rangz),rangz,yfit,firstFrame,chi2,tstr,areaD,areaC,area(rangz),tbud);
         
         if display==2
             if mother==0 col=[1 0 0];
             else col=[0 1 0];
             end
             % 'ok'
+            figure(h);
             plot(rangz+arrx(1)-1,yfit,'Color',col,'lineWidth',2,'lineStyle','--');
+            
+           % size(area(rangz)),size(areaD),size(areaC)
+           % figure; subplot(2,1,1); plot(rangz,fluo(rangz)); 
+           % subplot(2,1,2); plot(rangz,areaC,'Color','b');  hold on ; plot(rangz,areaD,'Color','r'); plot(rangz,areaC+areaD,'Color','g'); 
         end
         
         %return;
+        
     end
+    
+   
     
     segmentation.tnucleus(id).mothers=tstr;
     
@@ -195,7 +308,7 @@ for i=1:length(cellindex)
     end
     
     cc=cc+1;
-    updateProgressMonitor(['Extract cell cycle phases - Cell ID ' num2str(id)], cc,  length(cellindex));
+  %  updateProgressMonitor(['Extract cell cycle phases - Cell ID ' num2str(id)], cc,  length(cellindex));
     
 end
 
@@ -244,7 +357,7 @@ end
 % end
 
 
-function [stats , tstr]=addToStats(stats,a,id,i,mother,pp,fluo,rangz,yfit,firstFrame,chi2,tstr)
+function [stats , tstr]=addToStats(stats,a,id,i,mother,pp,fluo,rangz,yfit,firstFrame,chi2,tstr,areaB,areaC,area,tbud)
 global segmentation timeLapse
 
 % output matrix stats that contains
@@ -271,6 +384,8 @@ stats(a,cc)=firstFrame; cc=cc+1;
 
 includeAna2Cytokinesis=0; % in case the timing between anaphase and cytokinesis should be taken into account
 
+% timing information based on HTB2 marker
+
 if mother==1 || mother==-1
     stats(a,cc)= rangz(1); cc=cc+1; %+includeAna2Cytokinesis;  fit start
     stats(a,cc)= rangz(1)+pp.breaks(2)+includeAna2Cytokinesis; cc=cc+1; %+includeAna2Cytokinesis;  cell cycle start
@@ -288,14 +403,13 @@ if mother==1 || mother==-1
     tstr.G2=[tstr.G2 pp.breaks(5)-ori];
     tstr.A=[tstr.A pp.breaks(6)+includeAna2Cytokinesis-ori];
 end
+
 if mother==0
     stats(a,cc)= rangz(1); cc=cc+1; %+includeAna2Cytokinesis; % start of fluo curve ; cell cycle start
     stats(a,cc)= rangz(1)+includeAna2Cytokinesis; cc=cc+1; %+includeAna2Cytokinesis; % end of fluo curve ; cell cycle end
     stats(a,cc)= pp.breaks(5)+includeAna2Cytokinesis; cc=cc+1; % tdiv
     
     stats(a,cc)= pp.breaks(2); cc=cc+1; % tg1
-    %cc-1
-    %tt=stats(a,cc-1)
     
     stats(a,cc)= pp.breaks(3)-pp.breaks(2); cc=cc+1; %ts
     stats(a,cc)= pp.breaks(4)-pp.breaks(3); cc=cc+1; % tg2/m
@@ -314,11 +428,40 @@ end
 
 ma=min(length(fluo),100);
 
+% timing information based on HTB2 marker : HTB2 signal
 stats(a,cc:cc+ma-1)=fluo(1:ma)/max(fluo); cc=cc+100;
-stats(a,cc:cc+ma-1)=yfit(1:ma)/max(fluo); cc=cc+1;
+stats(a,cc:cc+ma-1)=yfit(1:ma)/max(fluo); cc=cc+100;
+
+% size information base on cell and nucleus area
+% 
+
+stats(a,cc)=tbud-tstr.start(end); cc=cc+1; % timing at which bud emerges
+
+stats(a,cc)=areaC(round(tstr.start(end))-(rangz(1)-1)); cc=cc+1; %vol division
+stats(a,cc)=areaC(round(tstr.G1(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G1
+stats(a,cc)=areaC(round(tstr.S(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol S
+stats(a,cc)=areaC(round(tstr.G2(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; %   vol G2
+stats(a,cc)=areaC(round(tstr.A(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol A
+
+stats(a,cc)=areaB(round(tstr.start(end))-(rangz(1)-1)); cc=cc+1; %vol division
+stats(a,cc)=areaB(round(tstr.G1(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G1
+stats(a,cc)=areaB(round(tstr.S(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol S
+stats(a,cc)=areaB(round(tstr.G2(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G2
+stats(a,cc)=areaB(round(tstr.A(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol A
+
+stats(a,cc)=area(round(tstr.start(end))-(rangz(1)-1)); cc=cc+1; %vol division
+stats(a,cc)=area(round(tstr.G1(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G1
+stats(a,cc)=area(round(tstr.S(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol S
+stats(a,cc)=area(round(tstr.G2(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G2
+stats(a,cc)=area(round(tstr.A(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol A
+
+
+
+stats(a,cc:cc+ma-1)=areaC(1:ma); cc=cc+100; % cell size
+stats(a,cc:cc+ma-1)=areaB(1:ma); cc=cc+100; % bud size
+stats(a,cc:cc+ma-1)=area(1:ma); cc=cc+1; % nucleus size
 
 chi2=chi2/ (max(fluo))^2;
-
 out=checkOutlier(stats,a,chi2,mother);
 
 %if out
@@ -366,6 +509,7 @@ tnucleus=segmentation.tnucleus(id);
 firstSeg=find(segmentation.nucleusSegmented,1,'first');
 
 if tnucleus.detectionFrame>firstSeg % nucleus is born after first frame, cell starts as a daugther
+   
     if locmax(1)<minTraceDur % first peak correspond to the end of division of the mother cell; skip first peak
         locmax=locmax(2:end);
     end
@@ -379,7 +523,8 @@ cc=1; count=0;
 
 
 
-if segmentation.tnucleus(id).detectionFrame>firstSeg % nucleus is born after first frame
+if tnucleus.detectionFrame>firstSeg % nucleus is born after first frame
+   
     if locmax(1)>minTraceDur % first peak correspond to D division
         cellcycle(cc,1)=1;
         cellcycle(cc,2)=locmax(1);

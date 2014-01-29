@@ -162,23 +162,7 @@ nstore=0;
         
         cc=cc+1;
     end
-    
-    if mapCells % cells mapping is donne afterwards, since all nuclei must segmented ans mapped
-            at_setNucleusLinks; % establish mother/ daughter parentage for nuclei
-            
-            swap=at_mapCells;
-            
-            if numel(swap) % some swapping events were detected; rerun function
-                swap=at_mapCells;
-                
-            end
-                
-            updateProgressMonitor(['Map Cells - pos:' num2str(pos)], cc,  size(frames, 2));
-        end
-    
-    
-    
-    fprintf(['Done with pos ' num2str(pos) '\n\n']);
+
     
     
     if segCells
@@ -202,6 +186,21 @@ nstore=0;
     
     segmentation.frameChanged(frames(1):frames(end))=1;
     
+     if mapCells % cells mapping is donne afterwards, since all nuclei must segmented ans mapped
+            at_setNucleusLinks; % establish mother/ daughter parentage for nuclei
+            swap=at_mapCells;
+            
+            if numel(swap) % some swapping events were detected; rerun function
+                at_setNucleusLinks; % must be done again is swaps have been made in tnuclei
+                swap=at_mapCells; % must be done again is swaps have been made in tnuclei
+                
+            end
+                
+            updateProgressMonitor(['Map Cells - pos:' num2str(pos)], cc,  size(frames, 2));
+     end
+        
+        
+    fprintf(['Done with pos ' num2str(pos) '\n\n']);
     
     %fprintf(['Saving Position: ' num2str(l) '...\n\n']);
     
@@ -359,10 +358,6 @@ for j=1:length(budnecktemp)
         segmentation.nucleus(i,j).area=4*segmentation.nucleus(i,j).area;
     end
 end
-
-
-
-
 
 %%
 function value = getMapValue(map, key)

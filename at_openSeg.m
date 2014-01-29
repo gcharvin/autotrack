@@ -5,7 +5,6 @@ global segmentation timeLapse
 
 % first check if segmentation variable exists and is already loaded
 
-
 % if segmentation exists
 %
 
@@ -19,15 +18,18 @@ if fraC==0 && fraN==0
     segmentation=phy_createSegmentation(timeLapse,position);
     segmentation.position=position;
     
+    filen='segmentation-autotrack.mat';
+    segmentation.filename=filen;
+    
     if ~isfield(timeLapse,'autotrack')
         at_setParameters
     end
     at_tranferParametersToSegmentation()
     
-    filen='segmentation-autotrack.mat';
+
     save(fullfile(timeLapse.realPath,timeLapse.pathList.position{position},filen),'segmentation');
     save(fullfile(timeLapse.realPath,[timeLapse.filename '-project.mat']),'timeLapse');
 else
-    open previous ssegmentation for position
+%    open previous ssegmentation for position
     out=phy_openSegmentationProject(position,'segmentation-autotrack.mat');
 end
