@@ -118,6 +118,18 @@ nstore=0;
     if segCells at_log(['Segment cells parameters: ' num2str(timeLapse.autotrack.processing.cells1')],'a',pos,'batch'); end
     if mapNucleus at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch'); end
     
+    if segCells
+    timeLapse.autotrack.position(pos).cells1Segmented=zeros(1,timeLapse.numberOfFrames);
+    end
+    if mapCells
+    timeLapse.autotrack.position(pos).cells1Mapped=zeros(1,timeLapse.numberOfFrames);
+    end
+    if segNucleus
+    timeLapse.autotrack.position(pos).nucleusSegmented=zeros(1,timeLapse.numberOfFrames);
+    end
+    if mapNucleus
+    timeLapse.autotrack.position(pos).nucleusMapped=zeros(1,timeLapse.numberOfFrames);
+    end
     
     for i=frames
         
@@ -141,9 +153,7 @@ nstore=0;
             cha=timeLapse.autotrack.processing.nucleus(1);
             gaussianFluoFit(i,cha);
         end
-        
-        
-        
+
         
         if mapNucleus
             updateProgressMonitor(['Map Nuclei - pos:' num2str(pos)], cc,  size(frames, 2));

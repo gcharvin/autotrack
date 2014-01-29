@@ -10,7 +10,7 @@ global timeLapse segmentation candarrstore narrstore scorearrstore
 
 %displayImage=segmentation.realImage;
 
-channel=3;
+channel=timeLapse.autotrack.processing.nucleus(1);
 object='nucleus';
 
 phy_progressbar;

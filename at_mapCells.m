@@ -38,6 +38,7 @@ for i=frames
     % get nuclei and cells coordinates
     nuclei=segmentation.nucleus(i,:);
     
+    
     cells1=segmentation.cells1(i,:);
     nc=[cells1.n];
     
