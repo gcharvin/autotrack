@@ -86,6 +86,7 @@ for i=frames
     
     for l=nc
         %
+        %a=cells1(cc)
         if cells1(cc).ox~=0
             %
             pix=find(valcel==l); % indices of nucleus who points towards cell l
@@ -95,14 +96,14 @@ for i=frames
                 % a=segmentation.cells1(7457).n
                 % 'ok',cc
                 %  end
-                
+                pix=pix(1);
                 cells1(cc).n=n(pix);
                 
                 % if i==147
                 %a=segmentation.cells1(7457).n
                 % end
-                
-                tpix=find(N==n(pix)); % determine if tnucleus is present for the first frame
+                %l,N,n(pix)
+                tpix=find(N==n(pix)); % determine if tnucleus is present for the first time on this frame
                 
                 if segmentation.tnucleus(tpix).detectionFrame<i % cell is set as  'assigned' only if the nucleus in it is not present for the first time. If not, then it needs to be mapped
                     assigned(cc)=1;

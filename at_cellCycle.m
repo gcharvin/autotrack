@@ -279,6 +279,10 @@ for i=1:length(cellindex)
             a=size(stats,1)+1;
         end
         
+        if numel(tbud)==0
+            tbud=-1000;
+        end
+        
         [stats tstr]=addToStats(stats,a,id,i,mother,pp,fluo(rangz),rangz,yfit,firstFrame,chi2,tstr,areaD,areaC,area(rangz),tbud);
         
         if display==2
