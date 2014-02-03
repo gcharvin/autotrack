@@ -17,7 +17,7 @@ load(strcat(PathName,FileName));
 else
  load(path);
  [PathName, FileName, ext] = fileparts(path);
- PathName, FileName
+% PathName, FileName
 end
 
 timeLapse.realPath=PathName;

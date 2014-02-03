@@ -120,15 +120,19 @@ nstore=0;
     
     if segCells
     timeLapse.autotrack.position(pos).cells1Segmented=zeros(1,timeLapse.numberOfFrames);
+    segmentation.cells1Segmented=zeros(1,timeLapse.numberOfFrames);
     end
     if mapCells
     timeLapse.autotrack.position(pos).cells1Mapped=zeros(1,timeLapse.numberOfFrames);
+    segmentation.cells1Mapped=zeros(1,timeLapse.numberOfFrames);
     end
     if segNucleus
     timeLapse.autotrack.position(pos).nucleusSegmented=zeros(1,timeLapse.numberOfFrames);
+    segmentation.nucleusSegmented=zeros(1,timeLapse.numberOfFrames);
     end
     if mapNucleus
     timeLapse.autotrack.position(pos).nucleusMapped=zeros(1,timeLapse.numberOfFrames);
+    segmentation.nucleusMapped=zeros(1,timeLapse.numberOfFrames);
     end
     
     for i=frames

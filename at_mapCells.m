@@ -34,7 +34,7 @@ N=[segmentation.tnucleus.N];
 
 for i=frames
     fprintf('.');
-    
+   %- i
     % get nuclei and cells coordinates
     nuclei=segmentation.nucleus(i,:);
     
