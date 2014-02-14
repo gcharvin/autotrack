@@ -162,17 +162,13 @@ for j=1:length(segmentation.tcells1)
     
     N=segmentation.tcells1(j).N;
     
-    if N==0
-        continue
-    end
-    
     pix=find(NN==N);
     
     if length(pix)==0
         continue
     end
     %NNpix=NN(pix);
-
+    pix
     for i=1:length(segmentation.tnucleus(pix).daughterList)
         %a=segmentation.tnucleus(pix).daughterList(j)
         %b=segmentation.tnucleus(pix).divisionTimes(j)
