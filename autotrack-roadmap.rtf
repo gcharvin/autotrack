@@ -60,34 +60,24 @@ To do : filter to discard wrongly fitted data  DONE\
 \
 Strategy to add phase contrast image // cell size : \
 \
-- segment cells using a better watershed algo - DONE\
 \
-procedure : \
 \
 \
 segment and map nuclei  - potential tracking error due to M/D swapping upon nuclear division\
 quantify nuclei\
 \
-segment cells using watershed\
+new ideas : \
 \
-To DO : \
-1) assign nucleus to cell\
-2) assign bud to cell and track bud over time\
-3) assign daughter nucleus to mother \
-4) fix M/D nucleus tracking error using cell volume\
+- Hungarian method (cf JL Tynevez) : use (M+N) x (M+N) matrix to add a cost associated with lost or new tracks, may be better than using an infinite cost if cell moves too much\
+- cavity : prevents cells from going down ; can olnyl go up; 2) a cell cannot disappear , unless it dies ! \
+- add a model to anticipate cell motion\
+- establish links between groups of cells : conservation of polygon patterns / use accumulator\
+- closing gaps in trajectory ; this is done using optimization of a cost matrix in JY Tinevez algorithm\
 \
+- MHT tracking , JPADF fitler, particle filter for multi target tracking\
 \
-Way to do it  : \
-1) segment, ma and quantify nuclei\
-2) segment cells\
-3) for each frame : a- assign nucleus to cell b- map non nucleated cell to previous frame ; map just divided cell to previous frame\
+- Youlian : us cell mapping that is quite robust to help determining the pedigree ; how to combine information in the best way is tricky \'85.\
 \
-\
-\
-setNuclear links Errors : \
-\
-- remove short trajectories <10 frames (takes care of G2/M arrest, edge cells )\
-- \
 \
 \
 \

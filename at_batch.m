@@ -15,7 +15,6 @@
 % 
 % example :
 % at_batch(1:175,5,'cells','nucleus','mapnucleus','mapcells','gaufit','cellcycle','display')
-
 %%
 
 function at_batch(frames, position,varargin)

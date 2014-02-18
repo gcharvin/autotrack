@@ -32,4 +32,5 @@ if fraC==0 && fraN==0
 else
 %    open previous ssegmentation for position
     out=phy_openSegmentationProject(position,'segmentation-autotrack.mat');
+    at_tranferParametersToSegmentation();
 end
