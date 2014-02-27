@@ -42,6 +42,10 @@ for i=1:length(cellindex)
     % detect divisions based on decay of area x mean fluo % or gaussian fit
     [arrx ix]= sort([segmentation.tnucleus(id).Obj.image]); % time data for the cell
     
+    if length(arrx)<minTraceDur % cell is present for a too short time; bypass
+        continue
+    end
+    
           fluo=[segmentation.tnucleus(id).Obj.fluoMean];% fluo data for the cel
           fluo=fluo(2:2:end); % select channel 2
 %          fluo=fluo(ix); % sort fluo data with increasing time
@@ -52,11 +56,10 @@ for i=1:length(cellindex)
     %     %fluo=area;
     
     %fluo=[segmentation.tnucleus(id).Obj.Mean]; % Gaussian fit of nucleus intensity
-    fluo=fluo(ix);
+  % ix,size(fluo)
+    fluo=fluo(ix).*area;
     
-    if length(fluo)<minTraceDur % cell is present for a too short time; bypass
-        continue
-    end
+    
     
     arrx=arrx(1:end-1);
     fluo=fluo(1:end-1);
