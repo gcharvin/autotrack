@@ -1,7 +1,8 @@
-function arr=at_linkCellNucleus
+function [arrN arrI]=at_linkCellNucleus
 global segmentation timeLapse
 
-arr=-1*ones(length(segmentation.tcells1),timeLapse.numberOfFrames); % nuclei index in tcells object
+arrN=-1*ones(length(segmentation.tcells1),timeLapse.numberOfFrames); % nuclei number in tcells object
+arrI=arrN; % nuclei index in tcell object
 
 %nuclei at interface : % nucleus number , cell list,  frame
 % interface=[];
@@ -15,7 +16,8 @@ arr=-1*ones(length(segmentation.tcells1),timeLapse.numberOfFrames); % nuclei ind
 for i=1:length(segmentation.tcells1)
     fprintf('.');
     frames=[segmentation.tcells1(i).Obj.image];
-    arr(i,frames)=0;
+    arrN(i,frames)=0;
+    arrI(i,frames)=0;
     
     cc=1;
     for j=frames
@@ -25,7 +27,8 @@ for i=1:length(segmentation.tcells1)
         xc=cells1.x;
         yc=cells1.y;
         
-        n=[]; score=[];
+        n=[]; score=[]; index=[];
+        
         for k=1:length(nucleus)
             xn=nucleus(k).x;
             yn=nucleus(k).y;
@@ -34,13 +37,16 @@ for i=1:length(segmentation.tcells1)
             
             if scorek>0.2 % nucleus is partly inside the cell
                 n=[n nucleus(k).n];
+                index=[index k];
                 score=[score scorek];
             end 
         end
         if numel(n)
         [score pix]=sort(score,'descend'); % sort nuclei according to fraction of contour found in cell
         n=n(pix);
-        arr(i,j)=n(1);
+        index=index(pix);
+        arrN(i,j)=n(1);
+        arrI(i,j)=index(1);
         end
         cc=cc+1;
     end
