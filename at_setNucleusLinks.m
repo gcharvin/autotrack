@@ -302,7 +302,6 @@ end
 
 nc=[cellsin.n];
 
-
 val= find(nc==targetCell.n);
 
 %find(col==val)
@@ -322,7 +321,6 @@ dist=[];
 %row,col
 % find min distances between cells
 for i=1:n
-   
     
     x1=cellsin(row(i)).x;
     if size(x1,1)~=1
