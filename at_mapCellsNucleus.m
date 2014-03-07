@@ -20,6 +20,7 @@ for i=1:length(segmentation.tcells1)
     info=[];
     info.n=0;
     info.i=0;
+    info.status=0;
     
     
     link=[];
@@ -34,6 +35,7 @@ for i=1:length(segmentation.tcells1)
         info.i=arrI(i,j);
         info.fluo=0;
         info.area=0;
+        info.status=0;
         
         if info.i~=0
             info.fluo=segmentation.nucleus(j,info.i).fluoMean(channel);
@@ -41,8 +43,7 @@ for i=1:length(segmentation.tcells1)
         end
         
         
-        % assign nucleus data to cell that contains nucleus
-        segmentation.tcells1(i).Obj(cc).Mean=info;
+       
         
         % determine if nucleus numbers are shared by other cells, which
         % indicates a clear link between cells
@@ -61,11 +62,15 @@ for i=1:length(segmentation.tcells1)
                 link.i=[link.i ; arrN(ic,j)]; % nucleus number that is shared
                 link.type=[link.type ; 0]; % shared nucleus
                % link
+                info.status=2; % shared nucleus
             else % if not, then check when first nucleus appears and identify mother nucleus
+                ind=arrI(i,j);
+                
+                info.status=1; %  1 nucleus in cell
+                
+                
                 if j>frames(1)
                    if arrN(i,j)~=0 && arrN(i,j-1)==0
-                       ind=arrI(i,j);
-                       
                        
                      [candidates dist]=findNeighbors(segmentation.nucleus(j,ind),segmentation.nucleus(j,:),65); % find neighbors
                      [out,dist2]=scoreDiv(segmentation.tnucleus,candidates,j,channel,20); % use nucleus fluo to alleviate ambiguity
@@ -92,6 +97,10 @@ for i=1:length(segmentation.tcells1)
                 end
             end
         end
+        
+         % assign nucleus data to cell that contains nucleus
+        segmentation.tcells1(i).Obj(cc).Mean=info;
+        
         segmentation.tcells1(i).mothers=link;
         cc=cc+1;
 
@@ -120,13 +129,93 @@ for i=1:length(segmentation.tcells1)
          dat=[segmentation.tcells1(i).Obj.Mean];
          area=[dat.area];
          fluo=[dat.fluo];
+         status=[dat.status];
          
-         figure, plot(area.*fluo,'r*'); title(num2str(i));
-         pause
-         close
+         % if M+D has shared nucleus --> non divided : status=2
+         divided=ones(1,length(dat));
+         pix=find(status==2);
+         divided(pix)=0;
+         
+         % if M+D has only one nucleus --> non divided  sum(arrN for mother
+         % and daughter cells) : if ==1 then one nucleus
+         
+         nucD=arrN(i,:);
+         nucM=arrN(link.n(1),:);
+         
+         nucDi=arrI(i,:);
+         nucMi=arrI(link.n(1),:);
+         
+         frame=1:1:length(arrN(1,:));
+          
+         pix=find(arrN(i,:)>=0);
+         nucD=nucD(pix);
+         nucM=nucM(pix);
+         frame=frame(pix);
+         
+         nucDi=nucDi(pix);
+         nucMi=nucMi(pix);
+         
+         pix=find(nucD>0);
+         nucD2=nucD;
+         nucD(pix)=1;
+         pix=find(nucM>0);
+         nucM2=nucM;
+         nucM(pix)=1;
+         
+         nuctot=nucD+nucM;
+         pix=find(nuctot<2);
+         divided(pix)=0;
+         
+         
+         % if M+D has 2 nuclei but with distance smaller than few pixels
+         % --> non divided
+         
+        % i,link.n(1)
+         
+         pix=find(nuctot==2 & status~=2); % want to exclude shared nuclei in this analysis
+         
+         for k=1:length(pix)
+             indD=nucDi(pix(k));
+             indM=nucMi(pix(k));
+             fram=frame(pix(k));
+             
+             P1=[]; P2=P1;
+             P1.x=segmentation.nucleus(fram,indM).x;
+             P1.y=segmentation.nucleus(fram,indM).y;
+             P2.x=segmentation.nucleus(fram,indD).x;
+             P2.y=segmentation.nucleus(fram,indD).y;
+             
+             
+             d=min_dist_between_two_polygons(P1,P2);
+             
+             if d<10
+              divided(pix(k))=0;   
+             end
+         end
+
+         [l n]=bwlabel(divided);
+         pix=length(nucD);
+         for k=1:n
+            ll=l==k;
+            if length(divided(ll))>3 % frames ; cell is certainly divided
+                pix=find(ll,1,'first');
+                break
+            end
+         end
+         
+         division=pix+segmentation.tcells1(i).detectionFrame-1;
+         
+         % otherwise divided
+%if i==36
+        % figure, subplot(2,1,1); plot(status,'b*'); title(num2str(i));
+         %subplot(2,1,2); plot(divided,'b*');
+%
+         %pause
+         %close
+
          
          segmentation.tcells1(i).setMother(link.n(1));
-         segmentation.tcells1(link.n(1)).addDaughter(i,fr,[]);
+         segmentation.tcells1(link.n(1)).addDaughter(i,fr,division);
     end 
    %end
 end

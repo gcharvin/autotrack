@@ -15,6 +15,7 @@ arrI=arrN; % nuclei index in tcell object
 
 for i=1:length(segmentation.tcells1)
     fprintf('.');
+   
     frames=[segmentation.tcells1(i).Obj.image];
     arrN(i,frames)=0;
     arrI(i,frames)=0;
