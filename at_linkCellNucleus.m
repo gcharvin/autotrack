@@ -1,4 +1,4 @@
-function [arrN arrI]=at_linkCellNucleus
+function at_linkCellNucleus
 global segmentation timeLapse
 
 arrN=-1*ones(length(segmentation.tcells1),timeLapse.numberOfFrames); % nuclei number in tcells object
@@ -53,4 +53,7 @@ for i=1:length(segmentation.tcells1)
     end
 end
 
+segmentation.link=[];
+segmentation.link.arrN=arrN;
+segmentation.link.arrI=arrI;
 fprintf('\n');

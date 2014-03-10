@@ -1,4 +1,4 @@
-function at_cellCycle(cellindex,display,nosave)
+function at_cellCycle2(cellindex,display,nosave)
 
 %cellindex : index of the cells to consider
 % display=0 : no display
@@ -47,46 +47,18 @@ for i=1:length(cellindex)
     %          fluo=fluo-600; % remove zero fo camera
     
     dat=[segmentation.tcells1(id).Obj.Mean];
-    arrx=[segmentation.tcells1(id).Obj.image];
+    im=[segmentation.tcells1(id).Obj.image];
     pix=find(arrx>=segmentation.tcells1(id).birthFrame,1,'first');
     fluo=[dat.fluo];
-    area=[dat.area];
+    areanucl=[dat.area];
     
-    fluo=fluo.*area; fluo=fluo(pix:end);
-    arrx=arrx(pix:end);
+    fluo=fluo.*areanucl; fluo=fluo(pix:end);
+    arrx=im(pix:end);
     
     nonzeropix=find(fluo);
     if numel(nonzeropix)==0 % no nucleus within cell
         continue
     end
-    
-    %fluo=[segmentation.tnucleus(id).Obj.Mean]; % Gaussian fit of nucleus intensity
-    %fluo=fluo(ix).*area;
-    %arrx=arrx(1:end-1);
-    %fluo=fluo(1:end-1);
-    
-    figure, plot(arrx,fluo);
-    
-    fluo= smooth(fluo,3); % filter out noise
-    dfluo=-diff(fluo);
-    dfluo=[0 ; dfluo]; % add trailing zero to detect early events
-    
-    % figure, plot(arrx,dfluo); hold on;
-    stand=std(dfluo);
-    peak=fpeak(1:1:length(dfluo),dfluo,minTraceDur,[0 length(dfluo) 1.5*stand Inf]); % better function than matlab's fpeak
-    if display
-        figure, plot(dfluo); hold on; plot(peak(:,1)', peak(:,2)', 'Color', 'g'); plot(1:length(dfluo),2*stand*ones(1,length(dfluo)),'Color','k');
-    end
-    locmax=peak(:,1)';
-    
-    if numel(locmax)==0 % no division detected ; skip nucleus....
-        continue
-    end
-    
-    % make mother versus daughter distinction
-    
-    cellcycle=getCellCyleBounds(locmax,id,minTraceDur)
-    return;
     
     if display
         h=figure; plot(arrx,fluo,'Color','b','lineWidth',2); hold on
@@ -95,7 +67,15 @@ for i=1:length(cellindex)
         %line([locmax2' locmax2']',[1330*ones(size(locmax2')) 2000*ones(size(locmax2'))]','Color','m');
     end
     
-    firstFrame=arrx(1)-1; %segmentation.tnucleus(id).detectionFrame;
+    tc=segmentation.tcells1(id);
+    
+    detect=tc.detectionFrame;
+    div=tc.divisionTimes;
+    birth=tc.birthFrame;
+    dau=tc.daughterList;
+    area=[tc.Obj.area];
+    im=[tc.Obj.image];
+    
     
     tstr=[];
     tstr.start=[];
@@ -114,12 +94,31 @@ for i=1:length(cellindex)
     tstr.VG2D=[];
     tstr.AD=[];
     
-    areaM=[segmentation.tcells1(id).Obj.area];
-    dauM=segmentation.tnucleus(id).daughterList;
-    divtimeM=segmentation.tnucleus(id).divisionTimes;
-    firstM=segmentation.tnucleus(id).detectionFrame;
-    icM=[segmentation.tcells1(id).Obj.image];
+
+    firstSeg=find(segmentation.cells1Segmented,1,'first');
+
+    isD=0; % is daughter
+    if detect>firstSeg % cell is born after beginning of segmentation -> daughter cell
+        isD=1;
+        cycles=[birth div];
+    else
+        
+         if  tc.Obj(1).Mean.fluo==0 % cell has no nucleus on first frame --> daughter cell
+             isD=1;
+             cycles=[birth div];
+         else
+             cycles=div;
+         end
+    end
     
+    cycles
+    for i=1:numel(cycles)
+        
+        
+    end
+    
+    
+  return;  
     
     for i=1:size(cellcycle,1)
         
