@@ -23,21 +23,22 @@ stats=[];
 
 global segmentation timeLapse at_displayHandles
 
-minTraceDur=60/(timeLapse.interval/60); % 1 peak every 60 minutes at the most
+minTraceDur=50/(timeLapse.interval/60); % 1 peak every 50 minutes at the most
 
 cc=0;
 
 if numel(cellindex)==0
-    cellindex=1:1:numel(segmentation.tnucleus);
+    cellindex=1:1:numel(segmentation.tcells1);
 end
 
 
 for i=1:length(cellindex)
-    
+    fprintf('.');
+
     id=cellindex(i);
     
     % detect divisions based on decay of area x mean fluo % or gaussian fit
-    [arrx ix]= sort([segmentation.tnucleus(id).Obj.image]); % time data for the cell
+    [arrx ix]= sort([segmentation.tcells1(id).Obj.image]); % time data for the cell
     
     if length(arrx)<minTraceDur % cell is present for a too short time; bypass
         continue
@@ -48,12 +49,12 @@ for i=1:length(cellindex)
     
     dat=[segmentation.tcells1(id).Obj.Mean];
     im=[segmentation.tcells1(id).Obj.image];
-    pix=find(arrx>=segmentation.tcells1(id).birthFrame,1,'first');
+    %pix=find(arrx>=segmentation.tcells1(id).birthFrame,1,'first');
     fluo=[dat.fluo];
     areanucl=[dat.area];
     
-    fluo=fluo.*areanucl; fluo=fluo(pix:end);
-    arrx=im(pix:end);
+    fluo=fluo.*areanucl; %fluo=fluo(pix:end);
+    % arrx=im(pix:end);
     
     nonzeropix=find(fluo);
     if numel(nonzeropix)==0 % no nucleus within cell
@@ -61,7 +62,7 @@ for i=1:length(cellindex)
     end
     
     if display
-        h=figure; plot(arrx,fluo,'Color','b','lineWidth',2); hold on
+        h=figure; plot(im,fluo,'Color','b','lineWidth',2); hold on
         title(['Cell:' num2str(id)])
         %locmax2=locmax+arrx(1)-1;
         %line([locmax2' locmax2']',[1330*ones(size(locmax2')) 2000*ones(size(locmax2'))]','Color','m');
@@ -76,208 +77,85 @@ for i=1:length(cellindex)
     area=[tc.Obj.area];
     im=[tc.Obj.image];
     
-    
-    tstr=[];
-    tstr.start=[];
-    tstr.G1=[];
-    tstr.S=[];
-    tstr.G2=[];
-    tstr.A=[];
-    tstr.VstartM=[];
-    tstr.VG1M=[];
-    tstr.VSM=[];
-    tstr.VG2M=[];
-    tstr.AM=[];
-    tstr.VstartD=[];
-    tstr.VG1D=[];
-    tstr.VSD=[];
-    tstr.VG2D=[];
-    tstr.AD=[];
-    
-
     firstSeg=find(segmentation.cells1Segmented,1,'first');
-
+    
     isD=0; % is daughter
     if detect>firstSeg % cell is born after beginning of segmentation -> daughter cell
         isD=1;
         cycles=[birth div];
     else
         
-         if  tc.Obj(1).Mean.fluo==0 % cell has no nucleus on first frame --> daughter cell
-             isD=1;
-             cycles=[birth div];
-         else
-             cycles=div;
-         end
+        if  tc.Obj(1).Mean.fluo==0 % cell has no nucleus on first frame --> daughter cell
+            isD=1;
+            cycles=[birth div];
+        else
+            cycles=div;
+        end
     end
     
-    cycles
-    for i=1:numel(cycles)
-        
-        
+    % convert timings into physical time units:
+    cycles_offset=cycles-tc.detectionFrame+1;
+    cut=2;
+    
+    if display
+        h2=figure;
     end
     
+
     
-  return;  
-    
-    for i=1:size(cellcycle,1)
-        
-        
-        if cellcycle(i,3)==0 % Daughter;  no defining birth peak
-            mother=0;
-            
-            mine=max(1,cellcycle(i,1)-2);
-            maxe=min(length(fluo),cellcycle(i,2)+4);
-            
-            areaC=zeros(1,length(mine:maxe));
-            areaD=zeros(1,length(mine:maxe));
-            %
-            nucleusMframes=mine+firstM-1:maxe+firstM-1; % index of tcells
-            %
-            [ic ia ib]=intersect(nucleusMframes,icM);
-            %
-            
-            areaC(ia)= areaM(ib);
-            
-            % bud area
-            
-            % [firstM divtimeM]
-            % mine+firstM-1
-            % maxe+firstM-1
-            
-            pM=find(divtimeM>mine+firstM-1 & divtimeM<maxe+firstM-1,1,'last');
-            
-            if numel(pM)~=0
-                bud=dauM(pM);
-                areaB=[segmentation.tcells1(bud).Obj.area];
-                imB=[segmentation.tcells1(bud).Obj.image];
-                
-                fitint=min(length(areaB),4);
-                
-                if fitint>=2
-                    p = polyfit(imB(1:fitint),areaB(1:fitint),1);
-                    xf=icM(1):1:imB(1)-1;
-                    f = polyval(p,xf);
-                    pixf=find(f>0,1,'first');
-                    
-                    imB=[xf(pixf:end) imB];
-                    areaB=[f(pixf:end) areaB];
-                    
-                    tbud=xf(pixf)-(firstM-1);
-                else
-                    tbud=imB(1)-(firstM-1);
-                end
-                
-                [ic ia ib]=intersect(nucleusMframes,imB);
-                areaD(ia) = areaB(ib);
-            else
-                tbud=0;
-            end
-            
-            rangz=mine:maxe;
-            
-            nknots=5;
-            lo = -inf(1,nknots);
-            up = +inf(1,nknots);
-            
-            lo(1) = 0; up(1) = 0;
-            lo(2) = 0;
-            lo(3) = 0; up(3) = 0;
-            up(4) = 0;
-            lo(5) = 0; up(5) = 0;
-            
-            
-            shape = struct('p',1,'lo',lo,'up',up);
-            
-            [yfit pp chi2]=splineFitCellCycle(fluo(rangz),nknots,shape);
-            %t=pp.breaks
-            if numel(pp.breaks)<5
-                continue
-            end
+    for j=1:numel(cycles)-1
+       % j
+        if isD
+            daughter=dau(j);
+            starte=cycles_offset(j);
+            ende=cycles_offset(j+1);
+            tdau=segmentation.tcells1(daughter);
+        else
+            daughter=dau(j+1);
+            starte=cycles_offset(j);
+            ende=cycles_offset(j+1);
+            tdau=segmentation.tcells1(daughter);
         end
         
-        if cellcycle(i,3)==1 || cellcycle(i,3)==-1
+        mine=max(1,starte-cut);
+        maxe=min(length(fluo),ende+cut);
+        
+        if isD && j==1
+            mine=max(1,starte); 
             
-            mine=max(1,cellcycle(i,1)-2);
-            maxe=min(length(fluo),cellcycle(i,2)+4);
-            %
-            areaC=zeros(1,length(mine:maxe));
-            areaD=zeros(1,length(mine:maxe));
-            %
-            nucleusMframes=mine+firstM-1:maxe+firstM-1; % index of tcells
-            %
-            [ic ia ib]=intersect(nucleusMframes,icM);
-            %
-            areaC(ia)= areaM(ib);
-            
-            % bud area
-            pM=find(divtimeM>mine+firstM-1 & divtimeM<maxe+firstM-1,1,'last');
-            
-            if numel(pM)~=0
-                bud=dauM(pM);
-                areaB=[segmentation.tcells1(bud).Obj.area];
-                imB=[segmentation.tcells1(bud).Obj.image];
-                
-                fitint=min(length(areaB),4);
-                
-                if fitint>=2
-                    p = polyfit(imB(1:fitint),areaB(1:fitint),1);
-                    xf=icM(1):1:imB(1)-1;
-                    f = polyval(p,xf);
-                    pixf=find(f>0,1,'first');
-                    
-                    imB=[xf(pixf:end) imB];
-                    areaB=[f(pixf:end) areaB];
-                    
-                    tbud=xf(pixf)-(firstM-1);
-                else
-                    tbud=imB(1)-(firstM-1);
-                end
-                
-                [ic ia ib]=intersect(nucleusMframes,imB);
-                areaD(ia) = areaB(ib);
-            else
-                tbud=0;
-            end
-            
-            
-            
-            if cellcycle(i,3)==1
-                mother=1;
-            else
-                mother=-1;
-            end
-            
-            rangz=mine:maxe;
-            
-            nknots=6;
-            lo = -inf(1,nknots);
-            up = +inf(1,nknots);
-            
-            %lo(1) = 0; up(1) = 0;
-            %lo(2) = 0;
-            %lo(3) = 0; up(3) = 0;
-            %up(4) = 0;
-            %lo(5) = 0; up(5) = 0;
-            
-            up(1) = 0;
-            lo(2) = 0; up(2)=0;
-            lo(3) = 0;
-            lo(4) =0 ; up(4) = 0;
-            up(5) = 0;
-            lo(6) =0 ; up(6) = 0;
-            
-            shape = struct('p',1,'lo',lo,'up',up);
-            
-            [yfit pp chi2]=splineFitCellCycle(fluo(rangz),nknots,shape);
-            t=pp.breaks;
-            % pp
-            
-            if numel(pp.breaks)<6
-                continue
-            end
         end
-        %'ok1'
+        
+        fluo_cut=fluo(mine:maxe);
+        areanucl_cut=areanucl(mine:maxe);
+        
+        if numel(fluo_cut)<minTraceDur
+            continue
+        end
+        % spline fit to get timings
+        
+        [timings,frame,fluofit,chi2]= computeTimings(fluo_cut,isD & j==1,mine);
+        
+        
+        if numel(frame)==0
+            continue
+        end
+        
+        if display
+            figure(h); plot(mine+tc.detectionFrame-1:maxe+tc.detectionFrame-1,fluofit,'Color','r','LineWidth',2);
+        end
+        
+        % determine volume for mother and bud
+        [areaM,areaB,areaN,volume]=computeVolume(mine+tc.detectionFrame-1,maxe+tc.detectionFrame-1,tc,tdau,frame,mine); % areaM and B have the same size as fl
+        % volume
+        
+        % determine tbud
+        [mu_unbud mu_bud tbud]=computeTBud(areaM,areaB,mine,maxe);
+        tbud=tbud-frame.start;
+        
+        if display
+            figure(h2); plot(mine+tc.detectionFrame-1:maxe+tc.detectionFrame-1,areaM,'Color','b','LineWidth',2); hold on; plot(mine+tc.detectionFrame-1:maxe+tc.detectionFrame-1, areaM+areaB,'Color','r');
+        end
+        
         if numel(stats)==0
             stats=[zeros(1,14) zeros(1,100) zeros(1,100) zeros(1,16) zeros(1,100) zeros(1,100) zeros(1,100)];
             a=1;
@@ -285,44 +163,25 @@ for i=1:length(cellindex)
             a=size(stats,1)+1;
         end
         
-        if numel(tbud)==0
-            tbud=-1000;
+        %if numel(tbud)==0
+        %    tbud=-1000;
+        %end
+        
+        if isD & j==1
+            mother=0;
+        else
+            mother=1;
         end
+       
+        stats=addToStats(stats,a,id,j,mother,fluo_cut,fluofit,areaM,areaB,areaN,areanucl,chi2,timings,volume,mu_unbud,mu_bud,tbud,mine);
         
-        [stats tstr]=addToStats(stats,a,id,i,mother,pp,fluo(rangz),rangz,yfit,firstFrame,chi2,tstr,areaD,areaC,area(rangz),tbud);
-        
-        if display==2
-            if mother==0 col=[1 0 0];
-            else col=[0 1 0];
-            end
-            % 'ok'
-            figure(h);
-            plot(rangz+arrx(1)-1,yfit,'Color',col,'lineWidth',2,'lineStyle','--');
-            
-            % size(area(rangz)),size(areaD),size(areaC)
-            % figure; subplot(2,1,1); plot(rangz,fluo(rangz));
-            % subplot(2,1,2); plot(rangz,areaC,'Color','b');  hold on ; plot(rangz,areaD,'Color','r'); plot(rangz,areaC+areaD,'Color','g');
-        end
-        
-        %return;
-        
+        %segmentation.tnucleus(id).mothers=tstr;
     end
-    
-    
-    
-    segmentation.tnucleus(id).mothers=tstr;
-    
-    if display==1
-        figure(h); set(gcf,'Position',[200 200 1200 600]);
-        xlabel('Time (frames)','FontSize',24);
-        ylabel('HTB2-GFP fluo content (A.U.)','FontSize',24);
-        set(gca,'FontSize',24);
-    end
-    
-    cc=cc+1;
-    fprintf(['Extract cell cycle phases - Cell ID ' num2str(id) '\n']);
-    
+   %
+  % close; close;
 end
+
+fprintf('\n');
 
 
 if nargin==2
@@ -342,8 +201,149 @@ if nargin==3
 end
 
 
+function [timings,frame,fluofit,chi2]=computeTimings(fluo,isD,mine)
 
-function [stats , tstr]=addToStats(stats,a,id,i,mother,pp,fluo,rangz,yfit,firstFrame,chi2,tstr,areaB,areaC,area,tbud)
+timings=[]; frame=[];
+
+if isD
+    nknots=5;
+    lo = -inf(1,nknots);
+    up = +inf(1,nknots);
+    lo(1) = 0; up(1) = 0;
+    lo(2) = 0;
+    lo(3) = 0; up(3) = 0;
+    up(4) = 0;
+    lo(5) = 0; up(5) = 0;
+else
+    nknots=6;
+    lo = -inf(1,nknots);
+    up = +inf(1,nknots);
+    up(1) = 0;
+    lo(2) = 0; up(2)=0;
+    lo(3) = 0;
+    lo(4) =0 ; up(4) = 0;
+    up(5) = 0;
+    lo(6) =0 ; up(6) = 0;
+end
+
+shape = struct('p',1,'lo',lo,'up',up);
+[fluofit pp chi2]=splineFitCellCycle(fluo,nknots,shape);
+
+if numel(pp.breaks)<nknots
+    return;
+end
+
+
+includeAna2Cytokinesis=2; % in case the timing between anaphase and cytokinesis should be taken into account
+
+if isD==0
+    
+    timings.cyclestart= mine+pp.breaks(2)+includeAna2Cytokinesis; %+includeAna2Cytokinesis;  cell cycle start
+    timings.tdiv= pp.breaks(6)-pp.breaks(2);  % tdiv
+    timings.tg1= pp.breaks(3)-pp.breaks(2)-includeAna2Cytokinesis; % tg1
+    timings.ts= pp.breaks(4)-pp.breaks(3);  %ts
+    timings.tg2= pp.breaks(5)-pp.breaks(4);  % tg2/m
+    timings.tana= pp.breaks(6)-pp.breaks(5)+includeAna2Cytokinesis; % tanaphase + tcytokinesis : thr should be added for both M and D
+    
+    ori=pp.breaks(2)+includeAna2Cytokinesis;
+    frame.start=mine+pp.breaks(2)+includeAna2Cytokinesis;
+    frame.G1=pp.breaks(3)-ori;
+    frame.S=pp.breaks(4)-ori;
+    frame.G2=pp.breaks(5)-ori;
+    frame.A=pp.breaks(6)+includeAna2Cytokinesis-ori;
+else
+    
+    timings.cyclestart= mine+includeAna2Cytokinesis;  %+includeAna2Cytokinesis; % end of fluo curve ; cell cycle end
+    timings.tdiv= pp.breaks(5)+includeAna2Cytokinesis;  % tdiv
+    timings.tg1= pp.breaks(2); % tg1
+    timings.ts= pp.breaks(3)-pp.breaks(2); %ts
+    timings.tg2= pp.breaks(4)-pp.breaks(3);% tg2/m
+    timings.tana= pp.breaks(5)-pp.breaks(4)+includeAna2Cytokinesis; % tanaphase + tcytokinesis : thr should be added for both M and D
+    
+    ori=includeAna2Cytokinesis;
+    frame.start= mine+includeAna2Cytokinesis;
+    frame.G1=pp.breaks(2)-ori;
+    frame.S=pp.breaks(3)-ori;
+    frame.G2=pp.breaks(4)-ori;
+    frame.A=pp.breaks(5)+includeAna2Cytokinesis-ori;
+end
+
+
+function [areaM,areaB,areaN,volume]=computeVolume(mine,maxe,tc,tdau,frame,mineoffset)
+areaM=[];
+areaB=[];
+
+areaM=[tc.Obj.area];
+areaN=[tc.Obj.Mean];
+areaN=[areaN.area];
+
+mineM=mine-tc.detectionFrame+1;
+maxeM=maxe-tc.detectionFrame+1;
+areaM=areaM(mineM:maxeM);
+areaN=areaN(mineM:maxeM);
+
+%mine2=mine2-tc.detection
+
+areaB=[tdau.Obj.area];
+%length(areaB)
+mineB=mine-tdau.detectionFrame+1;
+maxeB=maxe-tdau.detectionFrame+1;
+
+%ma=max(1,mineB)
+areaB=areaB(max(1,mineB):min(length(areaB),maxeB));
+dif=max(0,maxeB-length(areaB));
+areaB=[zeros(1,1-mineB) areaB areaB(end)*ones(1,dif)];
+
+%length(areaM),length(areaB)
+%size(areaM), size(areaB), size(mine:maxe)
+
+%volume=[];
+
+%frame
+%size(areaM),round(frame.start-mineoffset+1)
+
+volume.startM=areaM(round(frame.start-mineoffset+1));
+volume.startB=areaB(round(frame.start-mineoffset+1));
+volume.startN=areaN(round(frame.start-mineoffset+1));
+
+volume.G1M=areaM(round(frame.start+frame.G1-mineoffset+1));
+volume.G1B=areaB(round(frame.start+frame.G1-mineoffset+1));
+volume.G1N=areaN(round(frame.start+frame.G1-mineoffset+1));
+
+volume.SM=areaM(round(frame.start+frame.S-mineoffset+1));
+volume.SB=areaB(round(frame.start+frame.S-mineoffset+1));
+volume.SN=areaN(round(frame.start+frame.S-mineoffset+1));
+
+volume.G2M=areaM(round(frame.start+frame.G2-mineoffset+1));
+volume.G2B=areaB(round(frame.start+frame.G2-mineoffset+1));
+volume.G2N=areaN(round(frame.start+frame.G2-mineoffset+1));
+
+
+volume.AM=areaM(min(length(areaM),round(frame.start+frame.A-mineoffset+1)));
+volume.AB=areaB(min(length(areaM),round(frame.start+frame.A-mineoffset+1)));
+volume.AN=areaN(min(length(areaM),round(frame.start+frame.A-mineoffset+1)));
+
+function [mu_unbud,mu_bud,tbud]=computeTBud(areaM,areaB,mine,maxe)
+
+% measure timing associated with bud emergence
+
+x=mine:maxe;
+ind=find(areaB>0,1,'first');
+p=polyfit(x(ind:end),areaB(ind:end),1);
+f=polyval(p,x);
+ind2=find(f>0,1,'first');
+
+tbud=x(ind2);
+
+% measure growth rate in unbudded / budded period
+
+mu_bud=mean(diff(areaM(ind:end)+areaB(ind:end)));
+mu_unbud=mean(diff(areaM(1:ind2)));
+
+%figure, plot(x,areaB); hold on; plot(x,f)
+
+
+function stats=addToStats(stats,a,id,j,mother,fluo,fluofit,areaM,areaB,areaN,areanucl,chi2,timings,volume,mu_unbud,mu_bud,tbud,mine)
 global segmentation timeLapse
 
 % output matrix stats that contains
@@ -353,7 +353,6 @@ global segmentation timeLapse
 checksum=mean(double(timeLapse.startedDate));
 
 % check if outlier
-
 outlier=0;
 %
 cc=1;
@@ -361,93 +360,64 @@ cc=1;
 stats(a,cc)=checksum; cc=cc+1;
 stats(a,cc)= segmentation.position; cc=cc+1;
 stats(a,cc)= id; cc=cc+1;
-stats(a,cc)= i; cc=cc+1;
+stats(a,cc)= j; cc=cc+1;
 stats(a,cc)= mother; cc=cc+1;
-
 stats(a,cc)= outlier; cc=cc+1;
 
-stats(a,cc)=firstFrame; cc=cc+1;
-
-includeAna2Cytokinesis=0; % in case the timing between anaphase and cytokinesis should be taken into account
+stats(a,cc)=segmentation.tcells1(id).detectionFrame; cc=cc+1;
 
 % timing information based on HTB2 marker
 
-if mother==1 || mother==-1
-    stats(a,cc)= rangz(1); cc=cc+1; %+includeAna2Cytokinesis;  fit start
-    stats(a,cc)= rangz(1)+pp.breaks(2)+includeAna2Cytokinesis; cc=cc+1; %+includeAna2Cytokinesis;  cell cycle start
-    
-    stats(a,cc)= pp.breaks(6)-pp.breaks(2); cc=cc+1; % tdiv
-    stats(a,cc)= pp.breaks(3)-pp.breaks(2)-includeAna2Cytokinesis; cc=cc+1; % tg1
-    stats(a,cc)= pp.breaks(4)-pp.breaks(3); cc=cc+1; %ts
-    stats(a,cc)= pp.breaks(5)-pp.breaks(4); cc=cc+1; % tg2/m
-    stats(a,cc)= pp.breaks(6)-pp.breaks(5)+includeAna2Cytokinesis; cc=cc+1; % tanaphase + tcytokinesis : thr should be added for both M and D
-    
-    ori=pp.breaks(2)+includeAna2Cytokinesis;
-    tstr.start=[tstr.start rangz(1)+pp.breaks(2)+includeAna2Cytokinesis];
-    tstr.G1=[tstr.G1 pp.breaks(3)-ori];
-    tstr.S=[tstr.S pp.breaks(4)-ori];
-    tstr.G2=[tstr.G2 pp.breaks(5)-ori];
-    tstr.A=[tstr.A pp.breaks(6)+includeAna2Cytokinesis-ori];
-end
-
-if mother==0
-    stats(a,cc)= rangz(1); cc=cc+1; %+includeAna2Cytokinesis; % start of fluo curve ; cell cycle start
-    stats(a,cc)= rangz(1)+includeAna2Cytokinesis; cc=cc+1; %+includeAna2Cytokinesis; % end of fluo curve ; cell cycle end
-    stats(a,cc)= pp.breaks(5)+includeAna2Cytokinesis; cc=cc+1; % tdiv
-    
-    stats(a,cc)= pp.breaks(2); cc=cc+1; % tg1
-    
-    stats(a,cc)= pp.breaks(3)-pp.breaks(2); cc=cc+1; %ts
-    stats(a,cc)= pp.breaks(4)-pp.breaks(3); cc=cc+1; % tg2/m
-    stats(a,cc)= pp.breaks(5)-pp.breaks(4)+includeAna2Cytokinesis; cc=cc+1; % tanaphase + tcytokinesis : thr should be added for both M and D
-    
-    ori=includeAna2Cytokinesis;
-    tstr.start=[tstr.start rangz(1)+includeAna2Cytokinesis];
-    tstr.G1=[tstr.G1 pp.breaks(2)-ori];
-    tstr.S=[tstr.S pp.breaks(3)-ori];
-    tstr.G2=[tstr.G2 pp.breaks(4)-ori];
-    tstr.A=[tstr.A pp.breaks(5)+includeAna2Cytokinesis-ori];
-    
-end
-
-%b=stats(a,7:14)
+    stats(a,cc)= mine; cc=cc+1; %  fit start
+    stats(a,cc)= timings.cyclestart; cc=cc+1; %+includeAna2Cytokinesis;  cell cycle start
+    stats(a,cc)= timings.tdiv; cc=cc+1; % tdiv
+    stats(a,cc)= timings.tg1; cc=cc+1; % tg1
+    stats(a,cc)= timings.ts; cc=cc+1; %ts
+    stats(a,cc)= timings.tg2; cc=cc+1; % tg2/m
+    stats(a,cc)= timings.tana; cc=cc+1; % tanaphase + tcytokinesis : thr should be added for both M and D
+ 
 
 ma=min(length(fluo),100);
 
 % timing information based on HTB2 marker : HTB2 signal
 stats(a,cc:cc+ma-1)=fluo(1:ma)/max(fluo); cc=cc+100;
-stats(a,cc:cc+ma-1)=yfit(1:ma)/max(fluo); cc=cc+100;
+stats(a,cc:cc+ma-1)=fluofit(1:ma)/max(fluo); cc=cc+100;
 
 % size information base on cell and nucleus area
 %
 
-stats(a,cc)=tbud-tstr.start(end); cc=cc+1; % timing at which bud emerges
+stats(a,cc)=tbud; cc=cc+1; % timing at which bud emerges
 
-stats(a,cc)=areaC(round(tstr.start(end))-(rangz(1)-1)); cc=cc+1; %vol division
-stats(a,cc)=areaC(round(tstr.G1(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G1
-stats(a,cc)=areaC(round(tstr.S(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol S
-stats(a,cc)=areaC(round(tstr.G2(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; %   vol G2
-stats(a,cc)=areaC(round(tstr.A(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol A
+stats(a,cc)=volume.startM; cc=cc+1; %vol division
+stats(a,cc)=volume.G1M; cc=cc+1; % vol G1
+stats(a,cc)=volume.SM; cc=cc+1; % vol S
+stats(a,cc)=volume.G2M; cc=cc+1; %   vol G2
+stats(a,cc)=volume.AM; cc=cc+1; % vol A
 
-stats(a,cc)=areaB(round(tstr.start(end))-(rangz(1)-1)); cc=cc+1; %vol division
-stats(a,cc)=areaB(round(tstr.G1(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G1
-stats(a,cc)=areaB(round(tstr.S(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol S
-stats(a,cc)=areaB(round(tstr.G2(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G2
-stats(a,cc)=areaB(round(tstr.A(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol A
+stats(a,cc)=volume.startB; cc=cc+1; %vol division
+stats(a,cc)=volume.G1B; cc=cc+1; % vol G1
+stats(a,cc)=volume.SB; cc=cc+1; % vol S
+stats(a,cc)=volume.G2B; cc=cc+1; %   vol G2
+stats(a,cc)=volume.AB; cc=cc+1; % vol A
 
-stats(a,cc)=area(round(tstr.start(end))-(rangz(1)-1)); cc=cc+1; %vol division
-stats(a,cc)=area(round(tstr.G1(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G1
-stats(a,cc)=area(round(tstr.S(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol S
-stats(a,cc)=area(round(tstr.G2(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol G2
-stats(a,cc)=area(round(tstr.A(end)+tstr.start(end))-(rangz(1)-1)); cc=cc+1; % vol A
+stats(a,cc)=volume.startN; cc=cc+1; %vol division
+stats(a,cc)=volume.G1N; cc=cc+1; % vol G1
+stats(a,cc)=volume.SN; cc=cc+1; % vol S
+stats(a,cc)=volume.G2N; cc=cc+1; %   vol G2
+stats(a,cc)=volume.AN; cc=cc+1; % vol A
 
-
-
-stats(a,cc:cc+ma-1)=areaC(1:ma); cc=cc+100; % cell size
+stats(a,cc:cc+ma-1)=areaM(1:ma); cc=cc+100; % cell size
 stats(a,cc:cc+ma-1)=areaB(1:ma); cc=cc+100; % bud size
-stats(a,cc:cc+ma-1)=area(1:ma); cc=cc+1; % nucleus size
+stats(a,cc:cc+ma-1)=areaN(1:ma); cc=cc+100; % nucleus size
+
+stats(a,cc)=mu_unbud; cc=cc+1; %   vol G2
+stats(a,cc)=mu_bud; cc=cc+1; % vol A
+
 
 chi2=chi2/ (max(fluo))^2;
+
+stats(a,cc)=chi2; cc=cc+1; % vol A
+
 out=checkOutlier(stats,a,chi2,mother);
 
 %if out
@@ -458,7 +428,7 @@ out=checkOutlier(stats,a,chi2,mother);
 %out=0;
 stats(a,6)=out;
 
-function out=checkOutlier(stats,a,chi2,mother)
+function [out str]=checkOutlier(stats,a,chi2,mother)
 global timeLapse
 
 out=0;
@@ -472,16 +442,22 @@ end
 %a
 
 if stats(a,10)< timeLapse.autotrack.timing.tdiv(1) || stats(a,10) > timeLapse.autotrack.timing.tdiv(2) out=1; %'ok1',b=stats(a,10)
+    str=['tdiv=' num2str(stats(a,10))];
 end
 if stats(a,11)< coef*timeLapse.autotrack.timing.tg1(1) || stats(a,11) > coef*timeLapse.autotrack.timing.tg1(2) out=1; %'ok2',b=stats(a,11)
+    str=['tg1=' num2str(stats(a,11))];
 end
 if stats(a,12)< timeLapse.autotrack.timing.ts(1) || stats(a,12) > timeLapse.autotrack.timing.ts(2) out=1; %'ok3',b=stats(a,12)
+    str=['ts=' num2str(stats(a,12))];
 end
 if stats(a,13)< timeLapse.autotrack.timing.tg2(1) || stats(a,13) > timeLapse.autotrack.timing.tg2(2) out=1; %'ok4',b=stats(a,13)
+   str=['tg2=' num2str(stats(a,13))];
 end
 if stats(a,14)< timeLapse.autotrack.timing.tana(1) || stats(a,14) > timeLapse.autotrack.timing.tana(2) out=1; %'ok5',b=stats(a,14)
+    str=['tana=' num2str(stats(a,14))];
 end
 if chi2> timeLapse.autotrack.timing.chi out=1; %chi2
+    str=['chi2=' num2str(chi2)];
 end
 
 
@@ -578,14 +554,14 @@ k = 2;
 %             'shape', shape, ...
 %             'pntcon', pntcon);
 
-options = struct('shape', shape,'animation', 0,'maxiter',100);
+options = struct('shape', shape,'animation', 0,'maxiter',300);
 
 warning off all
 pp = BSFK(x, y, k, nknots, fixknots,options);
 warning on all
 
 yfit=ppval(pp,x);
-y2=yfit';
+y2=yfit;
 
 chi2=sum( (y2-y).^2 ) / length(y);
 

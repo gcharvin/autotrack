@@ -66,7 +66,7 @@ str(7:11)={'V_Cell_div','V_Cell_G1','V_Cell_S','V_Cell_G2/M','V_Cell_Anacyt'};
 str(12:16)={'V_Bud_div','V_Bud_G1','V_Bud_S','V_Bud_G2/M','V_Bud_Anacyt'};
 str(17:21)={'V_Nucl_div','V_Nucl_G1','V_Nucl_S','V_Nucl_G2/M','V_Nucl_Anacyt'};
 str(22:26)={'V_Tot_div','V_Tot_G1','V_Tot_S','V_Tot_G2/M','V_Tot_Anacyt'};
-
+str(27:28)={'mu_unbud','mu_bud'};
 
 set(handles.scatter1,'String',str);
 set(handles.scatter1,'Value',1);
@@ -156,6 +156,17 @@ if val1>22 % plot total cel volume
 end
 if val2>22 % plot total cel volume
    dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
+end
+
+if val1>=27 % plot mu
+    ind=531+val1-27;
+   dt1=stats(:,ind);
+   ind=ind-val1;
+end
+if val2>=27 % plot mu
+    ind2=531+val2-27;
+   dt2=stats(:,ind2);
+   ind2=ind2-val2;
 end
 
 axes(handles.scatterplot);
@@ -251,6 +262,13 @@ if val2>22 % plot total cel volume
    dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
 end
 
+if val1>=27 % plot mu
+   dt1=stats(:,531+val1-27);
+end
+if val2>=27 % plot mu
+   dt2=stats(:,531+val2-27);
+end
+
 [mi ix]=min(abs(dt2-p(1)));
 
 plotTimePoint(ix,stats,handles);
@@ -285,6 +303,12 @@ plot(x+(1:length(lin))-1,lin,'Color','k','LineWidth',2); hold on
 plot(x+(1:length(fi))-1,fi,'Color','r','LineWidth',2,'LineStyle','--'); hold off;
 
 ylabel('HTB2 fluo');
+
+[out str]=checkOutlier(stats,ix);
+if out==1
+   % str
+title(str);
+end
 
 axes(handles.timeplot2);
 
@@ -486,10 +510,10 @@ set(handles.statlist,'Value',pix);
 
 % format table 
 dt=datastat(pix).stats;
-dt=[round(dt(:,1:14)) round(dt(:,15+200:30+200))];
+dt=[round(dt(:,1:14)) round(dt(:,15+200:30+200)) round(dt(:,31+500:32+500))];
 
 set(handles.table,'Data',dt);
-set(handles.table,'ColumnWidth',{40 25 30 30 30 30 45 45 30 40  40 40 40 60   70 70 70 70 70 70 70 70 70 70 70 70 70 70 70 70})
+set(handles.table,'ColumnWidth',{40 25 30 30 30 30 45 45 30 40  40 40 40 60   70 70 70 70 70 70 70 70 70 70 70 70 70 70 70 70 70 70})
 str{1}='ID'; str{2}='Pos'; str{3}='Cell'; str{4}='Div'; str{5}='M/D'; str{6}='Out'; 
 str{7}='1st F'; str{8}='Detect'; str{9}='Start'; str{10}='Div'; 
 str{11}='G1'; str{12}='S'; str{13}='G2/M'; str{14}='AnaCyt';
@@ -499,7 +523,7 @@ str{15}='TBud';
 str(16:20)={'V_Cell_div','V_Cell_G1','V_Cell_S','V_Cell_G2/M','V_Cell_Anacyt'};
 str(21:25)={'V_Bud_div','V_Bud_G1','V_Bud_S','V_Bud_G2/M','V_Bud_Anacyt'};
 str(26:30)={'V_Nucl_div','V_Nucl_G1','V_Nucl_S','V_Nucl_G2/M','V_Nucl_Anacyt'};
-
+str(31:32)={'mu unbud','mu bud'};
 
 
 set(handles.table,'ColumnName',str);
@@ -948,3 +972,48 @@ xlim(sca*[stats(row,8) stats(row,14)+stats(row,13)+stats(row,12)+stats(row,11)+s
 
 
 % PLOT DATA AS A MATRIX
+
+
+function [out str]=checkOutlier(stats,a)
+global timeLapse
+
+out=0;
+
+mother=stats(a,5);
+%chi2=stats(a,533);
+
+
+cc=15;
+        y=stats(a,cc:cc+100-1); pix2=y>0; y=y(pix2);
+        yfit=stats(a,cc+100:cc+200-1); yfit=yfit(pix2);
+        chi2=sum( (yfit-y).^2 ) / length(y);
+
+if mother==0 || mother==-1;
+    coef=1.5;
+else
+    coef=1;
+end
+
+%a
+str=[];
+if stats(a,10)< timeLapse.autotrack.timing.tdiv(1) || stats(a,10) > timeLapse.autotrack.timing.tdiv(2) out=1; %'ok1',b=stats(a,10)
+    str=['tdiv=' num2str(stats(a,10))];
+end
+if stats(a,11)< coef*timeLapse.autotrack.timing.tg1(1) || stats(a,11) > coef*timeLapse.autotrack.timing.tg1(2) out=1; %'ok2',b=stats(a,11)
+    str=['tg1=' num2str(stats(a,11))];
+end
+if stats(a,12)< timeLapse.autotrack.timing.ts(1) || stats(a,12) > timeLapse.autotrack.timing.ts(2) out=1; %'ok3',b=stats(a,12)
+    str=['ts=' num2str(stats(a,12))];
+end
+if stats(a,13)< timeLapse.autotrack.timing.tg2(1) || stats(a,13) > timeLapse.autotrack.timing.tg2(2) out=1; %'ok4',b=stats(a,13)
+   str=['tg2=' num2str(stats(a,13))];
+end
+if stats(a,14)< timeLapse.autotrack.timing.tana(1) || stats(a,14) > timeLapse.autotrack.timing.tana(2) out=1; %'ok5',b=stats(a,14)
+    str=['tana=' num2str(stats(a,14))];
+end
+if chi2> timeLapse.autotrack.timing.chi out=1; %chi2
+    str=['chi2=' num2str(chi2)];
+end
+
+
+
