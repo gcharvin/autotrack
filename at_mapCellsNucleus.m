@@ -68,7 +68,7 @@ for i=1:length(segmentation.tcells1)
             
             if numel(ic) % another cell has the same nucleus number; nucleus is in between cells
                 link.frame=[link.frame ; j];
-                link.n=[link.n ; ic]; % cell number that shares nucleus with corresponding cell
+                link.n=[link.n ; ic(1)]; % cell number that shares nucleus with corresponding cell
                 link.i=[link.i ; arrN(ic,j)]; % nucleus number that is shared
                 link.type=[link.type ; 0]; % shared nucleus
                 % link
@@ -86,6 +86,8 @@ for i=1:length(segmentation.tcells1)
                     if arrN(i,j)~=0 && arrN(i,j-1)==0 %&& virginD==1 % should work only for the first time (virginD)
                         
                         [candidates dist]=findNeighbors(segmentation.nucleus(j,ind),segmentation.nucleus(j,:),65); % find neighbors
+                        candidates=candidates(candidates>0);
+                        dist=dist(candidates>0);
                         [out,dist2]=scoreDiv(segmentation.tnucleus,candidates,j,channel,20); % use nucleus fluo to alleviate ambiguity
                         
                        % virginD=0;
@@ -136,7 +138,7 @@ for i=1:length(segmentation.tcells1)
     fr=segmentation.tcells1(i).detectionFrame; % cell is born after first frame
     
     if arrN(i,fr)<=0 & numel(link.n)% cell does not have a nucleus when born, therefore can be linked to a mother cell
-       % i,link.n,link.frame
+        %i,link.n,link.frame
         [C ia ic]=unique(link.n);
         
         
@@ -302,6 +304,9 @@ fuse=[];
 dist=[];
 %
 
+out=[];
+distout=[];
+
 %row,col
 % find min distances between cells
 for i=1:n
@@ -332,6 +337,16 @@ for i=1:n
     x1p=repmat(x1',[1 size(x1,2)]);
     x2p=repmat(x2',[1 size(x2,2)]);
     
+    if numel(x1p)==0
+        dist=[dist 10000];
+        continue
+    end
+    
+    if numel(x2p)==0
+        dist=[dist 10000];
+        continue
+    end
+    
     x=x1p-x2p';
     
     y1p=repmat(y1',[1 size(y1,2)]);
@@ -354,8 +369,7 @@ for i=1:n
 end
 
 
-out=[];
-distout=[];
+
 
 
 for i=1:n
@@ -382,7 +396,7 @@ dist=[];
 n=[tcells1.N];
 
 for i=1:length(candidates)
-    %i,candidates(i)
+   % i,candidates(i)
     pix=find(n==candidates(i));
     fluo=[tcells1(pix).Obj.fluoMean];
     fluo=reshape(fluo,length(tcells1(pix).Obj(1).fluoMean),[]);

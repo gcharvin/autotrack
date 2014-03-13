@@ -35,7 +35,7 @@ end
 for i=1:length(cellindex)
     fprintf('.');
 
-    id=cellindex(i)
+    id=cellindex(i);
     
     % detect divisions based on decay of area x mean fluo % or gaussian fit
     [arrx ix]= sort([segmentation.tcells1(id).Obj.image]); % time data for the cell
