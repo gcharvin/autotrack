@@ -227,8 +227,6 @@ nstore2=0;
      if cellcycle
          fprintf(['Cell cycle analysis- pos: ' num2str(pos) '\n\n']);
         at_cellCycle2([],0,l); % last argument is position number
-        % stat(l)=phy_extractCellCyclePhase(1:max([segmentation.tnucleus.N]),1);
-        % save(fullfile(timeLapse.realPath,'cellcyclestat.mat'),'stat');
      end
     
 end

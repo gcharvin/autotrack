@@ -73,6 +73,9 @@ for i=1:length(segmentation.tcells1)
                 link.type=[link.type ; 0]; % shared nucleus
                 % link
                 info.status=2; % shared nucleus
+                
+               
+                            
             else % if not, then check when first nucleus appears and identify mother nucleus
                 ind=arrI(i,j);
                 
@@ -101,10 +104,15 @@ for i=1:length(segmentation.tcells1)
                             candidates=candidates(pix); % nucleus number
                             pix=find(arrN(:,j)==candidates(1)); % find cell that contains found nucleus
                             
+                            if numel(pix)
+                                pix=pix(1);
+                            
                             link.frame=[link.frame ; j];
                             link.n=[link.n ; pix]; % cell number is likely the mother of current cell
                             link.i=[link.i ; candidates(1)]; % nucleus number that is in mother cell
                             link.type=[link.type ; 1]; % event : nucleus number is close to mother nucleus
+                            
+                            end
                         end
                     end
                 end
@@ -128,6 +136,7 @@ for i=1:length(segmentation.tcells1)
     fr=segmentation.tcells1(i).detectionFrame; % cell is born after first frame
     
     if arrN(i,fr)<=0 & numel(link.n)% cell does not have a nucleus when born, therefore can be linked to a mother cell
+       % i,link.n,link.frame
         [C ia ic]=unique(link.n);
         
         

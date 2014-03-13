@@ -35,7 +35,7 @@ end
 for i=1:length(cellindex)
     fprintf('.');
 
-    id=cellindex(i);
+    id=cellindex(i)
     
     % detect divisions based on decay of area x mean fluo % or gaussian fit
     [arrx ix]= sort([segmentation.tcells1(id).Obj.image]); % time data for the cell
@@ -149,6 +149,7 @@ for i=1:length(cellindex)
         % volume
         
         % determine tbud
+        
         [mu_unbud mu_bud tbud]=computeTBud(areaM,areaB,mine,maxe);
         tbud=tbud-frame.start;
         
@@ -290,8 +291,14 @@ mineB=mine-tdau.detectionFrame+1;
 maxeB=maxe-tdau.detectionFrame+1;
 
 %ma=max(1,mineB)
+
 areaB=areaB(max(1,mineB):min(length(areaB),maxeB));
+%size(areaB)
+if size(areaB,2)~=size([mine:maxe],2)
 dif=max(0,maxeB-length(areaB));
+else
+ dif=0; 
+end
 areaB=[zeros(1,1-mineB) areaB areaB(end)*ones(1,dif)];
 
 %length(areaM),length(areaB)
@@ -329,6 +336,7 @@ function [mu_unbud,mu_bud,tbud]=computeTBud(areaM,areaB,mine,maxe)
 
 x=mine:maxe;
 ind=find(areaB>0,1,'first');
+
 p=polyfit(x(ind:end),areaB(ind:end),1);
 f=polyval(p,x);
 ind2=find(f>0,1,'first');
