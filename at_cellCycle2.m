@@ -149,6 +149,10 @@ for i=1:length(cellindex)
         % volume
         
         % determine tbud
+        temptime=mine:maxe;
+        if numel(temptime)~=numel(areaB)
+           continue 
+        end
         
         [mu_unbud mu_bud tbud]=computeTBud(areaM,areaB,mine,maxe);
         tbud=tbud-frame.start;
@@ -322,6 +326,7 @@ function [mu_unbud,mu_bud,tbud]=computeTBud(areaM,areaB,mine,maxe)
 
 x=mine:maxe;
 ind=find(areaB>0,1,'first');
+
 
 p=polyfit(x(ind:end),areaB(ind:end),1);
 f=polyval(p,x);
