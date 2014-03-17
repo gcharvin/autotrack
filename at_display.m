@@ -22,7 +22,7 @@ function varargout = at_display(varargin)
 
 % Edit the above text to modify the response to help at_display
 
-% Last Modified by GUIDE v2.5 27-Jan-2014 11:36:05
+% Last Modified by GUIDE v2.5 17-Mar-2014 11:23:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -86,6 +86,8 @@ updateDisplay(handles);
 
 at_displayHandles=handles;
 
+
+set(handles.statlist,'Max',2,'Min',0);
 % Update handles structure
 guidata(hObject, handles);
 
@@ -450,8 +452,45 @@ if numel(pix)==0
 end
 
 stats=datastat(pix).stats;
+path=datastat(pix).path;
 
-at_export(stats,'overwrite')
+if strcmp(path(1),'-')
+    defpath=datastat(1).path;
+    [defpath file]=fileparts(defpath);
+   [file,path] = uiputfile('*.mat','Save stats file as',defpath);
+   path=[path file];
+   datastat(pix).path=path;
+   updateDisplay(handles);
+end
+at_export(stats,path);
+
+
+
+% --- Executes on button press in pool.
+function pool_Callback(hObject, eventdata, handles)
+% hObject    handle to pool (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global datastat
+
+val=get(handles.statlist,'Value');
+
+if numel(val)<=1
+   errordlg('you must select at least 2 items in the list');
+   return;
+end
+
+stats=[];
+for i=1:numel(val)
+    stats=[stats ; datastat(i).stats];
+end
+
+n=numel(datastat)+1;
+datastat(n).stats=stats;
+datastat(n).path=['-pool' num2str(n)];
+datastat(n).selected=1;
+
+updateDisplay(handles);
 
 
 % --- Executes on button press in load.
@@ -545,6 +584,10 @@ function statlist_Callback(hObject, eventdata, handles)
 global datastat
 
 val=get(hObject,'Value');
+
+if numel(val)>1
+    return;
+end
 
 for i=1:numel(datastat)
   datastat(i).selected=0;  
@@ -1014,6 +1057,4 @@ end
 if chi2> timeLapse.autotrack.timing.chi out=1; %chi2
     str=['chi2=' num2str(chi2)];
 end
-
-
 

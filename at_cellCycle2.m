@@ -1,4 +1,4 @@
-function at_cellCycle2(cellindex,display,nosave)
+function at_cellCycle2(cellindex,display)
 
 %cellindex : index of the cells to consider
 % display=0 : no display
@@ -184,22 +184,8 @@ end
 
 fprintf('\n');
 
+at_export(stats,segmentation.position);
 
-if nargin==2
-    disp('done \n');
-    at_export(stats);
-end
-
-if nargin==3
-    if ischar(nosave)
-        if  strcmp(nosave,'overwrite')
-            at_export(stats,'overwrite');
-        end
-    else
-        at_export(stats,nosave);
-    end
-    
-end
 
 
 function [timings,frame,fluofit,chi2]=computeTimings(fluo,isD,mine)
@@ -426,7 +412,7 @@ chi2=chi2/ (max(fluo))^2;
 
 stats(a,cc)=chi2; cc=cc+1; % vol A
 
-out=checkOutlier(stats,a,chi2,mother);
+out=at_checkOutlier(stats,a,mother);
 
 %if out
 %disp(['Cell ' num2str(id) ' - div:' num2str(i) ' was detected as an outlier']);
@@ -436,15 +422,17 @@ out=checkOutlier(stats,a,chi2,mother);
 %out=0;
 stats(a,6)=out;
 
-function [out str]=checkOutlier(stats,a,chi2,mother)
+function [out str]=checkOutlier(stats,a,mother)
 global timeLapse
 
 out=0;
 
-if mother==0 || mother==-1;
+if nargin==3
+if mother==0
     coef=1.5;
 else
     coef=1;
+end
 end
 
 %a
