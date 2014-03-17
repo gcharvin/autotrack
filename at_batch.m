@@ -226,7 +226,7 @@ nstore2=0;
 
      if cellcycle
          fprintf(['Cell cycle analysis- pos: ' num2str(pos) '\n\n']);
-        at_cellCycle2([],0,l); % last argument is position number
+        at_cellCycle2([],0); % last argument is position number
      end
     
 end
