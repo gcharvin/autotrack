@@ -8,14 +8,15 @@
 % 'cells' : segment cell contours
 % 'nucleus' : segment and score nuclei
 % 'mapnucleus': map nuclei
-% 'mapcells': map cells after nucleus mapping has been done
+% 'mapcells': map cells; in case this is selected, then a link between
+% nuclei and cells is established
 % 'cellcycle':extract cellcycle phase
 % 'display' : display running segmentation
-% 'gaufit' : gaussian fit
+
 % 
 % example :
-% at_batch(1:175,5,'cells','nucleus','mapnucleus','mapcells','gaufit','cellcycle','display')
-%%
+% at_batch(1:175,5,'cells','nucleus','mapnucleus','mapcells','cellcycle','display')
+
 
 function at_batch(frames, position,varargin)
 global segmentation timeLapse
@@ -97,20 +98,19 @@ end
 
 
 
-for l=position
+for l=position % loop on positions
     
+    % initialization 
     cc=1;
-nstore=0;
-nstore2=0;
+nstore=0; % nucleus number counter
+nstore2=0; % cells number counter
 
     if l==-1
         pos=segmentation.position;
-        
         at_log(['Segment current position: ' num2str(pos)],'w',pos,'batch')
     else
         pos=l;
         at_openSeg(pos);
-        
         at_log(['Segment loaded position: ' num2str(pos)],'w',pos,'batch')
     end
     
@@ -135,7 +135,7 @@ nstore2=0;
     segmentation.nucleusMapped=zeros(1,timeLapse.numberOfFrames);
     end
     
-    for i=frames
+    for i=frames % loop on frames
         
         imcell=[];
         imbud=[];
@@ -152,11 +152,11 @@ nstore2=0;
         end
         
       
-        if gaufit
-            fprintf(['Gaussian fit - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
-            cha=timeLapse.autotrack.processing.nucleus(1);
-            gaussianFluoFit(i,cha);
-        end
+%         if gaufit SHOULD NOT USE
+%             fprintf(['Gaussian fit - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
+%             cha=timeLapse.autotrack.processing.nucleus(1);
+%             gaussianFluoFit(i,cha);
+%         end
 
          if mapCells
             fprintf(['Map Cells - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
@@ -170,7 +170,6 @@ nstore2=0;
         
         
         if display
-            
             if numel(imbud)~=0
                imbud= imresize(imbud,2);
             end
@@ -182,7 +181,6 @@ nstore2=0;
     end
 
     
-    
     if segCells
         segmentation.cells1Segmented(frames(1):frames(end))=1;
         timeLapse.autotrack.position(pos).cells1Segmented=segmentation.cells1Segmented;
@@ -190,7 +188,6 @@ nstore2=0;
     if segNucleus
         segmentation.nucleusSegmented(frames(1):frames(end))=1;
         timeLapse.autotrack.position(pos).nucleusSegmented=segmentation.nucleusSegmented;
-        % here put a routine to check and list lost cells
     end
     if mapNucleus
         segmentation.nucleusMapped(frames(1):frames(end))=1;
@@ -214,15 +211,11 @@ nstore2=0;
         
         
     fprintf(['Saving pos: ' num2str(pos) '\n\n']);
-    
-    %fprintf(['Saving Position: ' num2str(l) '...\n\n']);
+   
     
     if segCells || mapCells || segNucleus || mapNucleus || gaufit
     at_save;
     end
-    
-    %     fprintf(['Compute cell cycle stat: ' num2str(l) '...\n']);
-%
 
      if cellcycle
          fprintf(['Cell cycle analysis- pos: ' num2str(pos) '\n\n']);
@@ -243,21 +236,21 @@ if display
     end
 end
 
-function gaussianFluoFit(i,cha)
-global segmentation
-
-
-nucleus=segmentation.nucleus(i,:);
-
-imbud=phy_loadTimeLapseImage(segmentation.position,i,cha,'non retreat');
-tmp=imresize(imbud,2);
-
-for j=1:length(nucleus)
-    if nucleus(j).n~=0
-        [fluo npeaks peak fitresult gof]=at_measureNucleusFluo(nucleus(j),tmp);
-        segmentation.nucleus(i,j).Mean=fluo;
-    end
-end
+% function gaussianFluoFit(i,cha)
+% global segmentation
+% 
+% 
+% nucleus=segmentation.nucleus(i,:);
+% 
+% imbud=phy_loadTimeLapseImage(segmentation.position,i,cha,'non retreat');
+% tmp=imresize(imbud,2);
+% 
+% for j=1:length(nucleus)
+%     if nucleus(j).n~=0
+%         [fluo npeaks peak fitresult gof]=at_measureNucleusFluo(nucleus(j),tmp);
+%         segmentation.nucleus(i,j).Mean=fluo;
+%     end
+% end
 
 
 function nstore=mappeNucleus(cc,nstore,i)
@@ -402,22 +395,3 @@ for i = 1:1:numel(map)
     end
 end
 
-%%
-
-function updateProgressMonitor(message, progress, maximum)
-persistent previousLineLength;
-
-if isempty(previousLineLength)
-    previousLineLength = 0;
-end
-
-percentage = round(progress * 100 / maximum);
-%        animation = 'oOC(|)|(Cc';
-animation = '-\|/';
-animationIndex = 1 + mod(progress, length(animation));
-line = sprintf('%s: % 4.3g %% %s', message, percentage, animation(animationIndex));
-
-fprintf([repmat('\b', [1 previousLineLength]) '%s'], line);
-pause(0.01);
-
-previousLineLength = length(line);

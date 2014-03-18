@@ -1,10 +1,10 @@
-function out=at_load(path)
+function at_load(path)
 % load project for autotrack analysis (automated trackeing of budding yeast
 % cell cycle
 global timeLapse segmentation
 
 
-out=0;
+
 
 if nargin==0
 [FileName,PathName,FilterIndex] = uigetfile({'*.mat','Time Lapse project'},'Select time lapse project',[]);
@@ -47,9 +47,8 @@ if ~isfield(timeLapse,'autotrack')
    
 end
 
-out=1;
-
 at_setParameters;
+cd(timeLapse.realPath)
 
 % display segmentation state
 for i=1:numel(timeLapse.position.list)

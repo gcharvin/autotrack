@@ -22,7 +22,7 @@ function varargout = at_display(varargin)
 
 % Edit the above text to modify the response to help at_display
 
-% Last Modified by GUIDE v2.5 17-Mar-2014 11:23:06
+% Last Modified by GUIDE v2.5 18-Mar-2014 09:10:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -547,6 +547,7 @@ end
 set(handles.statlist,'String',str);
 set(handles.statlist,'Value',pix);
 
+
 % format table 
 dt=datastat(pix).stats;
 dt=[round(dt(:,1:14)) round(dt(:,15+200:30+200)) round(dt(:,31+500:32+500))];
@@ -566,6 +567,11 @@ str(31:32)={'mu unbud','mu bud'};
 
 
 set(handles.table,'ColumnName',str);
+
+totcells=size(dt,1);
+pix=length(find(dt(:,6)==1));
+
+set(handles.info,'String',[num2str(totcells) ' cells;' num2str(pix) ' outliers; ' num2str(round(100*(totcells - pix)/totcells)) '% good']);
 
 % plot scatter1 vs scatter2
 
@@ -1015,4 +1021,3 @@ xlim(sca*[stats(row,8) stats(row,14)+stats(row,13)+stats(row,12)+stats(row,11)+s
 
 
 % PLOT DATA AS A MATRIX
-

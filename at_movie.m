@@ -1,6 +1,13 @@
 function at_movie(statindex,option)
 global datastat segmentation timeLapse
 
+% TO DO : fix problems with contour synchronization 
+% TO DO : movie for the whole field of view 
+% TO DO : movie to display the evolution of fluorescence // cell size over
+% time 
+% TO DO : movie to display histograms being constructed as time goes during
+% the progresison of the cell cluster
+
 
 if nargin==1
     option=0;
@@ -38,10 +45,10 @@ contours.incells=[];
 end
 contours.channelGroup=[1];
 
-contours(2)=contours;
-contours(2).object='budnecks';
-contours(2).incells=[5 18];
-contours(2).cycle=[];
+%contours(2)=contours;
+%contours(2).object='budnecks';
+%contours(2).incells=[5 18];
+%contours(2).cycle=[];
 
 
 timeLapse.list(1).setLowLevel=700;

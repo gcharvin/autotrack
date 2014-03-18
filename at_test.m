@@ -100,27 +100,27 @@ if segNucleus
     hfluo2=[];
     pause(0.01);
     
-    disp('Quantification of Histone level using 2D gaussian fit');
-    
-    for i=1:numel(nucleus)
-        [fluo npeaks peak fitresults gof]=at_measureNucleusFluo(nucleus(i),imbud); %'display);
-        
-        hfluo=[hfluo peak];
-        hfluo2=[hfluo2 nucleus(i).fluoMax(channel)];
-        
-        updateProgressMonitor('Progress', i,  numel(nucleus));
-        % fitresults,gof
-    end
-    
-    figure, plot(hfluo2,hfluo,'LineStyle','none','Marker','.','MarkerSize',25);
-    xlabel('Max fluo level in nucleus');
-    ylabel('Histone level based on gaussian fit');
-    xlim([0 1.1*max(hfluo2)]);
-    ylim([0 1.1*max(hfluo)]);
-    %hfluo,hfluo2
-    cc=corrcoef(hfluo,hfluo2);
-    disp('\n');
-    disp(['Correlation: ' num2str(cc(1,2))]);
+%     disp('Quantification of Histone level using 2D gaussian fit');
+%     
+%     for i=1:numel(nucleus)
+%         [fluo npeaks peak fitresults gof]=at_measureNucleusFluo(nucleus(i),imbud); %'display);
+%         
+%         hfluo=[hfluo peak];
+%         hfluo2=[hfluo2 nucleus(i).fluoMax(channel)];
+%         
+%         updateProgressMonitor('Progress', i,  numel(nucleus));
+%         % fitresults,gof
+%     end
+%     
+%     figure, plot(hfluo2,hfluo,'LineStyle','none','Marker','.','MarkerSize',25);
+%     xlabel('Max fluo level in nucleus');
+%     ylabel('Histone level based on gaussian fit');
+%     xlim([0 1.1*max(hfluo2)]);
+%     ylim([0 1.1*max(hfluo)]);
+%     %hfluo,hfluo2
+%     cc=corrcoef(hfluo,hfluo2);
+%     disp('\n');
+%     disp(['Correlation: ' num2str(cc(1,2))]);
 end
 
 
@@ -140,26 +140,6 @@ if segCells
     for i=1:numel(cells)
         plot(cells(i).x, cells(i).y,'Color','r');
     end
-    
-    [imcells cells1]=segmentCells(frame,0.85*thr);
-    figure, imshow(imcells,[]); hold on;
-    
-    disp(['Green - Thr : ' num2str(0.85*thr) ' - ' num2str(numel(cells1)) ' objects- ' num2str(round(mean([cells1.area]))) ' pixels']);
-    
-    for i=1:numel(cells1)
-        plot(cells1(i).x, cells1(i).y,'Color','g');
-    end
-    
-    [imcells cells2]=segmentCells(frame,1.15*thr);
-    figure, imshow(imcells,[]); hold on;
-    disp(['Blue - Thr : ' num2str(1.15*thr) ' - ' num2str(numel(cells2)) ' objects- ' num2str(round(mean([cells2.area]))) ' pixels']);
-    
-    
-    for i=1:numel(cells2)
-        plot(cells2(i).x, cells2(i).y,'Color','b');
-    end
-    
-    
     
 end
 
