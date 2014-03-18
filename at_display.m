@@ -482,7 +482,7 @@ end
 
 stats=[];
 for i=1:numel(val)
-    stats=[stats ; datastat(i).stats];
+    stats=[stats ; datastat(val(i)).stats];
 end
 
 n=numel(datastat)+1;
