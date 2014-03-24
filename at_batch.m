@@ -81,7 +81,7 @@ else
     mapCells = getMapValue(varargin, 'mapcells');
     cellcycle = getMapValue(varargin, 'cellcycle');
     display = getMapValue(varargin, 'display');
-    gaufit = getMapValue(varargin, 'gaufit');
+  %  gaufit = getMapValue(varargin, 'gaufit');
 end
 
 
