@@ -202,7 +202,7 @@ nstore2=0; % cells number counter
     
     segmentation.frameChanged(frames(1):frames(end))=1;
     
-     if mapCells 
+     if mapCells && mapNucleus
              fprintf(['Link Nucleus/Cells - pos:' num2str(pos) '\n']);
              at_linkCellNucleus;
              fprintf(['Parentage Cells - pos:' num2str(pos) '\n']);
