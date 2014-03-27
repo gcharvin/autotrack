@@ -35,4 +35,5 @@ set(handles.table,'ColumnName',str);
 
 val1=get(handles.scatter1,'Value');
 val2=get(handles.scatter2,'Value');
+
 plotStat(val1,val2,handles);

@@ -69,6 +69,19 @@ p(2,4,1).select();
 plot(randn(100, 1))
 axis auto
 
+h=figure;
+q=panel();
+q = panel();
+
+q.pack(4);
+q(1).pack(1,5);
+q(2).pack(1,5);
+q(3).pack(1,5);
+q(4).pack(1,3);
+q.select('all');
+q.identify()
+
+
 
 
 
