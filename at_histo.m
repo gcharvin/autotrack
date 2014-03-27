@@ -132,12 +132,12 @@ p(2,1,i).select();
         
         for j=1:size(M,1)
             
-            
-        if k==2 % plot total cell (M+B) size instead of M size
-        T_M{j}=coef*(stats(M{j,1},ind)+stats(M{j,1},ind+5));   
-        else
-        T_M{j}=coef*stats(M{j,1},ind);
+        
+        if i==1
+            coef=3; % timing in minutes
         end
+
+        T_M{j}=coef*stats(M{j,1},ind);
         
         leg1{j}=[M{j,2} '=' num2str(round(10*mean( T_M{j}))/10) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
         

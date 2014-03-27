@@ -22,7 +22,7 @@ function varargout = at_display(varargin)
 
 % Edit the above text to modify the response to help at_display
 
-% Last Modified by GUIDE v2.5 18-Mar-2014 09:10:41
+% Last Modified by GUIDE v2.5 27-Mar-2014 15:31:44
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -499,6 +499,7 @@ n=numel(datastat)+1;
 datastat(n).stats=stats;
 datastat(n).path=['-pool' num2str(n)];
 datastat(n).selected=1;
+datastat(n).outlier=datastat(val(1)).outlier;
 
 updateDisplay(handles);
 
@@ -762,18 +763,8 @@ function histo_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-global datastat
 
-
-
-
-
-at_histo('age');
-
-%at_corr();
-
-
-
+at_histo();
 
 
 
@@ -782,7 +773,6 @@ function displayTraj_Callback(hObject, eventdata, handles)
 % hObject    handle to displayTraj (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 global datastat timeLapse
 
@@ -863,3 +853,20 @@ xlim(sca*[stats(row,8) stats(row,14)+stats(row,13)+stats(row,12)+stats(row,11)+s
 
 
 % PLOT DATA AS A MATRIX
+
+
+% --- Executes on button press in corr.
+function corr_Callback(hObject, eventdata, handles)
+% hObject    handle to corr (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+at_corr();
+
+
+% --- Executes on button press in age.
+function age_Callback(hObject, eventdata, handles)
+% hObject    handle to age (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+at_histo('age');

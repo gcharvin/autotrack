@@ -1,90 +1,236 @@
-function at_plotHistoCompare(stats1,stats2)
-% plot histogram for a given stat file
+function at_plotHistoCompare(statarr,strarr)
+global datastat
+% compare different stat files
+
+% statarr: array of index in at_display to compare
+% strarr : cell array of string containing names of stat files
 
 
-ind=9;
+path=datastat(statarr(1)).path;
+[path file ext]=fileparts(path);
 
-% construct histograms
-
-figure; 
-
-M1=find(stats1(:,5)==1 & stats1(:,6)==0);
-D1=find(stats1(:,5)==0 & stats1(:,6)==0);
-
-M2=find(stats2(:,5)==1 & stats2(:,6)==0);
-D2=find(stats2(:,5)==0 & stats2(:,6)==0);
+display1=at_name('tdiv','tg1','ts','tg2','tana');
+display2=at_name('vdiv','vg1','vs','vg2','vana');
+display3=at_name('vbdiv','vbg1','vbs','vbg2','vbana');
+display4=at_name('tbud','muunbud','mubud');
+display=[display1 display2 display3];
 
 
-T_D1=stats1(D1,ind+1);
-T_M1=stats1(M1,ind+1);
-G1_D1=stats1(D1,ind+2);
-G1_M1=stats1(M1,ind+2);
-S_D1=stats1(D1,ind+3);
-S_M1=stats1(M1,ind+3);
-G2_D1=stats1(D1,ind+4);
-G2_M1=stats1(M1,ind+4);
-A_D1=stats1(D1,ind+5);
-A_M1=stats1(M1,ind+5);
+for ii=1:2
+        
+h=figure;
+width=1000;
+height=1000;
+set(h,'Color','w','Position',[100 100 width height]);
+p = panel();
 
-T_D2=stats2(D2,ind+1);
-T_M2=stats2(M2,ind+1);
-G1_D2=stats2(D2,ind+2);
-G1_M2=stats2(M2,ind+2);
-S_D2=stats2(D2,ind+3);
-S_M2=stats2(M2,ind+3);
-G2_D2=stats2(D2,ind+4);
-G2_M2=stats2(M2,ind+4);
-A_D2=stats2(D2,ind+5);
-A_M2=stats2(M2,ind+5);
+p.pack('v',{3/4 []});
+p(1).pack(3,5);
+p(2).pack(1,3);
 
-sca=3;
+p.fontsize=12;
 
-subplot(2,5,1); plotHisto(T_D2,T_D1,sca,'Daughter Events #')
-subplot(2,5,2); plotHisto(G1_D2,G1_D1,sca)
-subplot(2,5,3); plotHisto(S_D2,S_D1,sca)
-subplot(2,5,4); plotHisto(G2_D2,G2_D1,sca)
-subplot(2,5,5); plotHisto(A_D2,A_D1,sca)
+maxen=zeros(1,3);
+cc=1;
 
-subplot(2,5,6); plotHisto(T_M2,T_M1,sca,'Mother Events #')
-subplot(2,5,7); plotHisto(G1_M2,G1_M1,sca)
-subplot(2,5,8); plotHisto(S_M2,S_M1,sca)
-subplot(2,5,9); plotHisto(G2_M2,G2_M1,sca)
-subplot(2,5,10); plotHisto(A_M2,A_M1,sca)
+M={};
 
 
-N_D1=length(T_D1)
-N_M1=length(T_M1)
-N_D2=length(T_D2)
-N_M2=length(T_M2)
+   for j=1:length(statarr) 
+    stats=datastat(statarr(j)).stats;
+    M{j,1}=find(stats(:,5)==ii-1 & stats(:,6)==0); % select D or Ms
+    M{j,2}=strarr{j} ;  
+   end
 
 
-set(gcf,'Position',[100 100 1500 400],'Color','w');
-pause(0.1);
-refresh
 
-
-function plotHisto(A,B,sca,option)
-
-if nargin==4
-[t n x]=nhist({sca*A,sca*B},'noerror','xlabel','Time (min)','ylabel',option,'fsize',20,'binfactor',1,'minx',0,'samebins','numbers');
-else
-[t n x]=nhist({sca*A,sca*B},'noerror','xlabel','Time (min)','ylabel','','fsize',20,'binfactor',1,'minx',0,'samebins','numbers');   
+for k=1:3
+for m = 1:5 
+        p(1,k,m).select();
+        
+        ind=display(cc);
+        str=at_name(ind);
+        
+        if ii==1
+           str=[cell2mat(str) '-D'];
+        else
+           str=[cell2mat(str) '-M']; 
+        end
+        
+        coef=1;
+        if k==1
+            coef=3;
+        end
+        
+        for j=1:size(M,1)
+        stats=datastat(statarr(j)).stats;
+            
+        if k==2 % plot total cell (M+B) size instead of M size
+        T_M{j}=coef*(stats(M{j,1},ind)+stats(M{j,1},ind+5));   
+        else
+        T_M{j}=coef*stats(M{j,1},ind);
+        end
+        
+        leg1{j}=[M{j,2} '=' num2str(round(10*mean( T_M{j}))/10) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
+        
+        
+        end
+        
+        [t n x]=nhist(T_M,'noerror','xlabel','','ylabel','','fsize',10,'binfactor',1,'minx',0,'samebins','numbers','legend',leg1,'color','qualitative');
+        
+        for j=1:size(M,1)
+        maxen(k)=max(maxen(k),max(max(n{j})));
+        end
+        
+        p(1,k,m).title(str);
+        
+        if m==1
+            ylabel('# Events');
+        else
+            set(gca, 'yticklabel', {});
+        end
+        if m==3 && k==1
+            xlabel('Time (min)');
+        end
+        if m==3 && k==2
+            xlabel('Area (pixels)');
+        end
+        if m==3 && k==3
+            xlabel('Area (pixels)');
+        end
+        cc=cc+1;
+    end
 end
 
-%text(mean(sca*A+1),max(n{1}),'WT','Color',[0.3 0. 1],'FontSize',20);
-%text(mean(sca*B+1),max(n{2}),'whi5','Color',[1 0. 0.3],'FontSize',20);
-
-
-pval=testSignificance(A,B)
-if pval~=0
-    
-    sigstar({sca*round([min(median(A),median(B)) max(median(A), median(B))+2])},[pval]); 
-    
-    eff=(mean(A)-mean(B))./mean(B);
-    title({['WT: ' num2str(round(mean(sca*B))) ' min'],['whi5:' num2str(round(mean(sca*A))) 'min'],['\Delta=' num2str(round(100*eff)) '%']});
-else
-    title({['WT: ' num2str(round(mean(sca*B))) ' min'],['whi5: ' num2str(round(mean(sca*A))) 'min']});
+for n=1:3
+for m = 1:5 % set y axis limits
+        p(1,n,m).select();
+        ylim([0 1.2*maxen(n)]);
+    end
 end
+
+maxen=0;
+
+
+for i=1:length(display4) % display tbud, muunbud and mubud
+p(2,1,i).select();
+        
+        ind=display4(i);
+        str=at_name(ind);
+        
+         if ii==1
+           str=[cell2mat(str) '-D'];
+        else
+           str=[cell2mat(str) '-M']; 
+         end
+        
+        for j=1:size(M,1)
+        stats=datastat(statarr(j)).stats;   
+            
+        if i==1
+            coef=3; % timing in minutes
+        end
+        T_M{j}=coef*stats(M{j,1},ind);
+
+        
+        leg1{j}=[M{j,2} '=' num2str(round(10*mean( T_M{j}))/10) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
+        
+        end
+        
+        [t n x]=nhist(T_M,'noerror','xlabel','','ylabel','','fsize',10,'binfactor',1,'minx',0,'samebins','numbers','legend',leg1,'color','qualitative');
+        
+        for j=1:size(M,1)
+        maxen=max(maxen,max(max(n{j})));
+        end
+        
+        p(2,1,i).title(str);
+        
+        if i==1
+            ylabel('# Events');
+        else
+            set(gca, 'yticklabel', {});
+        end
+        
+        if i==1
+            xlabel('Time (min)');
+        end
+        if i==2
+            xlabel('Growth rate (pixels/fr)');
+        end
+        if i==3
+            xlabel('Growth rate (pixels/fr)');
+        end
+        cc=cc+1;
+end
+
+for i=1:length(display4)
+        p(2,1,i).select();
+        ylim([0 1.2*maxen]);
+end
+
+
+p.de.margin = 20;
+p.margin = [23 20 12 12];
+
+stratio=num2str(width/height);
+
+%f=[path '/' file '-timings' option '.svg'];
+
+if ii==1
+f2=[path '/' file '-compare-D.pdf'];
+else
+f2=[path '/' file '-compare-M.pdf'];    
+end
+
+%p.export(f2, '-pA4','-c1', ['-a' stratio], '-r300');
+
+myExportFig(f2);
+end
+
+% now plot differrences nicely using traj
+
+display=[display display4];
+
+M={};
+for j=1:length(statarr) 
+    stats=datastat(statarr(j)).stats;
+    M{j,1}=find(stats(:,5)==ii-1 & stats(:,6)==0); % select D or Ms
+    M{j,2}=strarr{j} ;
+    
+    T_M=stats(M{j,1},display);
+    
+    avg{j}=mean(T_M,1);
+    CV{j}=std(T_M,0,1)./avg;
+   
+    
+ % Traj(rec,'Color',col,'colorindex',cindex,'tag',['Cell :' num2str(listfull(j,1)) '-' num2str(listfull(j,2))],h,'width',cellwidth,'startX',startX,'startY',startY,'sepColor',[0.9 0.9 0.9],'sepwidth',0);
+end          
+
+
+% 
+% 
+% function plotHisto(A,B,sca,option)
+% 
+% if nargin==4
+% [t n x]=nhist({sca*A,sca*B},'noerror','xlabel','Time (min)','ylabel',option,'fsize',20,'binfactor',1,'minx',0,'samebins','numbers');
+% else
+% [t n x]=nhist({sca*A,sca*B},'noerror','xlabel','Time (min)','ylabel','','fsize',20,'binfactor',1,'minx',0,'samebins','numbers');   
+% end
+% 
+% %text(mean(sca*A+1),max(n{1}),'WT','Color',[0.3 0. 1],'FontSize',20);
+% %text(mean(sca*B+1),max(n{2}),'whi5','Color',[1 0. 0.3],'FontSize',20);
+% 
+% 
+% pval=testSignificance(A,B)
+% if pval~=0
+%     
+%     sigstar({sca*round([min(median(A),median(B)) max(median(A), median(B))+2])},[pval]); 
+%     
+%     eff=(mean(A)-mean(B))./mean(B);
+%     title({['WT: ' num2str(round(mean(sca*B))) ' min'],['whi5:' num2str(round(mean(sca*A))) 'min'],['\Delta=' num2str(round(100*eff)) '%']});
+% else
+%     title({['WT: ' num2str(round(mean(sca*B))) ' min'],['whi5: ' num2str(round(mean(sca*A))) 'min']});
+% end
 
 
 
