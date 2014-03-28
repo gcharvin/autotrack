@@ -186,25 +186,7 @@ end
 
 myExportFig(f2);
 end
-
-% now plot differrences nicely using traj
-
-display=[display display4];
-
-M={};
-for j=1:length(statarr) 
-    stats=datastat(statarr(j)).stats;
-    M{j,1}=find(stats(:,5)==ii-1 & stats(:,6)==0); % select D or Ms
-    M{j,2}=strarr{j} ;
-    
-    T_M=stats(M{j,1},display);
-    
-    avg{j}=mean(T_M,1);
-    CV{j}=std(T_M,0,1)./avg;
-   
-    
- % Traj(rec,'Color',col,'colorindex',cindex,'tag',['Cell :' num2str(listfull(j,1)) '-' num2str(listfull(j,2))],h,'width',cellwidth,'startX',startX,'startY',startY,'sepColor',[0.9 0.9 0.9],'sepwidth',0);
-end          
+        
 
 
 % 
