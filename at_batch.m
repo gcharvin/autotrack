@@ -71,7 +71,7 @@ if nargin==0
         segCells=1;
         mapNucleus=1;
         mapCells=1;
-        gaufit=1;
+      %  gaufit=1;
         display=1;
     end
 else
@@ -213,7 +213,7 @@ nstore2=0; % cells number counter
     fprintf(['Saving pos: ' num2str(pos) '\n\n']);
    
     
-    if segCells || mapCells || segNucleus || mapNucleus || gaufit
+    if segCells || mapCells || segNucleus || mapNucleus
     at_save;
     end
 
