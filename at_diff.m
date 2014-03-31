@@ -1,4 +1,4 @@
-function at_diff(statarr,strarr)
+function at_diff(statarr,strarr,thr)
 global datastat
 % compare different stat files
 
@@ -25,14 +25,20 @@ display=[display1 display2 display3 display4];
 % rm=1:1:z*z;
 % rm=reshape(rm,[z z]);
 
+<<<<<<< HEAD
 thr=1;
+=======
+if nargin==2
+thr=0.3;
+end
+>>>>>>> eb515003feafedb671f020e74b54691ae0408bcd
 
 % colind=reshape(colM,[size(colM,1)*size(colM,1) 1 3]);
 % colind=permute(colind,[1 3 2]);
 % 
 % colind=1-colormap(jet(z));
 
-s=0.1;
+s=0.01;
 
 r1=[1:-s:0 zeros(1,length(s:s:1))];
 g1=[zeros(1,length(1:-s:0)) s:s:1];
@@ -80,15 +86,21 @@ for j=1:length(statarr)
     
     T_M=stats(M{j,1},display);
     
+    if j==1
+        T_M_REF=T_M;
+        T_M_REF(:,6:10)=T_M_REF(:,6:10)+T_M_REF(:,11:15);
+    end
+    
     % plot total cell (M+B) size instead of M size
     T_M(:,6:10)=T_M(:,6:10)+T_M(:,11:15);
     
     
     avg{j}=mean(T_M,1);
+    %a=3*avg{j}
     CV{j}=std(T_M,0,1)./avg{j};
     
     
-    r1=(avg{j}./avg{1}-1);
+    r1=(avg{j}./avg{1})-1;
     r1=min(r1,thr); r1=max(r1,-thr); 
     
     r1=max(1,round(z*0.5*(r1+thr)./thr));
@@ -100,7 +112,7 @@ for j=1:length(statarr)
     rec=[]; cindex=[];
     for i=1:length(avg{j})
        
-            
+ 
             
         rec(i,1)=cellwidth*(i-1);
         rec(i,2)=cellwidth*i;
@@ -125,15 +137,30 @@ for j=1:length(statarr)
     %if j==1
         Traj(rec,'Color',colind,'colorindex',cindex,'tag',['Cell type:' strarr{j} '-' num2str(ii)],h,'width',cellwidth,'startX',startX,'startY',startY,'sepColor',[1 1 1],'sepwidth',2,'gradientWidth',0);
     %end
+    
+    for i=1:length(avg{j}) % plot significance
+        pval=testSignificance(T_M(:,i),T_M_REF(:,i));
+        txt='';
+        if pval==0.05 txt='*'; end 
+        if pval==0.01 txt='**'; end 
+        if pval==0.001 txt='***'; end
+    
+        text(cellwidth*(i-1)+2,startY+0.25*cellwidth,txt,'Color','w','FontSize',20); 
+    end
 end
 
-set(gca,'XTick',cellwidth*([0:1:length(display)-1]+0.5),'XTickLabel',at_name(display));
 set(gca,'YTick',cellwidth*(spacing*[0:1:length(statarr)-1]+spacing),'YTickLabel',strarr);
 
+if ii==0
+    set(gca,'XTick',[]);
+end
 
 axis equal tight
 
 end
+
+
+set(gca,'XTick',cellwidth*([0:1:length(display)-1]+0.5),'XTickLabel',at_name(display));
 
 colormap(colind);
 h_colorbar_axis = colorbar('peer', h_axis);
@@ -148,7 +175,7 @@ ylabel(h_colorbar_axis,'Variations compared to WT (%)  ');
 
 p(3).select(h_colorbar_axis);
 
-p.de.margin=2;
+p.de.margin=4;
 %p(3).margin=[1 1 1 1]
 
 
@@ -192,3 +219,24 @@ end
 %figure, imshow(m);
 
 out=m;
+
+function pval=testSignificance(A,B)
+
+val1=0.05; val2=0.01; val3=0.001;
+h1 = kstest2(A,B,0.05);
+h2 = kstest2(A,B,0.01);
+h3 = kstest2(A,B,0.001);
+
+%p = ranksum(A,B) % wilcoxon ranksum test
+
+pval=0;
+
+if h1
+    pval=val1;
+    if h2
+        pval=val2;
+        if h3
+            pval=val3;
+        end
+    end
+end
