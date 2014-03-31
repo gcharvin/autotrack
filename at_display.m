@@ -523,6 +523,7 @@ if numel(datastat)==0
     datastat.stats=[];
     datastat.path=[];
     datastat.selected=[];
+    datastat.outliser=[];
     n=1;
 else
     n=numel(datastat)+1;

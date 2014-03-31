@@ -184,7 +184,7 @@ end
 
 %p.export(f2, '-pA4','-c1', ['-a' stratio], '-r300');
 
-myExportFig(f2);
+%myExportFig(f2);
 end
         
 

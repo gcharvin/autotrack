@@ -16,8 +16,12 @@ end
  end
  
 stats=statstemp;
-      
+
+if nargin==3
 save(str,'stats','outlier');
+else
+ save(str,'stats');   
+end
 
 
 
