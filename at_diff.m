@@ -92,10 +92,11 @@ for j=1:length(statarr)
     
     
     avg{j}=mean(T_M,1);
+    %a=3*avg{j}
     CV{j}=std(T_M,0,1)./avg{j};
     
     
-    r1=(avg{j}./avg{1}-1);
+    r1=(avg{j}./avg{1})-1;
     r1=min(r1,thr); r1=max(r1,-thr); 
     
     r1=max(1,round(z*0.5*(r1+thr)./thr));
@@ -150,9 +151,10 @@ if ii==0
     set(gca,'XTick',[]);
 end
 
-axis  equal tight
+axis equal tight
 
 end
+
 
 set(gca,'XTick',cellwidth*([0:1:length(display)-1]+0.5),'XTickLabel',at_name(display));
 

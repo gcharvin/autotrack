@@ -82,7 +82,6 @@ for m = 1:5
         maxen(k)=max(maxen(k),max(max(n{j})));
         end
         
-        p(1,k,m).title(str);
         
         if m==1
             ylabel('# Events');
@@ -101,10 +100,19 @@ for m = 1:5
         
         if size(M,1)==2 % plot significance 
            pval=testSignificance(T_M{1},T_M{2});
-           if pval~=0    
-            sigstar({round([min(median(T_M{1}),median(T_M{2})) max(median(T_M{1}), median(T_M{2}))+2])},[pval]); 
+           if pval~=0  
+              % round([min(mean(T_M{1}),mean(T_M{2})) max(mean(T_M{1}), mean(T_M{2}))+2])
+              if pval==0.05 txt='*'; end
+              if pval==0.01 txt='**'; end
+              if pval==0.001 txt='***'; end
+              str=[str ' - ' txt];
+            %sigstar({round([min(median(T_M{1}),median(T_M{2})) max(median(T_M{1}), median(T_M{2}))+0.1*max(median(T_M{1}), median(T_M{2}))])},pval); 
+           else
+              str=[str ' - ns']; 
            end
         end
+        
+        p(1,k,m).title(str);
         
         cc=cc+1;
     end
@@ -151,7 +159,6 @@ p(2,1,i).select();
         maxen=max(maxen,max(max(n{j})));
         end
         
-        p(2,1,i).title(str);
         
         if i==1
             ylabel('# Events');
@@ -169,12 +176,21 @@ p(2,1,i).select();
             xlabel('Growth rate (pixels/fr)');
         end
         
-        if size(M,1)==2 % plot significance 
+         if size(M,1)==2 % plot significance 
            pval=testSignificance(T_M{1},T_M{2});
-           if pval~=0    
-            sigstar({round([min(median(T_M{1}),median(T_M{2})) max(median(T_M{1}), median(T_M{2}))+2])},[pval]); 
+           if pval~=0  
+              % round([min(mean(T_M{1}),mean(T_M{2})) max(mean(T_M{1}), mean(T_M{2}))+2])
+              if pval==0.05 txt='*'; end
+              if pval==0.01 txt='**'; end
+              if pval==0.001 txt='***'; end
+              str=[str ' - ' txt];
+            %sigstar({round([min(median(T_M{1}),median(T_M{2})) max(median(T_M{1}), median(T_M{2}))+0.1*max(median(T_M{1}), median(T_M{2}))])},pval); 
+           else
+              str=[str ' - ns']; 
            end
         end
+        
+        p(2,1,i).title(str);
         
         cc=cc+1;
 end
