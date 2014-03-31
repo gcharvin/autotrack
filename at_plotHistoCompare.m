@@ -98,6 +98,14 @@ for m = 1:5
         if m==3 && k==3
             xlabel('Area (pixels)');
         end
+        
+        if size(M,1)==2 % plot significance 
+           pval=testSignificance(T_M{1},T_M{2});
+           if pval~=0    
+            sigstar({round([min(median(T_M{1}),median(T_M{2})) max(median(T_M{1}), median(T_M{2}))+2])},[pval]); 
+           end
+        end
+        
         cc=cc+1;
     end
 end
