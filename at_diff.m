@@ -65,6 +65,7 @@ for ii=0:1
     else
        text(0.5,0.5,'M','FontSize',20); 
     end
+    line([2 2],[0.05 0.95],'Color','k');
     
     
     h_axis=p(2,ii+1).select();
