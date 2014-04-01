@@ -123,7 +123,6 @@ end
 
 maxen=0;
 
-
 for i=1:length(display4) % display tbud, muunbud and mubud
 p(2,1,i).select();
         

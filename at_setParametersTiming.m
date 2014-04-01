@@ -1,5 +1,5 @@
 function at_setParametersTiming()
-global timeLapse datastat
+global timeLapse datastat at_displayHandles
 
 % default parameters values
 
@@ -132,7 +132,12 @@ end
     datastat(i).stats=stats;
 end
 
+if isfield(at_displayHandles,'figure1')
+    if ishandle(at_displayHandles.figure1)
 at_display
+
+    end
+end
 
 
 %if chi2> timeLapse.autotrack.timing.chi out=1; %chi2
