@@ -135,7 +135,6 @@ end
 if isfield(at_displayHandles,'figure1')
     if ishandle(at_displayHandles.figure1)
 at_display
-
     end
 end
 
