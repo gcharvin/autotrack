@@ -71,7 +71,7 @@ if nargin==0
         segCells=1;
         mapNucleus=1;
         mapCells=1;
-        gaufit=1;
+      %  gaufit=1;
         display=1;
     end
 else
@@ -81,7 +81,7 @@ else
     mapCells = getMapValue(varargin, 'mapcells');
     cellcycle = getMapValue(varargin, 'cellcycle');
     display = getMapValue(varargin, 'display');
-    gaufit = getMapValue(varargin, 'gaufit');
+  %  gaufit = getMapValue(varargin, 'gaufit');
 end
 
 
@@ -201,7 +201,7 @@ nstore2=0; % cells number counter
     
     segmentation.frameChanged(frames(1):frames(end))=1;
     
-     if mapCells 
+     if mapCells && mapNucleus
              fprintf(['Link Nucleus/Cells - pos:' num2str(pos) '\n']);
              at_linkCellNucleus;
              fprintf(['Parentage Cells - pos:' num2str(pos) '\n']);
@@ -212,7 +212,7 @@ nstore2=0; % cells number counter
     fprintf(['Saving pos: ' num2str(pos) '\n\n']);
    
     
-    if segCells || mapCells || segNucleus || mapNucleus || gaufit
+    if segCells || mapCells || segNucleus || mapNucleus
     at_save;
     end
 

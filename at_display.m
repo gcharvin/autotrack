@@ -22,16 +22,16 @@ function varargout = at_display(varargin)
 
 % Edit the above text to modify the response to help at_display
 
-% Last Modified by GUIDE v2.5 18-Mar-2014 09:10:41
+% Last Modified by GUIDE v2.5 27-Mar-2014 15:31:44
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
-                   'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @at_display_OpeningFcn, ...
-                   'gui_OutputFcn',  @at_display_OutputFcn, ...
-                   'gui_LayoutFcn',  [] , ...
-                   'gui_Callback',   []);
+    'gui_Singleton',  gui_Singleton, ...
+    'gui_OpeningFcn', @at_display_OpeningFcn, ...
+    'gui_OutputFcn',  @at_display_OutputFcn, ...
+    'gui_LayoutFcn',  [] , ...
+    'gui_Callback',   []);
 if nargin && ischar(varargin{1})
     gui_State.gui_Callback = str2func(varargin{1});
 end
@@ -58,15 +58,8 @@ global at_displayHandles
 handles.output = hObject;
 
 %format scater plots
-str={};
 
-str{1}='TDiv'; str{2}='TG1'; str{3}='TS'; str{4}='TG2/M'; str{5}='TAnacyt'; 
-str{6}='TBud'; 
-str(7:11)={'V_Cell_div','V_Cell_G1','V_Cell_S','V_Cell_G2/M','V_Cell_Anacyt'};
-str(12:16)={'V_Bud_div','V_Bud_G1','V_Bud_S','V_Bud_G2/M','V_Bud_Anacyt'};
-str(17:21)={'V_Nucl_div','V_Nucl_G1','V_Nucl_S','V_Nucl_G2/M','V_Nucl_Anacyt'};
-str(22:26)={'V_Tot_div','V_Tot_G1','V_Tot_S','V_Tot_G2/M','V_Tot_Anacyt'};
-str(27:28)={'mu_unbud','mu_bud'};
+str=at_name([10:14 215:230 531 532]);
 
 set(handles.scatter1,'String',str);
 set(handles.scatter1,'Value',1);
@@ -97,7 +90,7 @@ guidata(hObject, handles);
 
 
 % --- Outputs from this function are returned to the command line.
-function varargout = at_display_OutputFcn(hObject, eventdata, handles) 
+function varargout = at_display_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -119,18 +112,24 @@ function scatter1_Callback(hObject, eventdata, handles)
 val1=get(hObject,'Value');
 val2=get(handles.scatter2,'Value');
 
+str1=get(hObject,'String');
+str2=get(handles.scatter2,'String');
+
+str1=str1{val1};
+str2=str2{val2};
+
 mtable=handles.table;
 jUIScrollPane = findjobj(mtable);
 jUITable = jUIScrollPane.getViewport.getView;
 
 row = jUITable.getSelectedRow + 1; % Java indexes start at 0
 if row~=0
-plotStat(val1,val2,handles,row);
+    plotStat(str1,str2,handles,row);
 else
-plotStat(val1,val2,handles);    
+    plotStat(str1,str2,handles);
 end
 
-function plotStat(val1,val2,handles,sel)
+function plotStat(str1,str2,handles,sel)
 global datastat;
 
 p=[datastat.selected];
@@ -140,88 +139,90 @@ if numel(pix)==0
 end
 
 stats=datastat(pix).stats;
-ind=9; ind2=9;
 
-if val1>5
-   ind=15+199-5; 
-end
-if val2>5
-   ind2=15+199-5; 
-end
+ind1=at_name(str1);
+ind2=at_name(str2);
 
 %ind2,val2
-dt1=stats(:,ind+val1);
-dt2=stats(:,ind2+val2);
+dt1=stats(:,ind1);
+dt2=stats(:,ind2);
 
-if val1>22 % plot total cel volume
-   dt1=stats(:,ind+val1-10)+stats(:,ind+val1-15);
-end
-if val2>22 % plot total cel volume
-   dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
-end
+%if val1>22 % plot total cel volume
+%   dt1=stats(:,ind+val1-10)+stats(:,ind+val1-15);
+%end
+%if val2>22 % plot total cel volume
+%   dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
+%end
 
-if val1>=27 % plot mu
-    ind=531+val1-27;
-   dt1=stats(:,ind);
-   ind=ind-val1;
-end
-if val2>=27 % plot mu
-    ind2=531+val2-27;
-   dt2=stats(:,ind2);
-   ind2=ind2-val2;
-end
 
 axes(handles.scatterplot);
 
-if val1~=val2
-M=find(stats(:,5)==1 & stats(:,6)==0);
-%OM=find(stats(:,6)==0);
-%iM=intersect(M,OM);
-
-dt2M=dt2(M); dt1M=dt1(M);
-
-D=find(stats(:,5)==0 & stats(:,6)==0);
-%OD=find(stats(:,6)==0);
-%iD=intersect(D,OD);
-dt2D=dt2(D); dt1D=dt1(D);
-
-str='';
-
-if numel(dt2M)~=0   
-h1=plot(dt2M,dt1M,'Color','r','Marker','.','MarkerSize',15,'LineStyle','none'); hold on;
-cM=corrcoef(dt2,dt1);
-if size(cM,2)>=2
-str=[str 'Corr M: ' num2str(cM(1,2))];
-end
-
-set(h1,'ButtonDownFcn',{@plothit,handles});
-end
-
-str=[ str ' - '];
-
-if numel(dt2D)~=0  
-h2=plot(dt2D,dt1D,'Color','b','Marker','.','MarkerSize',15,'LineStyle','none'); hold on;
-set(h2,'ButtonDownFcn',{@plothit,handles});
-cD=corrcoef(dt2D,dt1D);
-if size(cD,2)>=2
-str=[str 'Corr D: ' num2str(cD(1,2))];
-end
-end
-
-if nargin==4
-    dt1p=stats(sel,ind+val1);
-    dt2p=stats(sel,ind2+val2);
-    h3=plot(dt2p,dt1p,'Color','k','Marker','.','MarkerSize',25,'LineStyle','none'); hold off
-end
-
-title(str);
-
-hold off;
-
+if ~strcmp(str1,str2)
+    M=find(stats(:,5)==1 & stats(:,6)==0);
+    %OM=find(stats(:,6)==0);
+    %iM=intersect(M,OM);
+    
+    dt2M=dt2(M); dt1M=dt1(M);
+    
+    D=find(stats(:,5)==0 & stats(:,6)==0);
+    %OD=find(stats(:,6)==0);
+    %iD=intersect(D,OD);
+    dt2D=dt2(D); dt1D=dt1(D);
+    
+    str='';
+    
+    if numel(dt2M)~=0
+        h1=plot(dt2M,dt1M,'Color','r','Marker','.','MarkerSize',15,'LineStyle','none'); hold on;
+        xlabel(str2); ylabel(str1);
+        cM=corrcoef(dt2,dt1);
+        if size(cM,2)>=2
+            str=[str 'Corr M: ' num2str(cM(1,2))];
+        end
+        
+        set(h1,'ButtonDownFcn',{@plothit,handles});
+    end
+    
+    str=[ str ' - '];
+    
+    if numel(dt2D)~=0
+        h2=plot(dt2D,dt1D,'Color','b','Marker','.','MarkerSize',15,'LineStyle','none'); hold on;
+        set(h2,'ButtonDownFcn',{@plothit,handles});
+        cD=corrcoef(dt2D,dt1D);
+        if size(cD,2)>=2
+            str=[str 'Corr D: ' num2str(cD(1,2))];
+        end
+    end
+    
+    if nargin==4
+        dt1p=stats(sel,ind1);
+        dt2p=stats(sel,ind2);
+        h3=plot(dt2p,dt1p,'Color','k','Marker','.','MarkerSize',25,'LineStyle','none'); hold off
+        
+    end
+    
+    title(str);
+    
+    hold off;
+    
 else
- hist(dt1,20,'FaceColor','r');
-xlim([0 max(dt1)])
-title(['Mean: ' num2str(mean(dt1)) ';  COV= ' num2str(std(dt1)/mean(dt1))]);
+    
+    M=find(stats(:,5)==1 & stats(:,6)==0);
+    dt1M=dt1(M);
+    
+    D=find(stats(:,5)==0 & stats(:,6)==0);
+    dt1D=dt1(D);
+    
+    %hist(dt1M,20,'FaceColor','r'); hold on;
+    % hist(dt1D,20,'FaceColor','r');
+    leg1=['Mean: ' num2str(round(mean(dt1M))) ';  COV= ' num2str(round(100*std(dt1M)/mean(dt1M))/100)];
+    leg2=['Mean: ' num2str(round(mean(dt1D))) ';  COV= ' num2str(round(100*std(dt1D)/mean(dt1D))/100)];
+    
+    [t n x]=nhist({dt1M,dt1D},'noerror','xlabel',str2,'ylabel','# Events','fsize',12,'binfactor',1,'minx',0,'samebins','numbers','legend',{leg1,leg2});
+    
+    %xlim([0 max(max(dt1D),max(dt1M))]);
+    
+    xlabel(str2);
+    title('');
 end
 
 
@@ -246,36 +247,38 @@ if numel(pix)==0
 end
 
 stats=datastat(pix).stats;
+outlier=datastat(pix).outlier;
+
 ind=9; ind2=9;
 if val1>5
-   ind=15+199-5; 
+    ind=15+199-5;
 end
 if val2>5
-   ind2=15+199-5; 
+    ind2=15+199-5;
 end
 
 dt1=stats(:,ind+val1);
 dt2=stats(:,ind2+val2);
 
 if val1>22 % plot total cel volume
-   dt1=stats(:,ind+val1-10)+stats(:,ind+val1-15);
+    dt1=stats(:,ind+val1-10)+stats(:,ind+val1-15);
 end
 if val2>22 % plot total cel volume
-   dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
+    dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
 end
 
 if val1>=27 % plot mu
-   dt1=stats(:,531+val1-27);
+    dt1=stats(:,531+val1-27);
 end
 if val2>=27 % plot mu
-   dt2=stats(:,531+val2-27);
+    dt2=stats(:,531+val2-27);
 end
 
 [mi ix]=min(abs(dt2-p(1)));
 
-plotTimePoint(ix,stats,handles);
+plotTimePoint(ix,stats,handles,outlier);
 
-function plotTimePoint(ix,stats,handles)
+function plotTimePoint(ix,stats,handles,outlier)
 
 lin=stats(ix,15:15+99);
 lin=lin(find(lin~=0));
@@ -306,10 +309,10 @@ plot(x+(1:length(fi))-1,fi,'Color','r','LineWidth',2,'LineStyle','--'); hold off
 
 ylabel('HTB2 fluo');
 
-[out str]=at_checkOutlier(stats,ix);
+[out str]=at_checkOutlier(stats,ix,[],outlier);
 if out==1
-   % str
-title(str);
+    % str
+    title(str);
 end
 
 axes(handles.timeplot2);
@@ -364,15 +367,21 @@ function scatter2_Callback(hObject, eventdata, handles)
 val2=get(hObject,'Value');
 val1=get(handles.scatter1,'Value');
 
+str2=get(hObject,'String');
+str1=get(handles.scatter1,'String');
+
+str1=str1{val1};
+str2=str2{val2};
+
 mtable=handles.table;
 jUIScrollPane = findjobj(mtable);
 jUITable = jUIScrollPane.getViewport.getView;
 
 row = jUITable.getSelectedRow + 1; % Java indexes start at 0
 if row~=0
-plotStat(val1,val2,handles,row);
+    plotStat(str1,str2,handles,row);
 else
-plotStat(val1,val2,handles);    
+    plotStat(str1,str2,handles);
 end
 
 
@@ -415,9 +424,9 @@ end
 stats=datastat(pix).stats;
 
 if get(hObject,'Value')
-stats(row,6)=1;
+    stats(row,6)=1;
 else
-stats(row,6)=0;    
+    stats(row,6)=0;
 end
 
 datastat(pix).stats=stats;
@@ -453,16 +462,17 @@ end
 
 stats=datastat(pix).stats;
 path=datastat(pix).path;
+outlier=datastat(pix).outlier;
 
 if strcmp(path(1),'-')
     defpath=datastat(1).path;
     [defpath file]=fileparts(defpath);
-   [file,path] = uiputfile('*.mat','Save stats file as',defpath);
-   path=[path file];
-   datastat(pix).path=path;
-   updateDisplay(handles);
+    [file,path] = uiputfile('*.mat','Save stats file as',defpath);
+    path=[path file];
+    datastat(pix).path=path;
+    updateDisplay(handles);
 end
-at_export(stats,path);
+at_export(stats,path,outlier);
 
 
 
@@ -476,8 +486,8 @@ global datastat
 val=get(handles.statlist,'Value');
 
 if numel(val)<=1
-   errordlg('you must select at least 2 items in the list');
-   return;
+    errordlg('you must select at least 2 items in the list');
+    return;
 end
 
 stats=[];
@@ -489,6 +499,7 @@ n=numel(datastat)+1;
 datastat(n).stats=stats;
 datastat(n).path=['-pool' num2str(n)];
 datastat(n).selected=1;
+datastat(n).outlier=datastat(val(1)).outlier;
 
 updateDisplay(handles);
 
@@ -509,10 +520,11 @@ end
 load(strcat(PathName,FileName));
 
 if numel(datastat)==0
-   datastat.stats=[];
-   datastat.path=[];
-   datastat.selected=[];
-   n=1;
+    datastat.stats=[];
+    datastat.path=[];
+    datastat.selected=[];
+    datastat.outliser=[];
+    n=1;
 else
     n=numel(datastat)+1;
 end
@@ -522,6 +534,12 @@ end
 datastat(n).stats=stats;
 datastat(n).path=strcat(PathName,FileName);
 datastat(n).selected=1;
+
+if exist('outlier','var')
+    datastat(n).outlier=outlier;
+else
+    at_setParametersTiming;
+end
 
 updateDisplay(handles);
 
@@ -548,23 +566,24 @@ set(handles.statlist,'String',str);
 set(handles.statlist,'Value',pix);
 
 
-% format table 
+% format table
 dt=datastat(pix).stats;
 dt=[round(dt(:,1:14)) round(dt(:,15+200:30+200)) round(dt(:,31+500:32+500))];
 
 set(handles.table,'Data',dt);
 set(handles.table,'ColumnWidth',{40 25 30 30 30 30 45 45 30 40  40 40 40 60   70 70 70 70 70 70 70 70 70 70 70 70 70 70 70 70 70 70})
-str{1}='ID'; str{2}='Pos'; str{3}='Cell'; str{4}='Div'; str{5}='M/D'; str{6}='Out'; 
-str{7}='1st F'; str{8}='Detect'; str{9}='Start'; str{10}='Div'; 
-str{11}='G1'; str{12}='S'; str{13}='G2/M'; str{14}='AnaCyt';
+% str{1}='ID'; str{2}='Pos'; str{3}='Cell'; str{4}='Div'; str{5}='M/D'; str{6}='Out';
+% str{7}='1st F'; str{8}='Detect'; str{9}='Start'; str{10}='Div';
+% str{11}='G1'; str{12}='S'; str{13}='G2/M'; str{14}='AnaCyt';
+%
+%
+% str{15}='TBud';
+% str(16:20)={'V_Cell_div','V_Cell_G1','V_Cell_S','V_Cell_G2/M','V_Cell_Anacyt'};
+% str(21:25)={'V_Bud_div','V_Bud_G1','V_Bud_S','V_Bud_G2/M','V_Bud_Anacyt'};
+% str(26:30)={'V_Nucl_div','V_Nucl_G1','V_Nucl_S','V_Nucl_G2/M','V_Nucl_Anacyt'};
+% str(31:32)={'mu unbud','mu bud'};
 
-
-str{15}='TBud'; 
-str(16:20)={'V_Cell_div','V_Cell_G1','V_Cell_S','V_Cell_G2/M','V_Cell_Anacyt'};
-str(21:25)={'V_Bud_div','V_Bud_G1','V_Bud_S','V_Bud_G2/M','V_Bud_Anacyt'};
-str(26:30)={'V_Nucl_div','V_Nucl_G1','V_Nucl_S','V_Nucl_G2/M','V_Nucl_Anacyt'};
-str(31:32)={'mu unbud','mu bud'};
-
+str=at_name([1:14 215:230 531 532]);
 
 set(handles.table,'ColumnName',str);
 
@@ -577,7 +596,14 @@ set(handles.info,'String',[num2str(totcells) ' cells;' num2str(pix) ' outliers; 
 
 val1=get(handles.scatter1,'Value');
 val2=get(handles.scatter2,'Value');
-plotStat(val1,val2,handles);
+
+str1=get(handles.scatter1,'String');
+str2=get(handles.scatter2,'String');
+
+str1=str1{val1};
+str2=str2{val2};
+
+plotStat(str1,str2,handles);
 
 % --- Executes on selection change in statlist.
 function statlist_Callback(hObject, eventdata, handles)
@@ -596,7 +622,7 @@ if numel(val)>1
 end
 
 for i=1:numel(datastat)
-  datastat(i).selected=0;  
+    datastat(i).selected=0;
 end
 datastat(val).selected=1;
 
@@ -708,19 +734,27 @@ if numel(pix)==0
 end
 
 stats=datastat(pix).stats;
+outlier=datastat(pix).outlier;
 
 if numel(eventdata.Indices)>0
-ind= eventdata.Indices(1);
-
-st=stats(ind,6);
-set(handles.outlier,'Value',st);
-
-plotTimePoint(ind,stats,handles);
-
-
-val1=get(handles.scatter1,'Value');
-val2=get(handles.scatter2,'Value');
-plotStat(val1,val2,handles,ind);
+    ind= eventdata.Indices(1);
+    
+    st=stats(ind,6);
+    set(handles.outlier,'Value',st);
+    
+    plotTimePoint(ind,stats,handles,outlier);
+    
+    
+    val1=get(handles.scatter1,'Value');
+    val2=get(handles.scatter2,'Value');
+    
+    str1=get(handles.scatter1,'String');
+    str2=get(handles.scatter2,'String');
+    
+    str1=str1{val1};
+    str2=str2{val2};
+    
+    plotStat(str1,str2,handles,ind);
 end
 
 
@@ -730,209 +764,9 @@ function histo_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-global datastat
 
+at_histo();
 
-p=[datastat.selected];
-pix=find(p==1,1,'first');
-if numel(pix)==0
-    return;
-end
-
-stats=datastat(pix).stats;
-ind=9;
-
-% construct histograms
-
-figure; 
-
-M=find(stats(:,5)==1 & stats(:,6)==0);
-D=find(stats(:,5)==0 & stats(:,6)==0);
-
-T_D=stats(D,ind+1);
-T_M=stats(M,ind+1);
-G1_D=stats(D,ind+2);
-G1_M=stats(M,ind+2);
-S_D=stats(D,ind+3);
-S_M=stats(M,ind+3);
-G2_D=stats(D,ind+4);
-G2_M=stats(M,ind+4);
-A_D=stats(D,ind+5);
-A_M=stats(M,ind+5);
-
-if numel(T_D)==0
-    T_D=0;
-    G1_D=0;
-    S_D=0;
-    G2_D=0;
-    A_D=0;
-end
-
-
-xT=0:10:3*(max(max(T_D),max(T_M)));
-xG1=0:10:3*(max(max(G1_D),max(G1_M)));
-xG2=0:5:3*(max(max(G2_D),max(G2_M)));
-xS=0:5:3*(max(max(S_D),max(S_M)));
-xA=0:5:3*(max(max(A_D),max(A_M)));
-
-if T_D(1)==0
-    T_D=[];
-    G1_D=[];
-    S_D=[];
-    G2_D=[];
-    A_D=[];
-end
-
-
-
-    subplot(2,5,1);
-
-    %xT=[];
-    if numel(T_D)
-        %xT=0:10:3*max(T_D);
-        y=hist(3*T_D,xT); bar(xT,y,'FaceColor','r'); xlim([0 max(xT)]);
-        title(['T D: <>=' num2str(mean(3*T_D)) ' ; CV=' num2str(std(T_D)/mean(T_D)) '; n=' num2str(length(T_D))]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-
-    subplot(2,5,2);
-
-    %xG1=[];
-    if numel(G1_D)
-        %xG1=0:10:3*max(G1_D);
-        y=hist(3*G1_D,xG1); bar(xG1,y,'FaceColor','r'); xlim([0 max(xG1)]);
-        title(['G1 D: <>=' num2str(mean(3*G1_D)) ' ; CV=' num2str(std(G1_D)/mean(G1_D)) ]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-
-    subplot(2,5,3);
-
-    %xS=[];
-    if numel(S_D)
-        %xS=0:5:3*max(S_D);
-        y=hist(3*S_D,xS); bar(xS,y,'FaceColor','r'); xlim([0 max(xS)]);
-        title(['S D: <>=' num2str(mean(3*S_D)) ' ; CV=' num2str(std(S_D)/mean(S_D)) ]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-
-    subplot(2,5,4);
-
-    %xG2=[];
-    if numel(G2_D)
-        %xG2=0:5:3*max(G2_D);
-        y=hist(3*G2_D,xG2); bar(xG2,y,'FaceColor','r'); xlim([0 max(xG2)]);
-        title(['G2/M D: <>=' num2str(mean(3*G2_D)) ' ; CV=' num2str(std(G2_D)/mean(G2_D)) ]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-    
-      subplot(2,5,5);
-
-    %xG2=[];
-    if numel(A_D)
-        %xG2=0:5:3*max(G2_D);
-        y=hist(3*A_D,xA); bar(xA,y,'FaceColor','r'); xlim([0 max(xA)]);
-        title(['Ana/Cyt D: <>=' num2str(mean(3*A_D)) ' ; CV=' num2str(std(A_D)/mean(A_D)) ]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-
-
-    subplot(2,5,6);
-
-    if numel(T_M)
-        % if numel(xT)==0
-        %    xT=0:10:3*max(T_M);
-        %end
-
-        y=hist(3*T_M,xT); bar(xT,y,'FaceColor','r'); xlim([0 max(xT)]);
-        title(['T M: <>=' num2str(mean(3*T_M)) ' ; CV=' num2str(std(T_M)/mean(T_M)) '; n=' num2str(length(T_M))]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-
-    subplot(2,5,7);
-    if numel(G1_M)
-        %if numel(xG1)==0
-        %   xG1=0:10:3*max(G1_M);
-        %end
-        y=hist(3*G1_M,xG1); bar(xG1,y,'FaceColor','r'); xlim([0 max(xG1)]);
-        title(['G1 M: <>=' num2str(mean(3*G1_M)) ' ; CV=' num2str(std(G1_M)/mean(G1_M)) ]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-
-    subplot(2,5,8);
-    if numel(S_M)
-        %if numel(xS)==0
-        %   xS=0:5:3*max(S_M);
-        %end
-        y=hist(3*S_M,xS); bar(xS,y,'FaceColor','r'); xlim([0 max(xS)]); %max(xS)
-        title(['S M: <>=' num2str(mean(3*S_M)) ' ; CV=' num2str(std(S_M)/mean(S_M)) ]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-
-    subplot(2,5,9);
-    if numel(G2_M)
-        %if numel(xS)==0
-        %   xS=0:5:3*max(G2_M);
-        %end
-        y=hist(3*G2_M,xG2); bar(xG2,y,'FaceColor','r'); xlim([0 max(xG2)]);
-        title(['G2/M M: <>=' num2str(mean(3*G2_M)) ' ; CV=' num2str(std(G2_M)/mean(G2_M)) ]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-    
-    subplot(2,5,10);
-
-    %xG2=[];
-    if numel(A_M)
-        %xG2=0:5:3*max(G2_D);
-        y=hist(3*A_M,xA); bar(xA,y,'FaceColor','r'); xlim([0 max(xA)]);
-        title(['Ana/Cyt M: <>=' num2str(mean(3*A_M)) ' ; CV=' num2str(std(A_M)/mean(A_M)) ]);
-        xlabel('Time (min)');
-        ylabel('# of events');
-    end
-
-
-    % plot mean traj data
-
-%     plot correlation between phase durations
-
-
-    X_D=[T_D , G1_D , S_D , G2_D, A_D];
-    X_M=[T_M , G1_M , S_M , G2_M, A_M];
-
-    D=corrcoef(X_D); 
-    M=corrcoef(X_M);
-    
-    M(end+1,:)=0;
-    M(:,end+1)=0;
-    D(end+1,:)=0;
-    D(:,end+1)=0;
-    %M
-    
-    xedges = linspace(1,6,6);
-    yedges = linspace(1,6,6);
- 
-  figure; pcolor(xedges,yedges,M); colormap jet; colorbar ; axis square tight;
-  set(gca,'XTick',[1.5, 2.5, 3.5, 4.5, 5.5]);
-  set(gca,'XTickLabel',{'Div','G1','S','G2/M','Ana'});
-  set(gca,'YTick',[1.5, 2.5, 3.5, 4.5, 5.5]);
-  set(gca,'YTickLabel',{'Div','G1','S','G2/M','Ana'}); 
-  title('Mother Phase Correlations');
-  
-    figure; pcolor(xedges,yedges,D); colormap jet; colorbar ; axis square tight;
-  set(gca,'XTick',[1.5, 2.5, 3.5, 4.5, 5.5]);
-  set(gca,'XTickLabel',{'Div','G1','S','G2/M','Ana'});
-  set(gca,'YTick',[1.5, 2.5, 3.5, 4.5, 5.5]);
-  set(gca,'YTickLabel',{'Div','G1','S','G2/M','Ana'}); 
-   title('Daughter Phase Correlations');
-  
 
 
 % --- Executes on button press in displayTraj.
@@ -940,7 +774,6 @@ function displayTraj_Callback(hObject, eventdata, handles)
 % hObject    handle to displayTraj (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 global datastat timeLapse
 
@@ -984,7 +817,7 @@ sca=double(timeLapse.interval/60);
 %sca=1;
 
 plot(sca*(x+(1:length(lin))-1),lin,'Color','r','LineWidth',3); hold on
-plot(sca*(x+(1:length(fi))-1),fi,'Color','k','LineWidth',3,'LineStyle','--'); 
+plot(sca*(x+(1:length(fi))-1),fi,'Color','k','LineWidth',3,'LineStyle','--');
 
 %xlim([sca*x sca*(x+length(lin)-1)]);
 set(gca,'FontSize',20);
@@ -1021,3 +854,20 @@ xlim(sca*[stats(row,8) stats(row,14)+stats(row,13)+stats(row,12)+stats(row,11)+s
 
 
 % PLOT DATA AS A MATRIX
+
+
+% --- Executes on button press in corr.
+function corr_Callback(hObject, eventdata, handles)
+% hObject    handle to corr (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+at_corr();
+
+
+% --- Executes on button press in age.
+function age_Callback(hObject, eventdata, handles)
+% hObject    handle to age (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+at_histo('age');

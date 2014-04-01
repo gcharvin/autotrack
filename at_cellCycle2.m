@@ -412,10 +412,7 @@ stats(a,cc:cc+ma-1)=areaN(1:ma); cc=cc+100; % nucleus size
 stats(a,cc)=mu_unbud; cc=cc+1; %   vol G2
 stats(a,cc)=mu_bud; cc=cc+1; % vol A
 
-
-chi2=chi2/ (max(fluo))^2;
-
-stats(a,cc)=chi2; cc=cc+1; % vol A
+stats(a,cc)=volume.AB/volume.AM; cc=cc+1; % asymmetry M/D at division
 
 out=at_checkOutlier(stats,a,mother);
 

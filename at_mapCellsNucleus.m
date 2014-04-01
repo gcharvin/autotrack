@@ -396,8 +396,11 @@ dist=[];
 n=[tcells1.N];
 
 for i=1:length(candidates)
-   % i,candidates(i)
+    %i,candidates(i)
     pix=find(n==candidates(i));
+    if numel(pix)==0
+        continue
+    end
     fluo=[tcells1(pix).Obj.fluoMean];
     fluo=reshape(fluo,length(tcells1(pix).Obj(1).fluoMean),[]);
     fluo=fluo(channel,:);

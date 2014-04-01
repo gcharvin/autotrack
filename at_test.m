@@ -184,9 +184,9 @@ channel=segmentation.processing.parameters{1,14}{1,2};
 
 
 imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
-warning off all
-imcells=imresize(imcells,0.5);
-warning on all
+%warning off all
+%imcells=imresize(imcells,0.5);
+%warning on all
 
 %segmentation.cells1(i,:)=phy_Object;
 
