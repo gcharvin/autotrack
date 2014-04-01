@@ -47,8 +47,9 @@ cc=cc+1; out(cc:cc+99)={'volcell'};
 cc=cc+100; out(cc:cc+99)={'volbud'};
 cc=cc+100; out(cc:cc+99)={'volnuc'};
 
-cc=cc+100; out{cc}='muunbud';
-cc=cc+1; out{cc}='mubud';
+cc=cc+100; out{cc}='mub';
+cc=cc+1; out{cc}='mb';
+cc=cc+1; out{cc}='asy';
     
 if strcmp(class(varargin{1}),'char')
 value = getMapValue(varargin,out);

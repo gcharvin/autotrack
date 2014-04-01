@@ -20,7 +20,7 @@ end
 display1=at_name('tdiv','tg1','ts','tg2','tana');
 display2=at_name('vdiv','vg1','vs','vg2','vana');
 display3=at_name('vbdiv','vbg1','vbs','vbg2','vbana');
-display4=at_name('tbud','muunbud','mubud');
+display4=at_name('tbud','mub','mb','asy');
 display=[display1 display2 display3];
 
 h=figure;
@@ -31,7 +31,7 @@ p = panel();
 
 p.pack('v',{3/4 []});
 p(1).pack(3,5);
-p(2).pack(1,3);
+p(2).pack(1,length(display4));
 %p(3).pack(1,5);
 %p(4).pack(1,5);
 %p(5).pack(1,3);
@@ -83,7 +83,7 @@ for m = 1:5
         T_M{j}=coef*stats(M{j,1},ind);
         end
         
-        leg1{j}=[M{j,2} '=' num2str(round(10*mean( T_M{j}))/10) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
+        leg1{j}=[M{j,2} '=' num2str(round(100*mean( T_M{j}))/100) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
         
         
         end
@@ -139,7 +139,7 @@ p(2,1,i).select();
 
         T_M{j}=coef*stats(M{j,1},ind);
         
-        leg1{j}=[M{j,2} '=' num2str(round(10*mean( T_M{j}))/10) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
+        leg1{j}=[M{j,2} '=' num2str(round(100*mean( T_M{j}))/100) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
         
         end
         

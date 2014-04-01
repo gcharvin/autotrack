@@ -12,7 +12,7 @@ path=datastat(statarr(1)).path;
 display1=at_name('tdiv','tg1','ts','tg2','tana');
 display2=at_name('vdiv','vg1','vs','vg2','vana');
 display3=at_name('vbdiv','vbg1','vbs','vbg2','vbana');
-display4=at_name('tbud','muunbud','mubud');
+display4=at_name('tbud','mub','mb','asy');
 display=[display1 display2 display3];
 
 
@@ -26,7 +26,7 @@ p = panel();
 
 p.pack('v',{3/4 []});
 p(1).pack(3,5);
-p(2).pack(1,3);
+p(2).pack(1,length(display4));
 
 p.fontsize=12;
 
@@ -128,7 +128,7 @@ end
 maxen=0;
 
 
-for i=1:length(display4) % display tbud, muunbud and mubud
+for i=1:length(display4) % display tbud, muunbud and mubud and asy
 p(2,1,i).select();
         
         ind=display4(i);
@@ -149,7 +149,7 @@ p(2,1,i).select();
         T_M{j}=coef*stats(M{j,1},ind);
 
         
-        leg1{j}=[M{j,2} '=' num2str(round(10*mean( T_M{j}))/10) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
+        leg1{j}=[M{j,2} '=' num2str(round(100*mean( T_M{j}))/100) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
         
         end
         

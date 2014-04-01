@@ -14,7 +14,7 @@ path=datastat(statarr(1)).path;
 display1=at_name('tdiv','tg1','ts','tg2','tana');
 display2=at_name('vdiv','vg1','vs','vg2','vana');
 display3=at_name('vbdiv','vbg1','vbs','vbg2','vbana');
-display4=at_name('tbud','muunbud','mubud');
+display4=at_name('tbud','mub','mb','asy');
 display=[display1 display2 display3 display4];
 
 % now plot differrences nicely using traj
