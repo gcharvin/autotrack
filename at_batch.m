@@ -176,7 +176,6 @@ nstore2=0; % cells number counter
             displayCells(imcell,imbud,i,hcells,hnucleus)
         end
         
-        
         cc=cc+1;
     end
 
