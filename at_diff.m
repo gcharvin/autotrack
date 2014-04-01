@@ -25,9 +25,13 @@ display=[display1 display2 display3 display4];
 % rm=1:1:z*z;
 % rm=reshape(rm,[z z]);
 
+<<<<<<< HEAD
+thr=1;
+=======
 if nargin==2
 thr=0.3;
 end
+>>>>>>> eb515003feafedb671f020e74b54691ae0408bcd
 
 % colind=reshape(colM,[size(colM,1)*size(colM,1) 1 3]);
 % colind=permute(colind,[1 3 2]);
@@ -177,7 +181,7 @@ p.de.margin=4;
 
 f2=[path '/' file '-compare-synth.pdf'];    
 
-myExportFig(f2,'-zbuffer');
+%myExportFig(f2,'-zbuffer');
 
 
 function out=colorpic
