@@ -23,14 +23,21 @@ localpath=localpath(1:end-1);
 
 if nargin==3
     
+    if isunix
 save([localpath '/stats.mat'],'stats','outlier');
 eval(['!mv ' [localpath '/stats.mat'] ' ' str]);
+    else
+save(str,'stats','outlier');        
+    end
 
 
 else
-    
+    if isunix
 save([localpath '/stats.mat'],'stats');
 eval(['!mv ' [localpath '/stats.mat'] ' ' str]);
+    else
+ save(str,'stats');          
+    end
   
 end
 
