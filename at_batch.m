@@ -184,37 +184,40 @@ nstore2=0; % cells number counter
         cc=cc+1;
     end
     
-    at_log(['Segmentation/Mapping is done for position : ' num2str(pos)],'w',pos,'batch')
+    at_log(['Segmentation/Mapping is done for position : ' num2str(pos)],'a',pos,'batch')
 
     
     if segCells
         segmentation.cells1Segmented(frames(1):frames(end))=1;
-        timeLapse.autotrack.position(pos).cells1Segmented=segmentation.cells1Segmented;
     end
+    timeLapse.autotrack.position(pos).cells1Segmented=segmentation.cells1Segmented;
+    
     if segNucleus
         segmentation.nucleusSegmented(frames(1):frames(end))=1;
-        timeLapse.autotrack.position(pos).nucleusSegmented=segmentation.nucleusSegmented;
     end
+    timeLapse.autotrack.position(pos).nucleusSegmented=segmentation.nucleusSegmented;
+    
     if mapNucleus
         segmentation.nucleusMapped(frames(1):frames(end))=1;
-        timeLapse.autotrack.position(pos).nucleusMapped=segmentation.nucleusMapped;
         [segmentation.tnucleus fchange]=phy_makeTObject(segmentation.nucleus);
     end
+    timeLapse.autotrack.position(pos).nucleusMapped=segmentation.nucleusMapped;
+    
      if mapCells
         segmentation.cells1Mapped(frames(1):frames(end))=1;
-        timeLapse.autotrack.position(pos).cells1Mapped=segmentation.cells1Mapped;
         [segmentation.tcells1 fchange]=phy_makeTObject(segmentation.cells1);
-    end
+     end
+    timeLapse.autotrack.position(pos).cells1Mapped=segmentation.cells1Mapped;
     
     segmentation.frameChanged(frames(1):frames(end))=1;
     
      if mapCells && mapNucleus
          
-         at_log(['Start Link Nucleus/Cells  for position : ' num2str(pos)],'w',pos,'batch');
+         at_log(['Start Link Nucleus/Cells  for position : ' num2str(pos)],'a',pos,'batch');
              fprintf(['Link Nucleus/Cells - pos:' num2str(pos) '\n']);
              at_linkCellNucleus;
              fprintf(['Parentage Cells - pos:' num2str(pos) '\n']);
-             at_log(['Start mapCell Nucleus  for position : ' num2str(pos)],'w',pos,'batch')
+             at_log(['Start mapCell Nucleus  for position : ' num2str(pos)],'a',pos,'batch')
              at_mapCellsNucleus(timeLapse.autotrack.processing.nucleus(1));
      end
         
@@ -224,14 +227,14 @@ nstore2=0; % cells number counter
     
     if  segCells || mapCells || segNucleus || mapNucleus
     at_save;
-    at_log(['Segmentation saved : ' num2str(pos)],'w',pos,'batch')
+    at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
 
      if cellcycle
-         at_log(['Start cell cycle analysis : ' num2str(pos)],'w',pos,'batch')
+         at_log(['Start cell cycle analysis : ' num2str(pos)],'a',pos,'batch')
          fprintf(['Cell cycle analysis- pos: ' num2str(pos) '\n\n']);
         at_cellCycle2([],0); % last argument is position number
-        at_log(['Cell cycle analysis done : ' num2str(pos)],'w',pos,'batch')
+        at_log(['Cell cycle analysis done : ' num2str(pos)],'a',pos,'batch')
      end
     
 end
@@ -294,7 +297,9 @@ if cc>1
     trackFrame=find(temp==0,1,'last');
     
     cell0=segmentation.cells1(trackFrame,:);
-    cell1=segmentation.cells1(i,:);
+
+    
+  cell1=segmentation.cells1(i,:);
     
     parametres=segmentation.processing.parameters{4,9};
     

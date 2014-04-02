@@ -17,10 +17,21 @@ end
  
 stats=statstemp;
 
+
+localpath=userpath;
+localpath=localpath(1:end-1);
+
 if nargin==3
-save(str,'stats','outlier');
+    
+save([localpath '/stats.mat'],'stats','outlier');
+eval(['!mv ' [localpath '/stats.mat'] ' ' str]);
+
+
 else
- save(str,'stats');   
+    
+save([localpath '/stats.mat'],'stats');
+eval(['!mv ' [localpath '/stats.mat'] ' ' str]);
+  
 end
 
 
