@@ -23,6 +23,10 @@ end
 timeLapse.realPath=PathName;
 timeLapse.realName=FileName;
 
+if ~isfield(timeLapse,'startedDate')
+  timeLapse.startedDate=datestr(now);  
+end
+
 disp(['TimeLapse project: ' FileName ' loaded succesfully']);
 
 % create autotrack struc if does not exist
