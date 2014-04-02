@@ -27,8 +27,17 @@ if fraC==0 && fraN==0
     at_tranferParametersToSegmentation()
     
 
-    save(fullfile(timeLapse.realPath,timeLapse.pathList.position{position},filen),'segmentation');
-    save(fullfile(timeLapse.realPath,[timeLapse.filename '-project.mat']),'timeLapse');
+   localpath=userpath;
+localpath=localpath(1:end-1);
+
+save([localpath '/segmentation-autotrack.mat'],'segmentation');
+eval(['!mv ' [localpath '/segmentation-autotrack.mat'] ' ' fullfile(timeLapse.realPath,timeLapse.pathList.position{position},filen)]);
+%save(fullfile(timeLapse.realPath,timeLapse.pathList.position{pos},'segmentation-autotrack.mat'),'segmentation');
+
+save([localpath '/timeLapse.mat'],'timeLapse');
+eval(['!mv ' [localpath '/timeLapse.mat'] ' ' fullfile(timeLapse.realPath,[timeLapse.filename '-project.mat'])]);
+
+
 else
 %    open previous ssegmentation for position
     out=phy_openSegmentationProject(position,'segmentation-autotrack.mat');
