@@ -73,7 +73,9 @@ if nargin==0
         mapCells=1;
       %  gaufit=1;
         display=1;
+        binning=0;
     end
+    
 else
     segCells = getMapValue(varargin, 'cells');
     segNucleus = getMapValue(varargin, 'nucleus');
@@ -81,6 +83,7 @@ else
     mapCells = getMapValue(varargin, 'mapcells');
     cellcycle = getMapValue(varargin, 'cellcycle');
     display = getMapValue(varargin, 'display');
+    binning = getBinningValue(varargin, 'binning');
   %  gaufit = getMapValue(varargin, 'gaufit');
 end
 
@@ -148,7 +151,7 @@ nstore2=0; % cells number counter
         
         if segNucleus
             fprintf(['Segment Nuclei - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
-            imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1));
+            imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1),binning);
         end
         
       
@@ -171,7 +174,9 @@ nstore2=0; % cells number counter
         
         if display
             if numel(imbud)~=0
-               imbud= imresize(imbud,2);
+               if binning~=1
+               imbud= imresize(imbud,binning);
+               end
             end
             displayCells(imcell,imbud,i,hcells,hnucleus)
         end
@@ -297,7 +302,7 @@ if cc>1
 end
 
 
-function displayCells(imcells,imbud,i,hcells,hnucleus)
+function displayCells(imcells,imbud,i,hcells,hnucleus,binning)
 global segmentation
 
 if ishandle(hcells)
@@ -363,7 +368,7 @@ for j=1:length(cells)
 end
 
 %%
-function imbud=segmentNucleus(i,channel)
+function imbud=segmentNucleus(i,channel,binning)
 global segmentation
 
 imbud=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
@@ -382,11 +387,11 @@ for j=1:length(budnecktemp)
     if budnecktemp(j).n~=0
         segmentation.nucleus(i,j)=budnecktemp(j);
         segmentation.nucleus(i,j).image=i;
-        segmentation.nucleus(i,j).x=2*segmentation.nucleus(i,j).x;
-        segmentation.nucleus(i,j).y=2*segmentation.nucleus(i,j).y;
-        segmentation.nucleus(i,j).oy=mean(segmentation.nucleus(i,j).y);
-        segmentation.nucleus(i,j).ox=mean(segmentation.nucleus(i,j).x);
-        segmentation.nucleus(i,j).area=4*segmentation.nucleus(i,j).area;
+        segmentation.nucleus(i,j).x=binning*segmentation.nucleus(i,j).x;
+        segmentation.nucleus(i,j).y=binning*segmentation.nucleus(i,j).y;
+        segmentation.nucleus(i,j).oy=mean(binning*segmentation.nucleus(i,j).y);
+        segmentation.nucleus(i,j).ox=mean(binning*segmentation.nucleus(i,j).x);
+        segmentation.nucleus(i,j).area=binning*binning*segmentation.nucleus(i,j).area;
     end
 end
 
@@ -397,6 +402,17 @@ value = 0;
 for i = 1:1:numel(map)
     if strcmp(map{i}, key)
         value = 1;
+        
+        return
+    end
+end
+
+function value = getBinningValue(map, key)
+value = 2;
+
+for i = 1:1:numel(map)
+    if strcmp(map{i}, key)
+        value = map{i+1};
         
         return
     end
