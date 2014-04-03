@@ -26,9 +26,9 @@ if fraC==0 && fraN==0
     end
     at_tranferParametersToSegmentation()
     
-    %if isfield(timeLapse.autotrack.position,'ROI')
+    if isfield(timeLapse.autotrack.position,'ROI')
    segmentation.ROI=timeLapse.autotrack.position(segmentation.position).ROI;
-    %end
+    end
    
    localpath=userpath;
 localpath=localpath(1:end-1);
