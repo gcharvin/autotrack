@@ -12,6 +12,7 @@
 % nuclei and cells is established
 % 'cellcycle':extract cellcycle phase
 % 'display' : display running segmentation
+% 'binning', bin : binning factor used for nucleus : default 2
 
 % 
 % example :
@@ -362,9 +363,42 @@ segmentation.cells1(i,:)=phy_Object;
 %     return;
 % end
 
-cells=phy_segmentWatershedGC2(imcells,segmentation.processing.parameters{1,14}{2,2},...
-    segmentation.processing.parameters{1,14}{3,2},...
+if ~isfield(segmentation,'ROI')
+nROI=1;
+roiarr=[1 1 size(imcells,2) size(imcells,1)];
+else
+   if numel(segmentation.ROI)==0
+      nROI=1;
+      roiarr=[1 1 size(imcells,2) size(imcells,1)]; 
+   else
+      roiarr=segmentation.ROI;
+      nROI=size(roiarr,1); 
+   end
+end
+
+cc=0;
+cells=phy_Object;
+ 
+for k=1:nROI
+
+imtemp=imcells(roiarr(k,2):roiarr(k,2)+roiarr(k,4)-1,roiarr(k,1):roiarr(k,1)+roiarr(k,3)-1);
+
+%figure, imshow(imtemp,[]);
+
+celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
+    segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
     segmentation.processing.parameters{1,14}{7,2});
+
+for j=1:length(celltemp)
+   cells(cc+j).x=celltemp(j).x+roiarr(k,1)-1;
+   cells(cc+j).y=celltemp(j).y+roiarr(k,2)-1;
+   cells(cc+j).ox=celltemp(j).ox+roiarr(k,1)-1;
+   cells(cc+j).oy=celltemp(j).oy+roiarr(k,2)-1;
+   cells(cc+j).area=celltemp(j).area;
+   cells(cc+j).n=cc+j;
+end
+cc=cc+length(celltemp);
+end
 
 
 for j=1:length(cells)
@@ -373,10 +407,10 @@ for j=1:length(cells)
 end
 
 %%
-function imbud=segmentNucleus(i,channel,binning)
+function imcells=segmentNucleus(i,channel,binning)
 global segmentation
 
-imbud=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
+imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
 %warning off all
 %imbud=imresize(imbud,2);
 %warning on all
@@ -385,20 +419,53 @@ imbud=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
 
 parametres=segmentation.processing.parameters{4,15};
 
-budnecktemp=phy_segmentNucleus(imbud,parametres{4,2},parametres{2,2},parametres{3,2},parametres{1,2});
+if ~isfield(segmentation,'ROI')
+nROI=1;
+roiarr=[1 1 size(imcells,2) size(imcells,1)];
+else
+   if numel(segmentation.ROI)==0
+      nROI=1;
+      roiarr=[1 1 size(imcells,2) size(imcells,1)]; 
+   else
+      roiarr=segmentation.ROI;
+      nROI=size(roiarr,1); 
+   end
+end
 
-budneck=phy_Object;
-for j=1:length(budnecktemp)
-    if budnecktemp(j).n~=0
-        segmentation.nucleus(i,j)=budnecktemp(j);
+cc=0;
+cells=phy_Object;
+ 
+roiarr=round(roiarr/binning); 
+
+for k=1:nROI
+
+imtemp=imcells(roiarr(k,2):roiarr(k,2)+roiarr(k,4)-1,roiarr(k,1):roiarr(k,1)+roiarr(k,3)-1);
+
+%figure, imshow(imtemp,[]);
+
+celltemp=phy_segmentNucleus(imtemp,parametres{4,2},parametres{2,2},parametres{3,2},parametres{1,2});
+
+for j=1:length(celltemp)
+   cells(cc+j).x=celltemp(j).x+roiarr(k,1)-1;
+   cells(cc+j).y=celltemp(j).y+roiarr(k,2)-1;
+   cells(cc+j).ox=celltemp(j).ox+roiarr(k,1)-1;
+   cells(cc+j).oy=celltemp(j).oy+roiarr(k,2)-1;
+   cells(cc+j).area=celltemp(j).area;
+   cells(cc+j).n=cc+j;
+end
+cc=cc+length(celltemp);
+end
+
+for j=1:length(cells)
+        segmentation.nucleus(i,j)=cells(j);
         segmentation.nucleus(i,j).image=i;
         segmentation.nucleus(i,j).x=binning*segmentation.nucleus(i,j).x;
         segmentation.nucleus(i,j).y=binning*segmentation.nucleus(i,j).y;
         segmentation.nucleus(i,j).oy=mean(binning*segmentation.nucleus(i,j).y);
         segmentation.nucleus(i,j).ox=mean(binning*segmentation.nucleus(i,j).x);
         segmentation.nucleus(i,j).area=binning*binning*segmentation.nucleus(i,j).area;
-    end
 end
+
 
 %%
 function value = getMapValue(map, key)
@@ -422,4 +489,3 @@ for i = 1:1:numel(map)
         return
     end
 end
-

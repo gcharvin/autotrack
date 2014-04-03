@@ -6,9 +6,9 @@ disp('Setting processing parameters');
 
 % default parameters values
 
-tcells1=[1 400 10000 50 0.35];
+tcells1=[1 400 10000 50 0.25];
 tnucleus=[2 10 4000 1000];
-tmapping=[1 40 1 1];
+tmapping=[1 40 1 1 0 0];
 
 
 if ~isfield(timeLapse.autotrack,'processing')
@@ -31,7 +31,7 @@ prompt={'Channel',...
         'Min Size (pixels)',...
         'Max Size (pixels)',...
         'Typical cell diameter (pixels)',...
-        'Threshold (0.2-0.5) NOT USED !'};
+        'Threshold (0.15-0.3)'};
     
 name='Cell Par.';
 numlines=1; answer=inputdlg(prompt,name,numlines,defaultanswer);
@@ -65,6 +65,10 @@ timeLapse.autotrack.processing.nucleus=cell2mat(answer);
 %%% mapping parameters
 if isfield(timeLapse.autotrack.processing,'mapping')   
     tmapping=timeLapse.autotrack.processing.mapping;
+    
+    if numel(tmapping)==4
+       tmapping=[tmapping 0 0];  % for old projects
+    end
 else 
     timeLapse.autotrack.processing.mapping=tmapping;
 end
@@ -74,7 +78,9 @@ defaultanswer=arrayfun(@num2str, tmapping, 'unif', 0);
 prompt={'Persistence NOT USED',...
         'Max Distance',...
         'Allow Cell Shrink',...
-        'NOT USED'};
+        'Weight Distance', ...
+        'Weight Size', ...
+        'Filter'};
     
 name='Mapping Par.';
 numlines=1; answer=inputdlg(prompt,name,numlines,defaultanswer);

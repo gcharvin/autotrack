@@ -19,6 +19,8 @@ end
 for i=1:4
 segmentation.processing.parameters{4,9}{i,2}=timeLapse.autotrack.processing.mapping(i);
 end
-segmentation.processing.parameters{4,9}{5,2}=0;
-segmentation.processing.parameters{4,9}{6,2}=0;
+if numel(timeLapse.autotrack.processing.mapping)==6
+segmentation.processing.parameters{4,9}{5,2}=timeLapse.autotrack.processing.mapping(5);
+segmentation.processing.parameters{4,9}{6,2}=timeLapse.autotrack.processing.mapping(6);
+end
 
