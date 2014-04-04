@@ -450,6 +450,10 @@ for j=1:length(celltemp)
    cells(cc+j).y=celltemp(j).y+roiarr(k,2)-1;
    cells(cc+j).ox=celltemp(j).ox+roiarr(k,1)-1;
    cells(cc+j).oy=celltemp(j).oy+roiarr(k,2)-1;
+   cells(cc+j).fluoMean=celltemp(j).fluoMean;
+   cells(cc+j).Nrpoints=celltemp(j).Nrpoints;
+   cells(cc+j).fluoMin=celltemp(j).fluoMin;
+   cells(cc+j).fluoMax=celltemp(j).fluoMax;
    cells(cc+j).area=celltemp(j).area;
    cells(cc+j).n=cc+j;
 end

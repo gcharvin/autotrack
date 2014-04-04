@@ -28,11 +28,16 @@ for i=1:length(segmentation.tcells1)
         xc=cells1.x;
         yc=cells1.y;
         
+        if numel(xc)==0
+            continue
+        end
+        
         n=[]; score=[]; index=[];
         
         for k=1:length(nucleus)
             xn=nucleus(k).x;
             yn=nucleus(k).y;
+            
             
             scorek=mean(inpolygon(xn,yn,xc,yc));
             

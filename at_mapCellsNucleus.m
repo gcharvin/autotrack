@@ -48,8 +48,10 @@ for i=1:length(segmentation.tcells1)
         info.status=0;
         
         if info.i~=0
+            %if numel(segmentation.nucleus(j,info.i).fluoMean)>=channel
             info.fluo=segmentation.nucleus(j,info.i).fluoMean(channel);
             info.area=segmentation.nucleus(j,info.i).area;
+           % end
         end
         
         
