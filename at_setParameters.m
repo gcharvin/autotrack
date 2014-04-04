@@ -67,7 +67,7 @@ if isfield(timeLapse.autotrack.processing,'mapping')
     tmapping=timeLapse.autotrack.processing.mapping;
     
     if numel(tmapping)==4
-       tmapping=[tmapping 0 0];  % for old projects
+       tmapping=[tmapping; 0; 0];  % for old projects
     end
 else 
     timeLapse.autotrack.processing.mapping=tmapping;
