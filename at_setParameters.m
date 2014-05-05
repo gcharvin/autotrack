@@ -6,7 +6,7 @@ disp('Setting processing parameters');
 
 % default parameters values
 
-tcells1=[1 400 10000 50 0.25];
+tcells1=[1 400 10000 50 0.35];
 tnucleus=[2 10 4000 1000];
 tmapping=[1 40 1 1 0 0];
 
@@ -31,7 +31,7 @@ prompt={'Channel',...
         'Min Size (pixels)',...
         'Max Size (pixels)',...
         'Typical cell diameter (pixels)',...
-        'Threshold (0.15-0.3)'};
+        'Threshold (0.15-0.35)'};
     
 name='Cell Par.';
 numlines=1; answer=inputdlg(prompt,name,numlines,defaultanswer);

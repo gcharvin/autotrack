@@ -177,9 +177,9 @@ function [imcells cells]=segmentCells(i,thr)
 global segmentation
 
 parametres=segmentation.processing.parameters{1,14};
-siz=parametres{4,2}/2;
-mine=parametres{2,2}/4;
-maxe=parametres{3,2}/4;
+siz=parametres{4,2};
+mine=parametres{2,2};
+maxe=parametres{3,2};
 channel=segmentation.processing.parameters{1,14}{1,2};
 
 
@@ -192,6 +192,7 @@ imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
 
 cells=phy_segmentWatershedGC2(imcells,mine,...
     maxe,...
+    segmentation.processing.parameters{1,14}{5,2}, ...
     segmentation.processing.parameters{1,14}{7,2});
 
 

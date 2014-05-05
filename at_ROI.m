@@ -91,7 +91,8 @@ disp(' '); disp('Select the position of the ROI!');
    
    segmentation.ROI=round(roiarrout);
    timeLapse.autotrack.position(segmentation.position).ROI=round(roiarrout);
-   close; pause(0.5);
+   %close; 
+   pause(0.5);
    if nargin==2
    at_save;
    end

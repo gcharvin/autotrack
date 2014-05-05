@@ -11,11 +11,20 @@ stats=datastat(pix).stats;
 path=datastat(pix).path;
 
 pix=find(stats(:,6)==0);
-stats=stats(pix,:); %remove outliers
+stats=stats(pix,:); %remove outliers  
 
+val=at_name('id','division','mother','outlier','detect','fitstart','cyclestart');  
+val=[val at_name('tdiv','tg1','ts','tg2','tana')];  
+val=[val at_name('tbud')];  
+val=[val at_name('vdiv','vg1','vs','vg2','vana')];
+val=[val at_name('vbdiv','vbg1','vbs','vbg2','vbana')];
+val=[val at_name('vndiv','vng1','vns','vng2','vnana')];
+val=[val at_name('mub','mb','asy')];
 
-stats=[stats(:,4:5) stats(:,10:14) stats(:,215:230) stats(:,531:532)];
-str=at_name([4:5 10:14 215:230 531:532]);
+val
+
+stats=stats(:,val);
+str=at_name(val);
 
 [path file]=fileparts(path);
 
