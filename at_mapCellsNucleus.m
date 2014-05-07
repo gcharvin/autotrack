@@ -94,6 +94,11 @@ for i=1:length(segmentation.tcells1)
                         
                        % virginD=0;
                         
+                       %if j==61 && i==26
+                       %    candidates,dist,out,dist2
+                       %   return; 
+                       %end
+                       
                         dist=1./dist;
                         for l=1:length(out)
                             pixo=find(candidates==out(l));
@@ -404,6 +409,7 @@ for i=1:length(candidates)
         continue
     end
     fluo=[tcells1(pix).Obj.fluoMean];
+    fra=[tcells1(pix).Obj.image];
     fluo=reshape(fluo,length(tcells1(pix).Obj(1).fluoMean),[]);
     fluo=fluo(channel,:);
     
@@ -411,10 +417,16 @@ for i=1:length(candidates)
     
     % size(fluo)size(fluo2)
     fluo=fluo.*fluo2;
+    
+   
     fluo=smooth(fluo,6);
-    %figure, plot(fluo)
     
     fluo=-diff(fluo);
+    
+%      if fr==61
+%     figure, plot(fra(1:end-1),fluo); hold on;
+%     title(num2str(candidates(i)));
+%     end
     
     %length(fluo)
     minDiv=min(minDivisionTime,length(fluo)-1);
@@ -435,7 +447,12 @@ for i=1:length(candidates)
     
     % figure, plot(fluo)
     peak=fpeak(1:1:length(fluo),fluo,20,[0 length(fluo) 70000 Inf]); % better function than matlab's fpeak
+   
     locmax=peak(:,1)'+1;
+    
+%     if fr==61
+%        plot(locmax+tcells1(pix).detectionFrame-1,peak(:,2),'Color','r','Marker','o') 
+%     end
     
     %    if candidates(i)==19 || candidates(i)==48 %|| candidates(i)==78
     %       first= tcells1(candidates(i)).detectionFrame-1;
@@ -450,6 +467,12 @@ for i=1:length(candidates)
     % locmax+tcells1(candidates(i)).detectionFrame-1
     
     d=min(abs(locmax+tcells1(pix).detectionFrame-1-fr));
+    
+%     if fr==61
+%         a=candidates(i)
+%         locmax+tcells1(candidates(i)).detectionFrame-1
+%        %d 
+%     end
     
     if d<=2
         out=[out candidates(i)];
