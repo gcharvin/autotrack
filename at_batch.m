@@ -342,6 +342,8 @@ if ishandle(hnucleus)
     for j=1:length(cellsout)
         
         line(cellsout(j).x,cellsout(j).y,'Color','g','LineWidth',1);
+        
+        %a=mean(cellsout(j).x), b=cellsout(j).ox
         text(cellsout(j).ox,cellsout(j).oy,num2str(cellsout(j).n),'Color','g');
     end
     
@@ -421,7 +423,8 @@ parametres=segmentation.processing.parameters{4,15};
 
 if ~isfield(segmentation,'ROI')
 nROI=1;
-roiarr=[1 1 size(imcells,2) size(imcells,1)];
+
+roiarr=[1 1 size(imcells,2) size(imcells,1)]; %*binning;
 else
    if numel(segmentation.ROI)==0
       nROI=1;
@@ -434,8 +437,8 @@ end
 
 cc=0;
 cells=phy_Object;
- 
-roiarr=round(roiarr/binning); 
+
+%roiarr=round(roiarr/binning)
 
 for k=1:nROI
 
@@ -460,13 +463,14 @@ end
 cc=cc+length(celltemp);
 end
 
+
 for j=1:length(cells)
         segmentation.nucleus(i,j)=cells(j);
         segmentation.nucleus(i,j).image=i;
         segmentation.nucleus(i,j).x=binning*segmentation.nucleus(i,j).x;
         segmentation.nucleus(i,j).y=binning*segmentation.nucleus(i,j).y;
-        segmentation.nucleus(i,j).oy=mean(binning*segmentation.nucleus(i,j).y);
-        segmentation.nucleus(i,j).ox=mean(binning*segmentation.nucleus(i,j).x);
+        segmentation.nucleus(i,j).oy=mean(segmentation.nucleus(i,j).y);
+        segmentation.nucleus(i,j).ox=mean(segmentation.nucleus(i,j).x);
         segmentation.nucleus(i,j).area=binning*binning*segmentation.nucleus(i,j).area;
 end
 
