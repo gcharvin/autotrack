@@ -47,7 +47,7 @@ for i=1:length(cellindex)
     %          fluo=fluo(ix); % sort fluo data with increasing time
     %          fluo=fluo-600; % remove zero fo camera
     
-    dat=[segmentation.tcells1(id).Obj.Mean];
+    dat=[segmentation.tcells1(id).Obj.Mean]
     im=[segmentation.tcells1(id).Obj.image];
     %pix=find(arrx>=segmentation.tcells1(id).birthFrame,1,'first');
     fluo=[dat.fluo];
@@ -92,6 +92,7 @@ for i=1:length(cellindex)
             cycles=div;
         end
     end
+   
     
     % convert timings into physical time units:
     cycles_offset=cycles-tc.detectionFrame+1;
@@ -108,15 +109,22 @@ for i=1:length(cellindex)
             starte=cycles_offset(j);
             ende=cycles_offset(j+1);
             tdau=segmentation.tcells1(daughter);
+            
         else
             daughter=dau(j+1);
             starte=cycles_offset(j);
             ende=cycles_offset(j+1);
             tdau=segmentation.tcells1(daughter);
+            
         end
         
-        mine=max(1,starte-cut);
-        maxe=min(length(fluo),ende+cut);
+        if isD && j==1
+        mine=max(1,starte);
+        else
+        mine=max(1,starte-cut);    
+        end
+        
+        maxe=min(length(fluo),ende+2*cut);
         
         if isD && j==1
             mine=max(1,starte); 
@@ -131,7 +139,6 @@ for i=1:length(cellindex)
         % spline fit to get timings
         
         [timings,frame,fluofit,chi2]= computeTimings(fluo_cut,isD & j==1,mine);
-        
         
         if numel(frame)==0
             continue
@@ -240,8 +247,10 @@ if isD==0
 else
     
     timings.cyclestart= mine+includeAna2Cytokinesis;  %+includeAna2Cytokinesis; % end of fluo curve ; cell cycle end
-    timings.tdiv= pp.breaks(5)+includeAna2Cytokinesis;  % tdiv
-    timings.tg1= pp.breaks(2); % tg1
+    timings.tdiv= pp.breaks(5); %+includeAna2Cytokinesis;  % tdiv
+    % remoce includeAna2Cyto since it should be added both at end and
+    % beginnging of cycle
+    timings.tg1= pp.breaks(2)-includeAna2Cytokinesis; % tg1
     timings.ts= pp.breaks(3)-pp.breaks(2); %ts
     timings.tg2= pp.breaks(4)-pp.breaks(3);% tg2/m
     timings.tana= pp.breaks(5)-pp.breaks(4)+includeAna2Cytokinesis; % tanaphase + tcytokinesis : thr should be added for both M and D
