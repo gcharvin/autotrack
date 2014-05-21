@@ -184,7 +184,7 @@ f2=[path '/' file '-timings' option '.pdf'];
 
 %p.export(f2, '-pA4','-c1', ['-a' stratio], '-r300');
 
-myExportFig(f2);
+%myExportFig(f2);
 
 %plot2svg(f); % problem with AI import
 %eval(['!/usr/local/bin/rsvg-convert -f pdf -a ' f ' > ' f2]); %conversion
