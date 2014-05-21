@@ -101,8 +101,6 @@ for i=1:length(cellindex)
         h2=figure;
     end
     
-
-    
     for j=1:numel(cycles)-1
        % j
         if isD
@@ -122,7 +120,6 @@ for i=1:length(cellindex)
         
         if isD && j==1
             mine=max(1,starte); 
-            
         end
         
         fluo_cut=fluo(mine:maxe);
@@ -189,8 +186,6 @@ end
 fprintf('\n');
 
 at_export(stats,segmentation.position);
-
-
 
 function [timings,frame,fluofit,chi2]=computeTimings(fluo,isD,mine)
 
@@ -379,8 +374,10 @@ stats(a,cc)=segmentation.tcells1(id).detectionFrame; cc=cc+1;
 ma=min(length(fluo),100);
 
 % timing information based on HTB2 marker : HTB2 signal
-stats(a,cc:cc+ma-1)=fluo(1:ma)/max(fluo); cc=cc+100;
-stats(a,cc:cc+ma-1)=fluofit(1:ma)/max(fluo); cc=cc+100;
+stats(a,cc:cc+ma-1)=fluo(1:ma);%/max(fluo); removed normalisation
+cc=cc+100;
+stats(a,cc:cc+ma-1)=fluofit(1:ma);%/max(fluo); removed normalization
+cc=cc+100;
 
 % size information base on cell and nucleus area
 %

@@ -1,4 +1,7 @@
 function at_plotTraj(index,order)
+
+% plot timings for multiple cell cycles
+
 global datastat timeLapse
 
 p=[datastat.selected];
@@ -42,7 +45,7 @@ stats=stats(ix,:);
 col=[1 0 0; 0 1 0; 1 1 0; 0 0 1];
 h=figure;
 
-cellwidth=10;
+cellwidth=1;
 startX=0;
 startY=0;
 
@@ -73,11 +76,14 @@ for j=1:size(stats,1)
    % j,a=stats(j,3)
      Traj(rec,'Color',col,'colorindex',cindex,'tag',['Cell :' num2str(stats(j,3)) ' - ' num2str(stats(j,4))],h,'width',cellwidth,'startX',startX,'startY',startY,'sepColor',[0.1 1 0.1],'sepwidth',0,'gradientWidth',0);
     
-     if stats(j,5)~=0
-     rectangle('Position',[0,startY-2,5,4],'FaceColor','k');
+     if stats(j,5)~=0 % plot mother cells
+     rectangle('Position',[0,startY,3,cellwidth],'FaceColor','k');
      end
      
-     startY=startY+cellwidth+2;
+     tbudind=at_name('tbud');
+     rectangle('Position',[stats(j,tbudind),startY,3,cellwidth],'FaceColor','k'); % time at budding
+     
+     startY=startY+cellwidth;
      
 end
 set(gca,'YTickLabel',{},'YTick',[],'Fontsize',20);

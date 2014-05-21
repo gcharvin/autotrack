@@ -829,28 +829,35 @@ ax=axis;
 mine=ax(3);
 maxe=ax(4);
 
+offset=stats(row,7);
 
-x0=[0 0 stats(row,9)-stats(row,8) stats(row,9)-stats(row,8) 0]; x0=x0+stats(row,8); y1=[mine maxe maxe mine mine];
+if stats(row,5)==0
+   offset=offset-2; 
+end
+    
+
+x0=[0 0 stats(row,9)-stats(row,8) stats(row,9)-stats(row,8) 0]; x0=x0+stats(row,8)+offset; y1=[mine maxe maxe mine mine];
 h1=patch(sca*x0,y1,ones(1,length(x0)),'FaceColor','b');
 alpha(h1,0.1);
 
-x1=[0 0 stats(row,11) stats(row,11) 0]; x1=x1+stats(row,9); y1=[mine maxe maxe mine mine];
+x1=[0 0 stats(row,11) stats(row,11) 0]; x1=x1+stats(row,9)+offset; y1=[mine maxe maxe mine mine];
+
 h1=patch(sca*x1,y1,ones(1,length(x1)),'FaceColor','r');
 alpha(h1,0.1);
 
-x2=[0 0 stats(row,12) stats(row,12) 0]; x2=x2+stats(row,11)+stats(row,9); y1=[mine maxe maxe mine mine];
+x2=[0 0 stats(row,12) stats(row,12) 0]; x2=x2+stats(row,11)+stats(row,9)+offset; y1=[mine maxe maxe mine mine];
 h1=patch(sca*x2,y1,ones(1,length(x2)),'FaceColor','g');
 alpha(h1,0.1);
 
-x3=[0 0 stats(row,13) stats(row,13) 0]; x3=x3+stats(row,12)+stats(row,11)+stats(row,9); y1=[mine maxe maxe mine mine];
+x3=[0 0 stats(row,13) stats(row,13) 0]; x3=x3+stats(row,12)+stats(row,11)+stats(row,9)+offset; y1=[mine maxe maxe mine mine];
 h1=patch(sca*x3,y1,ones(1,length(x3)),'FaceColor','y');
 alpha(h1,0.1);
 
-x4=[0 0 stats(row,14) stats(row,14) 0]; x4=x4+stats(row,13)+stats(row,12)+stats(row,11)+stats(row,9); y1=[mine maxe maxe mine mine];
+x4=[0 0 stats(row,14) stats(row,14) 0]; x4=x4+stats(row,13)+stats(row,12)+stats(row,11)+stats(row,9)+offset; y1=[mine maxe maxe mine mine];
 h1=patch(sca*x4,y1,ones(1,length(x4)),'FaceColor','b');
 alpha(h1,0.1);
 
-xlim(sca*[stats(row,8) stats(row,14)+stats(row,13)+stats(row,12)+stats(row,11)+stats(row,9)]);
+xlim(sca*[stats(row,8)+offset stats(row,14)+stats(row,13)+stats(row,12)+stats(row,11)+stats(row,9)+offset]);
 
 
 % PLOT DATA AS A MATRIX
