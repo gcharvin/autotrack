@@ -164,7 +164,6 @@ end
 
 if fluo
 figure(hf(1));
-
 xlim(3*[minex maxex]);
 ylim([miney maxey]);
 

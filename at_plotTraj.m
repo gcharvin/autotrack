@@ -2,7 +2,8 @@ function at_plotTraj(index,order)
 
 % plot timings for multiple cell cycles
 
-global datastat timeLapse
+global datastat 
+%timeLapse
 
 p=[datastat.selected];
 pix=find(p==1,1,'first');
@@ -49,7 +50,7 @@ cellwidth=1;
 startX=0;
 startY=0;
 
-sca=(timeLapse.interval/60);
+sca=3; %(timeLapse.interval/60);
 stats(:,10:end)=stats(:,10:end).*double(sca);   
 
 for j=1:size(stats,1)

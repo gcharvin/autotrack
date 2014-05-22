@@ -59,7 +59,7 @@ handles.output = hObject;
 
 %format scater plots
 
-str=at_name([10:14 215:230 531 532]);
+str=at_name([10:14 215:230 531 532 533]);
 
 set(handles.scatter1,'String',str);
 set(handles.scatter1,'Value',1);
