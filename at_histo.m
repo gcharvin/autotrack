@@ -134,6 +134,8 @@ p(2,1,i).select();
         
         if i==1
             coef=3; % timing in minutes
+        else
+           coef=1; 
         end
 
         T_M{j}=coef*stats(M{j,1},ind);
@@ -164,6 +166,9 @@ p(2,1,i).select();
         end
         if i==3
             xlabel('Growth rate (pixels/fr)');
+        end
+         if i==4
+            xlabel('Bud/M asymmetry');
         end
         cc=cc+1;
 end
