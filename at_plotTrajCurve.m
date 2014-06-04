@@ -82,10 +82,6 @@ maxeyvol=-1e10;
 
 cc=0;
 for i=cycle'
-    
-
-    
-    
 
     fluoc=stats(i,fluoframes);
     pix=find(fluoc>0);
@@ -128,30 +124,72 @@ for i=cycle'
     
     volframes=at_name('volcell');
     vol1=stats(i,volframes);
-    pix=find(vol1>0);
+    %pix=find(vol1>0);
+    %vol=vol1(pix);
+    
+    pix=round(stats(i,9)-stats(i,8)+1:stats(i,9)-stats(i,8)+stats(i,10));
+    %take stats 
+    
     vol=vol1(pix);
-    volframescut=(1:1:numel(pix))+stats(i,7)+stats(i,8)-1;
+    
+    volframescut=pix+stats(i,7)+stats(i,9)-1;
+
 
     budframes=at_name('volbud');
     bud=stats(i,budframes);
-    pix=find(bud>0);
-    bud=bud(pix);
-    budframescut=(1:1:numel(pix))+stats(i,7)+stats(i,8)-1+pix(1);
+    
+    pixbud=intersect(find(bud>0),pix);
+    
+    bud=bud(pixbud);
+    budframescut=pixbud+stats(i,7)+stats(i,9)-1;
+    
+    
+    pix2=pixbud(1)-10:1:pixbud(1)-4;
+    volframescut2=pix2+stats(i,7)+stats(i,9)-1;
 
     if volume
-    plot(3*volframescut, vol, 'Color', 'k','LineWidth',2); hold on
-    plot(3*budframescut, bud+vol1(pix), 'Color', 'r','LineWidth',2); hold on
+    plot(3*volframescut, vol, 'Color', 'b','LineWidth',2); hold on
+    
+    %plot(3*volframescut2, vol(pix2), 'Color', 'g','LineWidth',2); hold on
+    
+    plot(3*budframescut, bud+vol1(pixbud), 'Color', 'r','LineWidth',2); hold on
     end
     
     if volumefit
         
+       [x bfit]=computeTBud(bud+vol1(pixbud),0);
+       
+       %plot(3*budframescut, bud+vol1(pix), 'Color', 'r','LineWidth',2); hold on
+       
+       mine=budframescut(1);
+       xfit=mine-1+x;
+       
+       plot(3*xfit, bfit, 'Color', 'k','LineWidth',2,'LineStyle',':'); hold on
+       
+       [x2 bfit2]=computeTBud(vol1(pix2),stats(i,5));
+       
+       mine=volframescut2(1);
+       xfit2=mine-1+x2;
+       
+       plot(3*xfit2, bfit2, 'Color', 'k','LineWidth',2,'LineStyle',':'); hold on
+       
+       %fit linear polynomial
+p1 = polyfit(xfit,bfit,1);
+p2 = polyfit(xfit2,bfit2,1);
+%calculate intersection
+x_intersect = fzero(@(x) polyval(p1-p2,x),3);
+%y_intersect = polyval(p1,x_intersect);
+
+line([3*x_intersect 3*x_intersect],[0 10000],'LineStyle','-','Color','k','LineWidth',1);
+
+
     end
 
-%[mu_unbud,mu_bud,tbud]=computeTBud(areaM,areaB,mine,maxe)
+
 
 
     mineyvol=min(mineyvol,min(vol));
-    maxeyvol=max(maxeyvol,max(bud+vol1(pix)));
+    maxeyvol=max(maxeyvol,max(bud+vol1(pixbud)));
     
     end
     
@@ -183,24 +221,27 @@ end
 
 
  
- function [mu_unbud,mu_bud,tbud]=computeTBud(areaM,areaB,mine,maxe)
+ function [x bfit tbud]=computeTBud(areaB,mother)
 
 % measure timing associated with bud emergence
 
-x=mine:maxe;
-ind=find(areaB>0,1,'first');
+x=-10:1:length(areaB)+10;
 
 
-p=polyfit(x(ind:end),areaB(ind:end),1);
-f=polyval(p,x);
-ind2=find(f>0,1,'first');
+p=polyfit(1:1:length(areaB),areaB,1-mother);
 
+
+bfit=polyval(p,x);
+
+ind2=find(bfit>0,1,'first');
 tbud=x(ind2);
+
+
 
 % measure growth rate in unbudded / budded period
 
-mu_bud=mean(diff(areaM(ind:end)+areaB(ind:end)));
-mu_unbud=mean(diff(areaM(1:ind2)));
+%mu_bud=mean(diff(areaM(ind:end)+areaB(ind:end)));
+%mu_unbud=mean(diff(areaM(1:ind2)));
 
 
 function lastx=plotPatch(i,stats,miney,maxey,patche,option,lastx)
