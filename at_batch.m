@@ -1,3 +1,4 @@
+
 % batch segmentation and mapping for HTB2 marked cells
 
 % position : [ 1 2 3 8] : list positions to be anayzed
@@ -123,6 +124,7 @@ nstore2=0; % cells number counter
     if mapNucleus at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch'); end
     
     if segCells
+        
     timeLapse.autotrack.position(pos).cells1Segmented=zeros(1,timeLapse.numberOfFrames);
     segmentation.cells1Segmented=zeros(1,timeLapse.numberOfFrames);
     end
