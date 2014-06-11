@@ -29,7 +29,7 @@ for i=1:length(segmentation.tcells1)
     info.n=0;
     info.i=0;
     info.status=0;
-    
+        
     
     link=[];
     link.n=[];
@@ -47,10 +47,17 @@ for i=1:length(segmentation.tcells1)
         info.area=0;
         info.status=0;
         
+        info.peak=0;
+        info.background=0;
+        
         if info.i~=0
             %if numel(segmentation.nucleus(j,info.i).fluoMean)>=channel
             info.fluo=segmentation.nucleus(j,info.i).fluoMean(channel);
             info.area=segmentation.nucleus(j,info.i).area;
+            
+            info.peak=segmentation.nucleus(j,info.i).Nrpoints.peak; % nucleas total intensity
+            % calculated in at_batch / segmentNucleus
+            info.background=segmentation.nucleus(j,info.i).Nrpoints.background; % nucleus background
            % end
         end
         

@@ -44,16 +44,13 @@ for i=1:length(cellindex)
         continue
     end
     
-    %          fluo=fluo(ix); % sort fluo data with increasing time
-    %          fluo=fluo-600; % remove zero fo camera
-    
     dat=[segmentation.tcells1(id).Obj.Mean];
     im=[segmentation.tcells1(id).Obj.image];
     %pix=find(arrx>=segmentation.tcells1(id).birthFrame,1,'first');
-    fluo=[dat.fluo];
-    areanucl=[dat.area];
+    fluo=[dat.peak];
+    %areanucl=[dat.area];
     
-    fluo=fluo.*areanucl; %fluo=fluo(pix:end);
+    %fluo=fluo.*areanucl; %fluo=fluo(pix:end);
     % arrx=im(pix:end);
     
     nonzeropix=find(fluo);
