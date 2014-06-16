@@ -34,7 +34,7 @@ end
 
 for i=1:length(cellindex)
     fprintf('.');
-
+    
     id=cellindex(i);
     
     % detect divisions based on decay of area x mean fluo % or gaussian fit
@@ -48,7 +48,7 @@ for i=1:length(cellindex)
     im=[segmentation.tcells1(id).Obj.image];
     %pix=find(arrx>=segmentation.tcells1(id).birthFrame,1,'first');
     fluo=[dat.peak];
-    %areanucl=[dat.area];
+    areanucl=[dat.area];
     
     %fluo=fluo.*areanucl; %fluo=fluo(pix:end);
     % arrx=im(pix:end);
@@ -135,14 +135,18 @@ for i=1:length(cellindex)
         end
         % spline fit to get timings
         
-        [timings,frame,fluofit,chi2]= computeTimings(fluo_cut,isD & j==1,mine);
+        pe=isinf(fluo_cut); 
+        fluo_cut=fluo_cut(~pe); % remove infinity values
+        pe=sum(pe);
         
+        [timings,frame,fluofit,chi2]= computeTimings(fluo_cut,isD & j==1,mine);
+
         if numel(frame)==0
             continue
         end
         
         if display
-            figure(h); plot(mine+tc.detectionFrame-1:maxe+tc.detectionFrame-1,fluofit,'Color','r','LineWidth',2);
+            figure(h); plot(mine+tc.detectionFrame-1:maxe+tc.detectionFrame-1-pe,fluofit,'Color','r','LineWidth',2);
         end
         
         % determine volume for mother and bud
@@ -530,7 +534,6 @@ y=fluo;
 fixknots = [];
 k = 2;
 %clear shape
-
 
 % function increasing
 %lo = 0;

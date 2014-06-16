@@ -472,16 +472,16 @@ for j=1:length(cells)
         segmentation.nucleus(i,j).oy=mean(segmentation.nucleus(i,j).y);
         segmentation.nucleus(i,j).ox=mean(segmentation.nucleus(i,j).x);
         segmentation.nucleus(i,j).area=binning*binning*segmentation.nucleus(i,j).area;
-       % segmentation.nucleus(i,j).Nrpoints=struct('peak',0,'area',0,'background',0);
+        segmentation.nucleus(i,j).Mean_cell=struct('peak',0,'area',0,'background',0);
         
         % measure total fluorescence within nucleus  contour
         [peak area bckgrd]=at_measureNucleusFluo(segmentation.nucleus(i,j),imcells,binning);
         
-        segmentation.nucleus(i,j).Nrpoints=struct('peak',peak,'area',area,'background',bckgrd);
+        segmentation.nucleus(i,j).Mean_cell=struct('peak',peak,'area',area,'background',bckgrd);
 end
 
 
-
+%c=segmentation.nucleus(i,3).Mean_cell
 
 
 %%
