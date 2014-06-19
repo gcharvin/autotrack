@@ -433,6 +433,9 @@ else
       roiarr=[1 1 size(imcells,2) size(imcells,1)]; 
    else
       roiarr=segmentation.ROI;
+      if binning ~=1
+          roiarr=floor(roiarr/binning);
+      end
       nROI=size(roiarr,1); 
    end
 end
