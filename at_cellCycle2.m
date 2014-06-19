@@ -223,7 +223,8 @@ end
 shape = struct('p',1,'lo',lo,'up',up);
 [fluofit pp chi2]=splineFitCellCycle(fluo,nknots,shape);
 
-if numel(pp.breaks)<nknots
+
+if numel(pp.breaks)<=nknots %wrong number of nodes found 
     return;
 end
 

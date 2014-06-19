@@ -55,13 +55,17 @@ for i=1:length(segmentation.tcells1)
             info.fluo=segmentation.nucleus(j,info.i).fluoMean(channel);
             info.area=segmentation.nucleus(j,info.i).area;
             
-           % b=segmentation.nucleus(j,info.i)
+            if ~isstruct(segmentation.nucleus(j,info.i).Mean_cell)
+                info.peak=0;
+                info.background=0;
+            else
            % a=segmentation.nucleus(j,info.i).Mean_cell.peak
             
             info.peak=segmentation.nucleus(j,info.i).Mean_cell.peak; % nucleas total intensity
             % calculated in at_batch / segmentNucleus
             info.background=segmentation.nucleus(j,info.i).Mean_cell.background; % nucleus background
            % end
+            end
         end
         
         

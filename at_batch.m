@@ -477,7 +477,7 @@ for j=1:length(cells)
         segmentation.nucleus(i,j).Mean_cell=struct('peak',0,'area',0,'background',0);
         
         % measure total fluorescence within nucleus  contour
-        [peak area bckgrd]=at_measureNucleusFluo(segmentation.nucleus(i,j),imcells,binning);
+        [peak, area, bckgrd, ~]=at_measureNucleusFluo(segmentation.nucleus(i,j),imcells,binning);
         
         segmentation.nucleus(i,j).Mean_cell=struct('peak',peak,'area',area,'background',bckgrd);
 end

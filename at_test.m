@@ -168,7 +168,7 @@ warning off all
 %imbud=imresize(imbud,2);
 warning on all
 
-size(imbud)
+%size(imbud)
 
 %figure, imshow(imbud,[]);
 budnecktemp=phy_segmentNucleus(imbud,thr,parametres{2,2},parametres{3,2},parametres{1,2});

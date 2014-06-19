@@ -1,4 +1,4 @@
-function [peak area bckgrd]=at_measureNucleusFluo(nucleus,img,binning,hdisplay)
+function [peak area bckgrd h]=at_measureNucleusFluo(nucleus,img,binning,hdisplay)
 
 % binning = 2 if fluo image is already binned 2x2 (but nucleus contours are
 % not)
@@ -10,20 +10,27 @@ function [peak area bckgrd]=at_measureNucleusFluo(nucleus,img,binning,hdisplay)
 
 global segmentation
 
+if nargin==4
+   h=struct('hfimg',[],'himg',[],'hjet',[],'hfjet',[],'hfval',[],'hval',[]); 
+else
+   h=[]; 
+end
+
 warning off all;
 xp=nucleus.ox/binning;
 yp=nucleus.oy/binning;
 siz=sqrt(nucleus.area/pi)/binning;
 wsize=round(2*siz);
 
+
 %figure, imshow(img,[]); hold on; line(nucleus.x,nucleus.y)
 
 %wsize=12; % to be guessed base don pixel size later
 
-xmin=max(xp-wsize,1);
-xmax=min(xp+wsize,size(img,2));
-ymin=max(yp-wsize,1);
-ymax=min(yp+wsize,size(img,1));
+xmin=max(xp-wsize+1,1);
+xmax=min(xp+wsize+1,size(img,2));
+ymin=max(yp-wsize+1,1);
+ymax=min(yp+wsize+1,size(img,1));
 
 
 subim=img(ymin:ymax,xmin:xmax);
@@ -33,16 +40,29 @@ subim=img(ymin:ymax,xmin:xmax);
 %imshow(subim,[500 4500]);
 
 % find image background
-nb=0:50:10000;
-hi=hist(subim(:),nb);
-[histmax backpix]=max(hi);
-backpix=nb(backpix);
+% nb=0:50:10000;
+% hi=hist(subim(:),nb);
+% [histmax backpix]=max(hi);
+% backpix=nb(backpix);
 
 % integrat pixel intensity for varying contour size
 
-sca=1:0.2:5;
+
+sca=1:0.15:sqrt(9);
+
 cc=1; val=0; pixn=0;
 sizsubim=size(subim);
+
+
+if nargin==4 
+    xc=nucleus.x/binning-nucleus.ox/binning+wsize+1;
+    yc=nucleus.y/binning-nucleus.oy/binning+wsize+1;  
+    h.hfimg=figure;
+    imshow(subim,[]);
+    line(xc,yc,'Color','r','LineWidth',2);
+    h.himg=gca;
+   
+end
 
 %tic
 for i=sca
@@ -52,9 +72,10 @@ for i=sca
    xc=xc-nucleus.ox/binning+wsize+1;
    yc=yc-nucleus.oy/binning+wsize+1;
    
-   %figure(hdisplay); 
-   %colormap jet;
-   %imshow(subim,[500 4500]); hold on; line(xc,yc,'Color','k','LineWidth',2) ;
+   if nargin==4
+      line(xc,yc,'Color','r');
+      
+   end
    
    BW=poly2mask(xc,yc,sizsubim(1),sizsubim(2));
    pix=BW==1;
@@ -70,7 +91,7 @@ end
  p=polyfit(pixn(piw:end),val(piw:end),1);
  f=pixn.*p(1);
  
- thr=0.9;
+ thr=0.99;
  pix=find(val-f>=thr*max(val-f),1,'first'); % find number of pixels such that 90% of pixels of total signal is integrated
  
  peak=(val(pix)-f(pix));
@@ -82,8 +103,16 @@ end
 %f = polyval(p,sca.*sca);
 
 if nargin==4
-figure(hdisplay);
- plot(pixn,val,'lineStyle','.'); hold on; plot(pixn,f,'Color','r');
+    h.hfjet=figure;
+%figure(hdisplay);
+  plot(pixn,val,'MarkerSize',20,'Marker','.','Color','r'); hold on; plot(pixn,polyval(p,pixn),'Color','k','LineStyle','--');
+  xlim([0.9*pixn(1) 1.1*pixn(end)]);
+  h.hjet=gca;
+  
+  h.hfval=figure;
+  plot(pixn,val-f,'MarkerSize',20,'Marker','.','Color','r');
+   xlim([0.9*pixn(1) 1.1*pixn(end)]);
+  h.hval=gca;
 end
 
 % % gaussian fit based on two gaussian - curve fitting
