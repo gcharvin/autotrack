@@ -26,7 +26,9 @@ roiarr(:,3)=130;
 roiarr(:,4)=400;
 roiarr(:,2)=1;
 roiarr(:,1)=1:145:na*145;
-roiarr=vertcat(roiarr,roiarr+repmat([75 400 0 0],size(roiarr,1),1));
+
+
+repmat([75 400 1 1],size(roiarr,1),1)
     end
     if strcmp(roiarr,'delete')
       segmentation.ROI =[];
