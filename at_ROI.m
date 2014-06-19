@@ -33,12 +33,13 @@ out=0;
 if ischar(roiarr)
     if strcmp(roiarr,'aging-nikon')
 % nikon + multiaging cavity
-na=10;
+na=13;
 roiarr=zeros(na,4);
-roiarr(:,3)=150;
-roiarr(:,4)=350;
+roiarr(:,3)=130;
+roiarr(:,4)=400;
 roiarr(:,2)=1;
-roiarr(:,1)=1:185:na*185;
+roiarr(:,1)=1:145:na*145;
+roiarr=vertcat(roiarr,roiarr+repmat([75 400 0 0],size(roiarr,1),1));
     end
     if strcmp(roiarr,'delete')
       segmentation.ROI =[];

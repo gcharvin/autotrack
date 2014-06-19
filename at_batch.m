@@ -433,6 +433,9 @@ else
       roiarr=[1 1 size(imcells,2) size(imcells,1)]; 
    else
       roiarr=segmentation.ROI;
+      if binning ~=1
+          roiarr=floor(roiarr/binning);
+      end
       nROI=size(roiarr,1); 
    end
 end
@@ -477,7 +480,7 @@ for j=1:length(cells)
         segmentation.nucleus(i,j).Mean_cell=struct('peak',0,'area',0,'background',0);
         
         % measure total fluorescence within nucleus  contour
-        [peak area bckgrd]=at_measureNucleusFluo(segmentation.nucleus(i,j),imcells,binning);
+        [peak, area, bckgrd, ~]=at_measureNucleusFluo(segmentation.nucleus(i,j),imcells,binning);
         
         segmentation.nucleus(i,j).Mean_cell=struct('peak',peak,'area',area,'background',bckgrd);
 end
