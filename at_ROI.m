@@ -1,14 +1,27 @@
-function at_ROI(roiarr,pos)
+function at_ROI(roiarr,pos,move)
 global segmentation timeLapse
 
 
 % pos is the position for which ROI needs to be defined
 % roiarr is an array of the form [left1 top1 width1 height1; left2 top2 width2 height2; ...]
 
-if nargin==2   
+% if only one position is selected, then you can choose the location of the
+% ROI
+
+% move : 1 if ROI needs to be moved manually, otherwise 0
+
+
+
+if numel(pos)==0   
+  position=1:1:length(timeLapse.position.list);
+else
+  position=pos;
+end
+
+for pos=position
+
 at_openSeg(pos);
 at_log(['Open position for ROI definition - position : ' num2str(pos)],'a',pos,'batch');
-end
 
 if numel(segmentation)==0
   errordlg('No segmentation is loaded; use : at_ROI(roiarr,pos) to load a position');
@@ -39,15 +52,14 @@ roiarr(:,1)=1:185:na*185;
 end
 
 
-  
-
+%if numel(position)==1
 img=phy_loadTimeLapseImage(segmentation.position,1,1,'nonretreat');
 
 figure, imshow(img,[]);
 
+title(['Position :' num2str(pos)]);
 
-disp(' '); disp('Select the position of the ROI!');
-    drawnow;
+
     
    % [xcenter, ycenter] = ginput(1);
 
@@ -64,7 +76,15 @@ disp(' '); disp('Select the position of the ROI!');
     yi=[yi y0-height/2 y0+height/2 y0+height/2 y0-height/2 y0-height/2];
    end
     
+   
+   
     roi_handler = line(xi,yi,'LineWidth',2,'Color','red'); 
+    
+    
+    if move
+disp(' '); disp('Select the position of the ROI!');
+    drawnow;
+    
     roi_text=text(x0-height/2,y0-width/2-20,[num2str(round(x0-height/2)) ', ' num2str(round(y0-width/2))],'Color','r');
     
     userdata.roiarr = roiarr;
@@ -89,13 +109,23 @@ disp(' '); disp('Select the position of the ROI!');
    roiarrout(:,1)=roiarrout(:,1)+out.x0;
    roiarrout(:,2)=roiarrout(:,2)+out.y0;
    
+   close;
+    else
+    disp('Press any key to continue with next position!');disp(' '); 
+    pause
+    close
+   roiarrout=roiarr; 
+end
+
    segmentation.ROI=round(roiarrout);
    timeLapse.autotrack.position(segmentation.position).ROI=round(roiarrout);
    %close; 
-   pause(0.5);
-   if nargin==2
+   %pause(0.5);
+   %if nargin==2
    at_save;
-   end
+   %end
+   
+end
    
     %
 % Sub-function - change_radius
