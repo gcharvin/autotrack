@@ -357,6 +357,10 @@ global segmentation timeLapse
 % Cll position, Cell ID, cell division number, cycle start, cycle end, tdiv, tg1, ts,
 % tg2, tanaphase, array htb2 fluo, array cell area
 
+if ~isfield(timeLapse,'startedDate')
+ timeLapse.startedDate=now;   
+end
+
 checksum=mean(double(timeLapse.startedDate));
 
 % check if outlier
