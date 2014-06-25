@@ -72,8 +72,7 @@ for m = 1:5
         end
         
         leg1{j}=[M{j,2} '=' num2str(round(10*mean( T_M{j}))/10) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
-        
-        
+
         end
         
         [t n x]=nhist(T_M,'noerror','xlabel','','ylabel','','fsize',10,'binfactor',1,'minx',0,'samebins','numbers','legend',leg1,'color','qualitative');

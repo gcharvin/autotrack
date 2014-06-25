@@ -231,7 +231,7 @@ end
 
 includeAna2Cytokinesis=3.69; % in case the timing between anaphase and cytokinesis should be taken into account
 % previous ( <23 06 2014) value : 2
-% new value is based on measurement of cytokinesis using cdc10
+% new value is based on measurement of cytokinesis using cdc10-mcherry
 
 if isD==0
     
