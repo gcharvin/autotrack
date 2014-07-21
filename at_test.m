@@ -43,11 +43,13 @@ if nargin==0
       frame=str2num(answer{1});
       segNucleus=1;
       segCells=1;
+      cavity=0;
     end
 else
     segCells = getMapValue(varargin, 'cells');
     segNucleus = getMapValue(varargin, 'nucleus');
     cellcycle = getMapValue(varargin, 'cellcycle');
+    cavity=getMapValue(varargin, 'cavity');
 end
 
 at_tranferParametersToSegmentation()
@@ -126,13 +128,19 @@ end
 
 if segCells
     
-    % cell segmentation can be furter improved....
-    
     parametres=segmentation.processing.parameters{1,14};
     thr=parametres{5,2};
     
+     if cavity==1
+                fprintf(['Finding cavity...']);
+
+            [xshift yshift thetashift] = at_cavity('coarse',frame);
+            [~] = at_cavity('fine',frame,[xshift yshift thetashift]);
+     end
+  
+            [imcells cells]=segmentCells(frame,thr,cavity);
     
-    [imcells cells]=segmentCells(frame,thr);
+    
     disp(['Red - Thr : ' num2str(thr) ' - ' num2str(numel(cells)) ' objects- ' num2str(round(mean([cells.area]))) ' pixels']);
     
     
@@ -174,9 +182,9 @@ warning on all
 budnecktemp=phy_segmentNucleus(imbud,thr,parametres{2,2},parametres{3,2},parametres{1,2});
 
 
-
-function [imcells cells]=segmentCells(i,thr)
+function [imcells cells]=segmentCells(i,thr,cavity)
 global segmentation
+
 
 parametres=segmentation.processing.parameters{1,14};
 siz=parametres{4,2};
@@ -184,18 +192,94 @@ mine=parametres{2,2};
 maxe=parametres{3,2};
 channel=segmentation.processing.parameters{1,14}{1,2};
 
-
 imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
-%warning off all
-%imcells=imresize(imcells,0.5);
-%warning on all
 
-%segmentation.cells1(i,:)=phy_Object;
 
-cells=phy_segmentWatershedGC2(imcells,mine,...
-    maxe,...
-    segmentation.processing.parameters{1,14}{5,2}, ...
-    segmentation.processing.parameters{1,14}{7,2});
+segmentation.cells1(i,:)=phy_Object;
+
+% cov=std(double(imcells(:)))/mean(double(imcells(:)));
+% if cov<0.26
+%     segmentation.discardImage(i)=1;
+%     return;
+% end
+
+
+   if cavity==0
+      nROI=1;
+      ROI.box=[1 1 size(imcells,2) size(imcells,1)]; 
+      ROI.BW=[];
+      cavity=1;
+   else
+      ROI=segmentation.ROI;
+      nROI=length(ROI); 
+          cavity=1:nROI;
+   end
+
+
+cc=0;
+cells=phy_Object;
+ 
+for k=cavity
+
+roiarr=ROI(k).box;
+   % size(ROI(k).BW)
+    
+imtemp=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
+
+%size(imtemp) 
+
+%figure, imshow(imtemp,[]);
+%pause
+
+if numel(ROI(k).BW)~=0
+  
+celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
+    segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
+    segmentation.processing.parameters{1,14}{7,2},ROI(k).BW);
+else
+ celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
+    segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
+    segmentation.processing.parameters{1,14}{7,2});   
+end
+
+if numel(celltemp)==1 && celltemp.n==0
+    continue
+end
+
+for j=1:length(celltemp)
+   cells(cc+j).x=celltemp(j).x+roiarr(1)-1;
+   cells(cc+j).y=celltemp(j).y+roiarr(2)-1;
+   cells(cc+j).ox=celltemp(j).ox+roiarr(1)-1;
+   cells(cc+j).oy=celltemp(j).oy+roiarr(2)-1;
+   cells(cc+j).area=celltemp(j).area;
+   cells(cc+j).n=cc+j;
+end
+cc=cc+length(celltemp);
+end
+
+
+
+% function [imcells cells]=segmentCells(i,thr)
+% global segmentation
+% 
+% parametres=segmentation.processing.parameters{1,14};
+% siz=parametres{4,2};
+% mine=parametres{2,2};
+% maxe=parametres{3,2};
+% channel=segmentation.processing.parameters{1,14}{1,2};
+% 
+% 
+% imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
+% %warning off all
+% %imcells=imresize(imcells,0.5);
+% %warning on all
+% 
+% %segmentation.cells1(i,:)=phy_Object;
+% 
+% cells=phy_segmentWatershedGC2(imcells,mine,...
+%     maxe,...
+%     segmentation.processing.parameters{1,14}{5,2}, ...
+%     segmentation.processing.parameters{1,14}{7,2});
 
 
 

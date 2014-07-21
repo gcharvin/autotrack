@@ -1,7 +1,6 @@
 function at_ROI(roiarr,pos,move)
 global segmentation timeLapse
 
-
 % pos is the position for which ROI needs to be defined
 % roiarr is an array of the form [left1 top1 width1 height1; left2 top2 width2 height2; ...]
 
@@ -9,8 +8,6 @@ global segmentation timeLapse
 % ROI
 
 % move : 1 if ROI needs to be moved manually, otherwise 0
-
-
 
 if numel(pos)==0   
   position=1:1:length(timeLapse.position.list);
@@ -118,8 +115,14 @@ disp(' '); disp('Select the position of the ROI!');
    roiarrout=roiarr; 
 end
 
-   segmentation.ROI=round(roiarrout);
-   timeLapse.autotrack.position(segmentation.position).ROI=round(roiarrout);
+   for k=1:length(roiarrout,1)
+   segmentation.ROI(k).box=round(roiarrout(k,:));
+   
+        segmentation.ROI(k).BW=[];
+        segmentation.ROI(k).orient=0;
+   end
+        
+   timeLapse.autotrack.position(segmentation.position).ROI=segmentation.ROI;
    %close; 
    %pause(0.5);
    %if nargin==2

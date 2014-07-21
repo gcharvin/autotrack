@@ -228,8 +228,7 @@ if numel(pp.breaks)<=nknots %wrong number of nodes found
     return;
 end
 
-
-includeAna2Cytokinesis=3.69; % in case the timing between anaphase and cytokinesis should be taken into account
+includeAna2Cytokinesis=2.4; % in case the timing between anaphase and cytokinesis should be taken into account
 % previous ( <23 06 2014) value : 2
 % new value is based on measurement of cytokinesis using cdc10-mcherry
 
@@ -241,6 +240,8 @@ if isD==0
     timings.ts= pp.breaks(4)-pp.breaks(3);  %ts
     timings.tg2= pp.breaks(5)-pp.breaks(4);  % tg2/m
     timings.tana= pp.breaks(6)-pp.breaks(5)+includeAna2Cytokinesis; % tanaphase + tcytokinesis : thr should be added for both M and D
+    
+    %timings
     
     ori=pp.breaks(2)+includeAna2Cytokinesis;
     frame.start=mine+pp.breaks(2)+includeAna2Cytokinesis;

@@ -63,9 +63,9 @@ end
 
 % other constraints
 
-if stats(a,215)<= 0 out=1; %'ok1',b=stats(a,10)
-    str=[str '-tbud=' num2str(stats(a,215))];
-end
+%if stats(a,215)<= 0 out=1; %'ok1',b=stats(a,10)
+%    str=[str '-tbud=' num2str(stats(a,215))];
+%end
 
 if stats(a,216)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-VCellDiv=' num2str(stats(a,216))];

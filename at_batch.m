@@ -14,6 +14,8 @@
 % 'cellcycle':extract cellcycle phase
 % 'display' : display running segmentation
 % 'binning', bin : binning factor used for nucleus : default 2
+% 'cavity' , : find ROI associated with cavities : 0 : process all
+% cavities, array : process specific cavities
 
 % 
 % example :
@@ -76,6 +78,7 @@ if nargin==0
       %  gaufit=1;
         display=1;
         binning=0;
+        cavity=[];
     end
     
 else
@@ -86,6 +89,7 @@ else
     cellcycle = getMapValue(varargin, 'cellcycle');
     display = getMapValue(varargin, 'display');
     binning = getBinningValue(varargin, 'binning');
+    cavity=  getCavityValue(varargin, 'cavity');
   %  gaufit = getMapValue(varargin, 'gaufit');
 end
 
@@ -145,11 +149,22 @@ nstore2=0; % cells number counter
         
         imcell=[];
         imbud=[];
+       
         
         
         if segCells
+            if numel(cavity)
+                fprintf(['Find cavity - frame:' num2str(i) '\n']);
+            if i==frames(1)
+            
+            [xshift yshift thetashift] = at_cavity('coarse',frames(1));
+            [~] = at_cavity('fine',i,[xshift yshift thetashift]); 
+            else
+            [~] = at_cavity('fine',i,[xshift yshift thetashift]); 
+            end
+            end
             fprintf(['Segment Cells - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
-            imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1));
+            imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1),cavity);
         end
         
         if segNucleus
@@ -355,7 +370,7 @@ end
 
 
 %%
-function imcells=segmentCells(i,channel)
+function imcells=segmentCells(i,channel,cavity)
 global segmentation
 
 imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
@@ -373,32 +388,56 @@ roiarr=[1 1 size(imcells,2) size(imcells,1)];
 else
    if numel(segmentation.ROI)==0
       nROI=1;
-      roiarr=[1 1 size(imcells,2) size(imcells,1)]; 
+      ROI.box=[1 1 size(imcells,2) size(imcells,1)]; 
+      ROI.BW=[];
+      cavity=1;
    else
-      roiarr=segmentation.ROI;
-      nROI=size(roiarr,1); 
+      ROI=segmentation.ROI;
+      nROI=length(ROI); 
+      if cavity==0
+          cavity=1:nROI;
+      end
    end
 end
 
 cc=0;
 cells=phy_Object;
  
-for k=1:nROI
+for k=cavity
 
-imtemp=imcells(roiarr(k,2):roiarr(k,2)+roiarr(k,4)-1,roiarr(k,1):roiarr(k,1)+roiarr(k,3)-1);
+roiarr=ROI(k).box;
+   % size(ROI(k).BW)
+    
+imtemp=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
+
+%size(imtemp) 
 
 %figure, imshow(imtemp,[]);
+%pause
 
+if numel(ROI(k).BW)~=0
 celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
     segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
-    segmentation.processing.parameters{1,14}{7,2});
+    segmentation.processing.parameters{1,14}{7,2},ROI(k).BW);
+else
+ celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
+    segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
+    segmentation.processing.parameters{1,14}{7,2});   
+end
+
+if numel(celltemp)==1 && celltemp.n==0
+    continue
+end
 
 for j=1:length(celltemp)
-   cells(cc+j).x=celltemp(j).x+roiarr(k,1)-1;
-   cells(cc+j).y=celltemp(j).y+roiarr(k,2)-1;
-   cells(cc+j).ox=celltemp(j).ox+roiarr(k,1)-1;
-   cells(cc+j).oy=celltemp(j).oy+roiarr(k,2)-1;
+   cells(cc+j).x=celltemp(j).x+roiarr(1)-1;
+   cells(cc+j).y=celltemp(j).y+roiarr(2)-1;
+   cells(cc+j).ox=celltemp(j).ox+roiarr(1)-1;
+   cells(cc+j).oy=celltemp(j).oy+roiarr(2)-1;
    cells(cc+j).area=celltemp(j).area;
+   cells(cc+j).fluoMean(1)=celltemp(j).fluoMean(1);
+   cells(cc+j).fluoVar(1)=celltemp(j).fluoVar(1);
+   cells(cc+j).Nrpoints=k; % cavity number
    cells(cc+j).n=cc+j;
 end
 cc=cc+length(celltemp);
@@ -503,6 +542,17 @@ end
 
 function value = getBinningValue(map, key)
 value = 2;
+
+for i = 1:1:numel(map)
+    if strcmp(map{i}, key)
+        value = map{i+1};
+        
+        return
+    end
+end
+
+function value = getCavityValue(map, key)
+value = [];
 
 for i = 1:1:numel(map)
     if strcmp(map{i}, key)
