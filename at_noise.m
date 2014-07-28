@@ -1,23 +1,63 @@
 function at_noise(index,leg)
-global datastat
+global datastat out
 
+% plot 1) typical temporal trace for the longest lived cell
+% 2) noise spectrum
+% 3) noise integrated over high frequencies + fraction of outliers 
 
-figure; %loglog(ftot,ytot,'LineStyle','None','Marker','.','MarkerSize',6); hold on; 
+h=figure;
+width=1000;
+height=400;
+set(h,'Color','w','Position',[100 100 width height]);
+p = panel();
 
-col={'r','b','g','m','c','y','k'};
+col={'r','b','g','m','c','y','k','r','b','g','m','c','y','k'};
+
 
 cc=1;
+
+p.pack('h',{0.4 0.15 0.15 0.15 0.15});
+p.de.margin=20;
 
 
 for i=index
     stats=datastat(i).stats;
     
+    % plot temporal trace
+    p(1).select(); 
     
+    longtrace=find(stats(:,4)==3);
+    id=stats(longtrace,3);
+    
+    longtrace2=find(stats(longtrace-1,4)==2 & stats(longtrace-2,4)==1 & stats(longtrace-2,3)==stats(longtrace,3) & stats(longtrace-2,3)==stats(longtrace,3),1,'first');
+    
+     if numel(longtrace2)==0
+        warndlg('There is no cell in you experiment with at least 3 consecutive divisions : crappy data ???');  
+     end
+         
+    longtrace=longtrace(longtrace2);
+    
+   
+    
+    for j=longtrace-2:longtrace
+        fluo=at_name('fluo');
+        htb2=stats(j,fluo);
+        htb2=htb2(find(htb2~=0));
+        x=1:1:length(htb2); x=x+stats(j,7)+stats(j,8);
+        plot(x/20,htb2,'Color',col{cc}); hold on
+    end
+        
     outliers=stats(:,6)~=0;
     
     cellsok=stats(~outliers,:);
     outliers=stats(outliers,:);
     
+    
+    frac(cc)=100*double(size(outliers,1))/(double(size(cellsok,1))+double(size(outliers,1)));
+    
+    mothers=find(cellsok(:,5)==1);
+    
+    div(cc)= 3*mean(cellsok(mothers,10));
     fluo=at_name('fluo');
     
 
@@ -45,22 +85,61 @@ for i=index
         end
     end
   
-
     [fmean, ampmean, ftot, ytot]=averagespectrum(ftot,ytot,mtot);
-    [fmeanout, ampmeanout, ftotout, ytotout]=averagespectrum(ftotout,ytotout,mtotout);
+   % [fmeanout, ampmeanout, ftotout, ytotout]=averagespectrum(ftotout,ytotout,mtotout);
     
-    loglog(fmean,ampmean,'Marker','o','MarkerSize',6,'Color',col{cc},'LineStyle','none'); hold on
-    loglog(fmeanout,ampmeanout,'Marker','x','MarkerSize',6,'Color',col{cc},'LineStyle','none'); hold on
+   if cc~=1
+   %axes(h)
+   end
    
-    str{2*i-1}=leg{i};
-    str{2*i}='';
+   p(2).select();
+    loglog(fmean,ampmean,'Marker','o','MarkerSize',6,'Color',col{cc},'LineStyle','none'); hold on
+   set(gca,'XScale','log'); set(gca,'YScale','log');
+    
+   % loglog(fmeanout,ampmeanout,'Marker','x','MarkerSize',6,'Color',col{cc},'LineStyle','none'); hold on
+   
+   
+   fsel=fmean(end-5:end);
+   ampsel=ampmean(end-5:end);
+   
+   inte(cc)=trapz(fsel,ampsel);
+   
+   
+    str{cc}=leg{cc};
+    str2{3*cc-2}=leg{cc};;
+    str2{3*cc-1}=leg{cc};;
+    str2{3*cc}=leg{cc};
+    
+    %str{2*i}='';
   %  pause
    cc=cc+1;  
 end
 
+p(1).select();
+ ylabel('HTB2-GFP fluo (A.U.)'); xlabel('Time (hours)');
+ legend(str2);
+ 
+p(2).select();
  ylabel('Spectrum'); xlabel('Frequency (hours^-1)');
  legend(str);
 
+p(3).select(); %integral of spectrum from 6 minutes to 30 minutes
+h=bar(inte');
+set(h,'faceColor','k');
+set(gca,'XTickLabel',leg);
+ylabel('HF noise');
+
+p(4).select(); %integral of spectrum from 6 minutes to 30 minutes
+h=bar(frac');
+set(h,'faceColor','k');
+set(gca,'XTickLabel',leg);
+ylabel('% Outliers');
+
+p(5).select(); %integral of spectrum from 6 minutes to 30 minutes
+h=bar(div');
+set(h,'faceColor','k');
+set(gca,'XTickLabel',leg);
+ylabel('Mother division time (min)');
 
 function [fmean, ampmean, ftot, ytot]=averagespectrum(ftot,ytot,mtot)
 

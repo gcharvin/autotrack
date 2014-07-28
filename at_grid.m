@@ -1,4 +1,4 @@
-function [xout, yout, xc, yc, w, h, orient]=at_grid
+function [xout, yout, xc, yc, w, h, orient]=at_grid(x0,y0)
 
 global segmentation
 % plot the grid associated with the aging chip on the nikon microscope
@@ -13,27 +13,31 @@ global segmentation
 %x0=[0 0     1.25      4.75    6  6 mean([6 16])  16];
 %y0=[0 -20   -35   -35     -20   0        3.6       0 ];
 
-x0=[0 0     1      8    9  9 mean([9 16])  16];
-y0=[0 -20   -36   -36     -20   0        1       0 ];% works great
+%x0=[0 0     1      8    9  9 mean([9 16])  16];
+%y0=[0 -20   -36   -36     -20   0        1       0 ];% works great
 
 %x0=[0 0     1      7    8  8 mean([8 16])  16];
 %y0=[0 -20   -36   -36     -20   0        1.       0 ]; % works in fine mode
 
-xc=4.5;
-yc=-37/2;
+xbox=(x0(3)+x0(4))/2;
+ybox=-y0(3)/2;
+
+w=2*x0(5);
+h=-1.3*y0(3);
 
 xn=[]; yn=[];
 
+% interpolating single pattern
 for i=1:length(x0)-1
     d=sqrt( (x0(i+1)-x0(i)).^2+(y0(i+1)-y0(i)).^2);
     xn=[xn linspace(x0(i),x0(i+1),round(d))];
     yn=[yn linspace(y0(i),y0(i+1),round(d))];
 end
 
-
+% symmetry for opposite orientation
 
 x1=xn+8;
-y1=-yn-70-8.9;
+y1=-yn-70-8.9; 
 
 % field of view pattern
 
@@ -46,8 +50,8 @@ for i=1:n
    x=[x xn+cc];
    y=[y yn];
    
-   xc=[xc 3+cc];
-   yc=[yc -35/2];
+   xc=[xc xbox+cc];
+   yc=[yc ybox-70/2];
    
    cc=cc+16;
 end
@@ -60,8 +64,8 @@ cc=0;
     xr=[xr x1+cc];
     yr=[yr y1];
     
-    xrc=[xrc 3+8+cc];
-    yrc=[yrc 35/2-70-8.9];
+    xrc=[xrc xbox+8+cc];
+    yrc=[yrc ybox-70-8.9];
    
     cc=cc+16;
  end
@@ -86,9 +90,7 @@ orient=[zeros(1,length(xc)) ones(1,length(xrc))];
 
 xc=xc2; yc=yc2;
 
-w=2*x0(5);
-h=-1.3*y0(3);
-
+% centering the cavity
 xc=xc-n/2*16+5;
 yc=yc+35+8.9/2;
 
