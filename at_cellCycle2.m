@@ -23,7 +23,7 @@ stats=[];
 
 global segmentation timeLapse at_displayHandles
 
-minTraceDur=50/(timeLapse.interval/60); % 1 peak every 50 minutes at the most
+minTraceDur=50/(timeLapse.interval/60); % 1 peak ever 50 minutes at the most
 
 cc=0;
 
@@ -100,7 +100,7 @@ for i=1:length(cellindex)
     end
     
     for j=1:numel(cycles)-1
-       % j
+   
         if isD
             daughter=dau(j);
             starte=cycles_offset(j);
@@ -131,6 +131,7 @@ for i=1:length(cellindex)
         areanucl_cut=areanucl(mine:maxe);
         
         if numel(fluo_cut)<minTraceDur
+            disp(['fluo trace is too short:' num2str(numel(fluo_cut)) '<' num2str(minTraceDur)]);
             continue
         end
         % spline fit to get timings
