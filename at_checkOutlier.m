@@ -31,6 +31,7 @@ cc=15;
 y=stats(a,cc:cc+100-1); pix2=y>0; y=y(pix2);
 yfit=stats(a,cc+100:cc+200-1); yfit=yfit(pix2);
 chi2=sum( (yfit-y).^2 ) / length(y);
+%max(y)
 chi2=chi2/max(y).^2;
 
 if mother==0
