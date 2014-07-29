@@ -472,9 +472,12 @@ segmentation.cells1(i,:)=phy_Object;
 %     return;
 % end
 
+
 if ~isfield(segmentation,'ROI')
     nROI=1;
-    roiarr=[1 1 size(imcells,2) size(imcells,1)];
+    ROI.box=[1 1 size(imcells,2) size(imcells,1)];
+    ROI.BW=[];
+    cavity=1;
 else
     if numel(segmentation.ROI)==0
         nROI=1;
@@ -502,7 +505,7 @@ for k=cavity
     
     %size(imtemp)
     
-    %figure, imshow(imtemp,[]);
+   % figure, imshow(imtemp,[]);
     %pause
     
     if numel(ROI(k).BW)~=0
