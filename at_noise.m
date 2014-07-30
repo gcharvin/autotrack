@@ -1,5 +1,5 @@
 function at_noise(index,leg)
-global datastat out
+global datastat
 
 % plot 1) typical temporal trace for the longest lived cell
 % 2) noise spectrum
