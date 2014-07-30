@@ -130,6 +130,13 @@ for l=position % loop on positions
         
         timeLapse.autotrack.position(pos).cells1Segmented=zeros(1,timeLapse.numberOfFrames);
         segmentation.cells1Segmented=zeros(1,timeLapse.numberOfFrames);
+        
+        segmentation.ROI=[];
+        segmentation.ROI.ROI=[];
+        segmentation.ROI.x=[];
+        segmentation.ROI.y=[];
+        segmentation.ROI.theta=[];
+        segmentation.ROI.outgrid=[];
     end
     if mapCells
         timeLapse.autotrack.position(pos).cells1Mapped=zeros(1,timeLapse.numberOfFrames);
@@ -151,14 +158,21 @@ for l=position % loop on positions
         
         
          if numel(cavity)
-                fprintf(['Find cavity - frame:' num2str(i) '\n']);
+                
                 if i==frames(1)
-                    
-                    [xshift yshift thetashift] = at_cavity('coarse',frames(1));
-                    [~] = at_cavity('fine',i,[xshift yshift thetashift]);
-                else
-                    [~] = at_cavity('fine',i,[xshift yshift thetashift]);
+                    fprintf(['Find cavity for the first frame:' num2str(i) '; Be patient...\n']);
+                    %[x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',1,'npoints',31,'scale',0.2);
+                    x=-9.33; y=57.8; theta=0.68;
                 end
+                
+                fprintf(['Fine adjutsment of cavity:' num2str(i) '\n']);
+                [x y theta ROI ~] = at_cavity(i,'range',30,'rotation',0.2,'npoints',9, 'init',[x y theta],'scale',0.2);
+                [x y theta ROI outgrid] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',1');%,'grid',grid);
+                segmentation.ROI(i).ROI=ROI;
+                segmentation.ROI(i).x=x;
+                segmentation.ROI(i).y=y;
+                segmentation.ROI(i).theta=theta;
+                segmentation.ROI(i).outgrid=outgrid;
          end
             
         if segCells
@@ -248,7 +262,7 @@ for l=position % loop on positions
     
     
     if  segCells || mapCells || segNucleus || mapNucleus
-        at_save;
+        %at_save;
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
     
@@ -472,33 +486,36 @@ segmentation.cells1(i,:)=phy_Object;
 %     return;
 % end
 
-
 if ~isfield(segmentation,'ROI')
      nROI=1;
-    ROI.box=[1 1 size(imcells,2) size(imcells,1)];
-        ROI.BW=[];
+       ROI.box=[1 1 size(imcells,2) size(imcells,1)];
+        BW=[];
         cavity=1;
-
 else
-    if numel(segmentation.ROI)==0
+    if numel(segmentation.ROI(i).ROI.orient)==0
         nROI=1;
         ROI.box=[1 1 size(imcells,2) size(imcells,1)];
-        ROI.BW=[];
+        BW=[];
         cavity=1;
     else
-        ROI=segmentation.ROI;
+        ROI=segmentation.ROI(i).ROI;
         nROI=length(ROI);
         if cavity==0
             cavity=1:nROI;
         end
+        
+        BW=poly2mask(segmentation.ROI(i).outgrid(1,:),segmentation.ROI(i).outgrid(2,:),size(imcells,1),size(imcells,2));
+        BW=imerode(BW, strel('Disk',3));
+       %figure, imshow(BW,[]);
+       %pause
     end
 end
 
 cc=0;
 cells=phy_Object;
 
+
 for k=cavity
-    
     roiarr=ROI(k).box;
     % size(ROI(k).BW)
     
@@ -506,13 +523,16 @@ for k=cavity
     
     %size(imtemp)
     
-   % figure, imshow(imtemp,[]);
-    %pause
+   
     
-    if numel(ROI(k).BW)~=0
+    if numel(BW)~=0
+        BWzoom=BW(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
+         %figure, imshow(mat2gray(imtemp)+BWzoom,[]); hold on;
+         %pause
+        % close
         celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
             segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
-            segmentation.processing.parameters{1,14}{7,2},ROI(k).BW);
+            segmentation.processing.parameters{1,14}{7,2},BWzoom);
     else
         celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
             segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...

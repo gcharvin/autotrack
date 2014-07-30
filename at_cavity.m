@@ -1,4 +1,4 @@
-function [x y theta ROI] = at_cavity(frame,varargin)
+function [x y theta ROI outgrid] = at_cavity(frame,varargin)
 global segmentation
 % align cavity to model defined by at_grid
 
@@ -19,7 +19,7 @@ grid = getOptionValue(varargin, 'grid');
 
 if numel(grid)==0
 x0=[0 0     1      8    9  9 mean([9 16])  16];
-y0=[0 -20   -36   -36     -20   0        1       0 ];% works great
+y0=[0 -20   -37   -37     -20   0        1       0 ];% works great
 else
 x0=grid(1,:);
 y0=grid(2,:);
@@ -129,7 +129,7 @@ end
 
 % new grid used to create the mask
 moy=(x0(3)+x0(4))/2;
-x0=[0  0     1      5    6  6 mean([6 16])  16];
+x0=[0  0     1      5.5    6.5  6.5 mean([6.5 16])  16];
 y0=[0 -20   -35   -35     -20   0        2.5       0 ];% works great
 moy2=(x0(3)+x0(4))/2;
 
@@ -143,7 +143,8 @@ yt=yt+maxe(2);
 
 BW=poly2mask(xt,yt,size(imagstore,1),size(imagstore,2));
 im=mat2gray(imagstore);
-BW=imerode(BW, strel('Disk',2));
+BW=imerode(BW, strel('Disk',3));
+outgrid=[xt; yt];
 
 if display
     figure, imshow(im + BW, []); hold on;
@@ -162,7 +163,7 @@ for l=1:length(xt)
     if round(xt(l)-w/2) >= 1 && round(xt(l)+w/2)<size(BW,2)
         ROItemp=[round(xt(l)-w/2) round(yt(l)-h/2) round(w) round(h)];
         ROI(cc).box=ROItemp;
-        ROI(cc).BW=BW(round(yt(l)-h/2):round(yt(l)-h/2)+round(h)-1,round(xt(l)-w/2):round(xt(l)-w/2)+round(w)-1);
+        %ROI(cc).BW=BW(round(yt(l)-h/2):round(yt(l)-h/2)+round(h)-1,round(xt(l)-w/2):round(xt(l)-w/2)+round(w)-1);
         ROI(cc).orient=orient(l);
         cc=cc+1;
         
