@@ -474,8 +474,10 @@ segmentation.cells1(i,:)=phy_Object;
 
 
 if ~isfield(segmentation,'ROI')
-    nROI=1;
-    roiarr=[1 1 size(imcells,2) size(imcells,1)];
+     nROI=1;
+    ROI.box=[1 1 size(imcells,2) size(imcells,1)];
+        ROI.BW=[];
+        cavity=1;
 
 else
     if numel(segmentation.ROI)==0
