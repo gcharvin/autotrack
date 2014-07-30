@@ -168,7 +168,7 @@ for l=position % loop on positions
         
         if segNucleus
             fprintf(['Segment Nuclei - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
-            imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1),binning);
+            imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1),binning,cavity);
         end
         
         
@@ -474,7 +474,9 @@ segmentation.cells1(i,:)=phy_Object;
 
 if ~isfield(segmentation,'ROI')
     nROI=1;
-    roiarr=[1 1 size(imcells,2) size(imcells,1)];
+    ROI.box=[1 1 size(imcells,2) size(imcells,1)];
+        ROI.BW=[];
+        cavity=1;
 else
     if numel(segmentation.ROI)==0
         nROI=1;
@@ -540,7 +542,7 @@ for j=1:length(cells)
 end
 
 %%
-function imcells=segmentNucleus(i,channel,binning)
+function imcells=segmentNucleus(i,channel,binning,cavity)
 global segmentation
 
 imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
@@ -554,27 +556,32 @@ parametres=segmentation.processing.parameters{4,15};
 
 if ~isfield(segmentation,'ROI')
     nROI=1;
-    
-    roiarr=[1 1 size(imcells,2) size(imcells,1)]; %*binning;
+    ROI.box=[1 1 size(imcells,2) size(imcells,1)];
+        ROI.BW=[];
+        cavity=1;
 else
     if numel(segmentation.ROI)==0
         nROI=1;
-        roiarr=[1 1 size(imcells,2) size(imcells,1)];
+        ROI.box=[1 1 size(imcells,2) size(imcells,1)];
+        ROI.BW=[];
+        cavity=1;
     else
-        roiarr=segmentation.ROI;
-        if binning ~=1
-            roiarr=floor(roiarr/binning);
+        ROI=segmentation.ROI;
+        nROI=length(ROI);
+        if cavity==0
+            cavity=1:nROI;
         end
-        nROI=size(roiarr,1);
     end
 end
 
 cc=0;
 cells=phy_Object;
 
-%roiarr=round(roiarr/binning)
+for k=cavity
+    
+    roiarr=ROI(k).box;
 
-for k=1:nROI
+%roiarr=round(roiarr/binning)
     
     imtemp=imcells(roiarr(k,2):roiarr(k,2)+roiarr(k,4)-1,roiarr(k,1):roiarr(k,1)+roiarr(k,3)-1);
     
