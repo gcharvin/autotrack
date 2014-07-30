@@ -160,7 +160,7 @@ for i=1:length(cellindex)
         try
         [areaM,areaB,areaN,volume]=computeVolume(mine+tc.detectionFrame-1,maxe+tc.detectionFrame-1,tc,tdau,frame,mine); % areaM and B have the same size as fl
         catch
-            disp(['unknow bug with computeVolume: skipping cell...']);
+            
             continue
         end
         % volume
