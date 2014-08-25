@@ -160,11 +160,12 @@ ROI=[];
 ROI=struct('box',[],'BW',[]);
 
 for l=1:length(xt)
-    if round(xt(l)-w/2) >= 1 && round(xt(l)+w/2)<size(BW,2)
+    if round(xt(l)-w/2) >= 1 && round(xt(l)+w/2)<size(BW,2)-1 % remove cavitites that are too close to the edges
         ROItemp=[round(xt(l)-w/2) round(yt(l)-h/2) round(w) round(h)];
         ROI(cc).box=ROItemp;
         %ROI(cc).BW=BW(round(yt(l)-h/2):round(yt(l)-h/2)+round(h)-1,round(xt(l)-w/2):round(xt(l)-w/2)+round(w)-1);
         ROI(cc).orient=orient(l);
+        ROI(cc).n=cc; % id of the cavity
         cc=cc+1;
         
         if display

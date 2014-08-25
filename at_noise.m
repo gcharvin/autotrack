@@ -71,6 +71,7 @@ for i=index
     
     for j=1:length(stats(:,1))
         htb2=stats(j,fluo);
+        htb2=htb2/max(htb2);
         
         [f,y]=computeSpectrum(htb2);
         

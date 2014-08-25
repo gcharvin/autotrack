@@ -122,6 +122,11 @@ for l=position % loop on positions
         at_log(['Segment loaded position: ' num2str(pos)],'w',pos,'batch')
     end
     
+    fprintf(['//-----------------------------------//\n']);
+    fprintf(['Entering position:' num2str(pos) '\n']);
+    fprintf(['//-----------------------------------//\n']);
+    fprintf('\n');
+    
     if segNucleus at_log(['Segment nucleus parameters: ' num2str(timeLapse.autotrack.processing.nucleus')],'a',pos,'batch'); end
     if segCells at_log(['Segment cells parameters: ' num2str(timeLapse.autotrack.processing.cells1')],'a',pos,'batch'); end
     if mapNucleus at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch'); end
@@ -152,6 +157,10 @@ for l=position % loop on positions
     end
     
     for i=frames % loop on frames
+        fprintf(['//-----------------------------------//\n']);
+        fprintf(['// Entering frame:' num2str(i) ' for position:' num2str(pos) '//\n']);
+        fprintf(['//-----------------------------------//\n']);
+        fprintf('\n');
         
         imcell=[];
         imbud=[];
@@ -165,10 +174,22 @@ for l=position % loop on positions
                     x=-9.33; y=57.8; theta=0.68;
                 end
                 
-                fprintf(['Fine adjutsment of cavity:' num2str(i) '\n']);
+                fprintf(['Fine adjutsment of cavity position\n']); pause(0.01);
                 [x y theta ROI ~] = at_cavity(i,'range',30,'rotation',0.2,'npoints',9, 'init',[x y theta],'scale',0.2);
                 [x y theta ROI outgrid] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',1');%,'grid',grid);
-                segmentation.ROI(i).ROI=ROI;
+                
+                
+                if i==frames(1)
+                    oldROI=ROI;
+                else
+                    oldROI=segmentation.ROI(i-1).ROI;
+                end
+                
+                fprintf(['Map cavity from previous frame\n']); pause(0.01);
+                newROI=at_mapROI(ROI,oldROI);
+                
+                %segmentation.ROI(i).ROI=ROI;
+                segmentation.ROI(i).ROI=newROI;
                 segmentation.ROI(i).x=x;
                 segmentation.ROI(i).y=y;
                 segmentation.ROI(i).theta=theta;
@@ -176,12 +197,13 @@ for l=position % loop on positions
          end
             
         if segCells
-            fprintf(['Segment Cells - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
+            fprintf(['Segment Cells:']);
             imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1),cavity);
+            
         end
         
         if segNucleus
-            fprintf(['Segment Nuclei - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
+            fprintf(['Segment Nuclei:']);
             imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1),binning,cavity);
         end
         
@@ -193,18 +215,25 @@ for l=position % loop on positions
         %         end
         
         if mapCells
-            fprintf(['Map Cells - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
+            fprintf(['Map Cells:']);
             
             if numel(cavity)
-                nstore2=mappeCells(cc,nstore2,i,cavity);
+                %nstore2=mappeCells(cc,nstore2,i,cavity);
+                nstore2=mappeObjects('cells1',cc,nstore2,i,cavity);
             else
-                nstore2=mappeCells(cc,nstore2,i);
+                %nstore2=mappeCells(cc,nstore2,i);
+                nstore2=mappeObjects('cells1',cc,nstore2,i);
             end
         end
         
         if mapNucleus
-            fprintf(['Map Nuclei - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
-            nstore=mappeNucleus(cc,nstore,i);
+            fprintf(['Map Nuclei:']);
+            %nstore=mappeNucleus(cc,nstore,i);
+            if numel(cavity)
+                nstore=mappeObjects('nucleus',cc,nstore,i,cavity);
+            else
+                nstore=mappeObjects('nucleus',cc,nstore,i);
+            end
         end
         
         
@@ -217,10 +246,11 @@ for l=position % loop on positions
             displayCells(imcell,imbud,i,hcells,hnucleus)
         end
         
+        fprintf('\n');
         cc=cc+1;
     end
     
-    at_log(['Segmentation/Mapping is done for position : ' num2str(pos)],'a',pos,'batch')
+   % at_log(['Segmentation/Mapping is done for position : ' num2str(pos)],'a',pos,'batch')
     
     
     if segCells
@@ -234,12 +264,14 @@ for l=position % loop on positions
     timeLapse.autotrack.position(pos).nucleusSegmented=segmentation.nucleusSegmented;
     
     if mapNucleus
+        fprintf(['Create Nuclei TObjects for position:' num2str(pos) '\n']);
         segmentation.nucleusMapped(frames(1):frames(end))=1;
         [segmentation.tnucleus fchange]=phy_makeTObject(segmentation.nucleus);
     end
     timeLapse.autotrack.position(pos).nucleusMapped=segmentation.nucleusMapped;
     
     if mapCells
+        fprintf(['Create Cells TObjects for position:' num2str(pos) '\n']);
         segmentation.cells1Mapped(frames(1):frames(end))=1;
         [segmentation.tcells1 fchange]=phy_makeTObject(segmentation.cells1);
     end
@@ -257,12 +289,17 @@ for l=position % loop on positions
         at_mapCellsNucleus(timeLapse.autotrack.processing.nucleus(1));
     end
     
-    
-    fprintf(['Saving pos: ' num2str(pos) '\n\n']);
+
+
     
     
     if  segCells || mapCells || segNucleus || mapNucleus
-        %at_save;
+                fprintf(['//-----------------------------------//\n']);
+        fprintf(['Saving pos: ' num2str(pos) '\n\n']);
+        fprintf(['//-----------------------------------//\n']);
+        fprintf('\n');
+        
+        at_save;
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
     
@@ -304,53 +341,55 @@ end
 % end
 
 
-function nstore=mappeNucleus(cc,nstore,i)
+% function nstore=mappeNucleus(cc,nstore,i)
+% global segmentation
+% 
+% if cc>1
+%     
+%     nstore=max(nstore, max([segmentation.nucleus(i-1,:).n]));
+%     
+%     temp=segmentation.discardImage(1:i-1); % frame is discarded by user ; display previous frame
+%     trackFrame=find(temp==0,1,'last');
+%     
+%     cell0=segmentation.nucleus(trackFrame,:);
+%     cell1=segmentation.nucleus(i,:);
+%     
+%     parametres=segmentation.processing.parameters{4,9};
+%     
+%     segmentation.nucleus(i,:)=phy_mapCellsHungarian(cell0,cell1,nstore,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},parametres{6,2});
+% end
+
+function nstore2=mappeObjects(objecttype,cc,nstore2,i,cavity)
 global segmentation
 
-if cc>1
-    
-    nstore=max(nstore, max([segmentation.nucleus(i-1,:).n]));
-    
-    temp=segmentation.discardImage(1:i-1); % frame is discarded by user ; display previous frame
-    trackFrame=find(temp==0,1,'last');
-    
-    cell0=segmentation.nucleus(trackFrame,:);
-    cell1=segmentation.nucleus(i,:);
-    
-    parametres=segmentation.processing.parameters{4,9};
-    
-    segmentation.nucleus(i,:)=phy_mapCellsHungarian(cell0,cell1,nstore,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},parametres{6,2});
-end
-
-function nstore2=mappeCells(cc,nstore2,i,cavity)
-global segmentation
-
-if nargin==3
+if nargin==4
     if cc>1
         
-        nstore2=max(nstore2, max([segmentation.cells1(i-1,:).n]));
+        nstore2=max(nstore2, max([segmentation.(objecttype)(i-1,:).n]));
         
         temp=segmentation.discardImage(1:i-1); % frame is discarded by user ; display previous frame
         trackFrame=find(temp==0,1,'last');
         
-        cell0=segmentation.cells1(trackFrame,:);
-        cell1=segmentation.cells1(i,:);
+        cell0=segmentation.(objecttype)(trackFrame,:);
+        cell1=segmentation.(objecttype)(i,:);
         
         parametres=segmentation.processing.parameters{4,9};
         
-        segmentation.cells1(i,:)=phy_mapCellsHungarian(cell0,cell1,nstore2,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},parametres{6,2});
+        segmentation.(objecttype)(i,:)=phy_mapCellsHungarian(cell0,cell1,nstore2,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},parametres{6,2});
         
         
+        fprintf('.');
     end
 end
 
-if nargin==4
+if nargin==5
     nstore2=0;
     nROI=segmentation.ROI;
     
     if cc==1 % renumber the cells , but no mapping
-        cells=segmentation.cells1(i,:);
+        cells=segmentation.(objecttype)(i,:);
         Nr= [cells.Nrpoints];
+        
         
         for ii=1:max(Nr)
             pix=find(Nr==ii);
@@ -360,18 +399,17 @@ if nargin==4
                 dd=dd+1;
             end
         end
+        fprintf('.');
     else % map the cells cavity by cavity
         
         
         temp=segmentation.discardImage(1:i-1); % frame is discarded by user ; display previous frame
         trackFrame=find(temp==0,1,'last');
         
-        cell0=segmentation.cells1(trackFrame,:); % mapped
-        totcells=segmentation.cells1(1:trackFrame,:); totcells=totcells(:); ntot=[totcells(:).Nrpoints];
-        
-        %i
-        
-        cell1=segmentation.cells1(i,:); % already mapped
+        cell0=segmentation.(objecttype)(trackFrame,:); % mapped
+        totcells=segmentation.(objecttype)(1:trackFrame,:); totcells=totcells(:); ntot=[totcells(:).Nrpoints];
+
+        cell1=segmentation.(objecttype)(i,:); % not mapped
         
         parametres=segmentation.processing.parameters{4,9};
         
@@ -379,7 +417,11 @@ if nargin==4
         Nr1= [cell1.Nrpoints];
         
         % first rename cell0 for input
-        for ii=1:max(max(Nr0),max(Nr1))
+        for iik=1:numel(segmentation.ROI(i).ROI) % change this here to take the actual nummber of cavity
+            
+            fprintf('.');
+            
+            ii=segmentation.ROI(i).ROI(iik).n;
             
             pix0=find(Nr0==ii); % cells in cavity i
             cell0tomap=cell0(pix0);
@@ -397,10 +439,13 @@ if nargin==4
             % remove cells too close to exit of cavity using cavity
             % orientation
             
-            orient=segmentation.ROI(ii).orient; 
-            box=segmentation.ROI(ii).box;
+            %size(segmentation.ROI), size(segmentation.ROI(i).ROI)
+            
+            orient=segmentation.ROI(i).ROI(iik).orient; 
+            box=segmentation.ROI(i).ROI(iik).box;
             oy=[cell0tomap.oy];
             
+            % set up filter to filter out cells leaving te cavity
             if orient==1
             filterpos = (box(2)+box(4)/5);
             pix=find(oy>filterpos);
@@ -428,6 +473,8 @@ if nargin==4
     end
 end
 
+fprintf('\n');
+
 
 function displayCells(imcells,imbud,i,hcells,hnucleus,binning)
 global segmentation
@@ -439,7 +486,7 @@ if ishandle(hcells)
     imshow(imcells,[]); hold on;
     warning on all
     
-    cellsout=segmentation.cells1(i,:);
+    cellsout=segmentation.(objecttype)(i,:);
     
     for j=1:length(cellsout)
         
@@ -516,6 +563,7 @@ cells=phy_Object;
 
 
 for k=cavity
+    fprintf('.');
     roiarr=ROI(k).box;
     % size(ROI(k).BW)
     
@@ -551,7 +599,7 @@ for k=cavity
         cells(cc+j).area=celltemp(j).area;
         cells(cc+j).fluoMean(1)=celltemp(j).fluoMean(1);
         cells(cc+j).fluoVar(1)=celltemp(j).fluoVar(1);
-        cells(cc+j).Nrpoints=k; % cavity number
+        cells(cc+j).Nrpoints=ROI(k).n; % cavity number
         cells(cc+j).n=cc+j;
     end
     cc=cc+length(celltemp);
@@ -562,6 +610,8 @@ for j=1:length(cells)
     segmentation.cells1(i,j)=cells(j);
     segmentation.cells1(i,j).image=i;
 end
+
+fprintf('\n');
 
 %%
 function imcells=segmentNucleus(i,channel,binning,cavity)
