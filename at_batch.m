@@ -627,22 +627,27 @@ imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
 parametres=segmentation.processing.parameters{4,15};
 
 if ~isfield(segmentation,'ROI')
-    nROI=1;
-    ROI.box=[1 1 size(imcells,2) size(imcells,1)];
-        ROI.BW=[];
+     nROI=1;
+       ROI.box=[1 1 size(imcells,2) size(imcells,1)];
+        BW=[];
         cavity=1;
 else
-    if numel(segmentation.ROI)==0
+    if numel(segmentation.ROI(i).ROI.orient)==0
         nROI=1;
         ROI.box=[1 1 size(imcells,2) size(imcells,1)];
-        ROI.BW=[];
+        BW=[];
         cavity=1;
     else
-        ROI=segmentation.ROI;
+        ROI=segmentation.ROI(i).ROI;
         nROI=length(ROI);
         if cavity==0
             cavity=1:nROI;
         end
+        
+        %BW=poly2mask(segmentation.ROI(i).outgrid(1,:),segmentation.ROI(i).outgrid(2,:),size(imcells,1),size(imcells,2));
+        %BW=imerode(BW, strel('Disk',3));
+       %figure, imshow(BW,[]);
+       %pause
     end
 end
 
