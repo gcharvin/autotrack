@@ -105,6 +105,13 @@ if display
     end
 end
 
+if mapCells
+    %pth=mfilename
+    %'load the training set for cell mapping
+    
+    pth=mfilename('fullpath')
+    load /Users/charvin/Documents/MATLAB/mysoft/autotrack/addon/trainingsetCells1.mat;
+end
 
 for l=position % loop on positions
     
@@ -165,9 +172,9 @@ for l=position % loop on positions
         imcell=[];
         imbud=[];
         
-        
+          if segCells
+              
          if numel(cavity)
-                
                 if i==frames(1)
                     fprintf(['Find cavity for the first frame:' num2str(i) '; Be patient...\n']);
                     %[x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',1,'npoints',31,'scale',0.2);
@@ -177,7 +184,16 @@ for l=position % loop on positions
                 fprintf(['Fine adjutsment of cavity position\n']); pause(0.01);
                 [x y theta ROI ~] = at_cavity(i,'range',30,'rotation',0.2,'npoints',9, 'init',[x y theta],'scale',0.2);
                 [x y theta ROI outgrid] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',1');%,'grid',grid);
+                % use moving averaging to smoothen cavity motion (in case
+                % of errors)
                 
+                % call at_cavity with one starting point and no iteration
+                % to do the smotthing average ! 
+                
+                 if i==frames(1)
+                     % display fit of cavity for the first frame
+                     
+                 end
                 
                 if i==frames(1)
                     oldROI=ROI;
@@ -188,6 +204,8 @@ for l=position % loop on positions
                 fprintf(['Map cavity from previous frame\n']); pause(0.01);
                 newROI=at_mapROI(ROI,oldROI);
                 
+
+                
                 %segmentation.ROI(i).ROI=ROI;
                 segmentation.ROI(i).ROI=newROI;
                 segmentation.ROI(i).x=x;
@@ -196,7 +214,7 @@ for l=position % loop on positions
                 segmentation.ROI(i).outgrid=outgrid;
          end
             
-        if segCells
+      
             fprintf(['Segment Cells:']);
             imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1),cavity);
             
@@ -218,19 +236,22 @@ for l=position % loop on positions
             fprintf(['Map Cells:']);
             
             if numel(cavity)
-                %nstore2=mappeCells(cc,nstore2,i,cavity);
-                nstore2=mappeObjects('cells1',cc,nstore2,i,cavity);
+                cav=[];
+                cav.pdfout=pdfoutCells1; 
+                cav.range=rangeCells1;
+                nstore2=mappeObjects('cells1',cc,nstore2,i,cav);
             else
-                %nstore2=mappeCells(cc,nstore2,i);
                 nstore2=mappeObjects('cells1',cc,nstore2,i);
             end
         end
         
         if mapNucleus
             fprintf(['Map Nuclei:']);
-            %nstore=mappeNucleus(cc,nstore,i);
             if numel(cavity)
-                nstore=mappeObjects('nucleus',cc,nstore,i,cavity);
+                cav=[];
+                cav.pdfout=pdfoutCells1; 
+                cav.range=rangeCells1;
+                nstore=mappeObjects('nucleus',cc,nstore,i,cav);
             else
                 nstore=mappeObjects('nucleus',cc,nstore,i);
             end
@@ -255,6 +276,11 @@ for l=position % loop on positions
     
     if segCells
         segmentation.cells1Segmented(frames(1):frames(end))=1;
+        
+        if numel(cavity)
+           % make report for cavity tracking
+           cavityTracking()
+        end
     end
     timeLapse.autotrack.position(pos).cells1Segmented=segmentation.cells1Segmented;
     
@@ -267,6 +293,11 @@ for l=position % loop on positions
         fprintf(['Create Nuclei TObjects for position:' num2str(pos) '\n']);
         segmentation.nucleusMapped(frames(1):frames(end))=1;
         [segmentation.tnucleus fchange]=phy_makeTObject(segmentation.nucleus);
+        
+         if numel(cavity)
+        tassignement(cav.pdfout,cav.range,[1 1 1 0],'nucleus'); 
+         end
+        
     end
     timeLapse.autotrack.position(pos).nucleusMapped=segmentation.nucleusMapped;
     
@@ -274,6 +305,10 @@ for l=position % loop on positions
         fprintf(['Create Cells TObjects for position:' num2str(pos) '\n']);
         segmentation.cells1Mapped(frames(1):frames(end))=1;
         [segmentation.tcells1 fchange]=phy_makeTObject(segmentation.cells1);
+        
+        if numel(cavity)
+        tassignement(cav.pdfout,cav.range,[1 1 1 0],'cells1'); 
+        end
     end
     timeLapse.autotrack.position(pos).cells1Mapped=segmentation.cells1Mapped;
     
@@ -288,11 +323,7 @@ for l=position % loop on positions
         at_log(['Start mapCell Nucleus  for position : ' num2str(pos)],'a',pos,'batch')
         at_mapCellsNucleus(timeLapse.autotrack.processing.nucleus(1));
     end
-    
 
-
-    
-    
     if  segCells || mapCells || segNucleus || mapNucleus
                 fprintf(['//-----------------------------------//\n']);
         fprintf(['Saving pos: ' num2str(pos) '\n\n']);
@@ -311,7 +342,6 @@ for l=position % loop on positions
     end
     
 end
-
 
 
 
@@ -362,6 +392,7 @@ end
 function nstore2=mappeObjects(objecttype,cc,nstore2,i,cavity)
 global segmentation
 
+
 if nargin==4
     if cc>1
         
@@ -385,6 +416,7 @@ end
 if nargin==5
     nstore2=0;
     nROI=segmentation.ROI;
+    
     
     if cc==1 % renumber the cells , but no mapping
         cells=segmentation.(objecttype)(i,:);
@@ -423,6 +455,11 @@ if nargin==5
             
             ii=segmentation.ROI(i).ROI(iik).n;
             
+            %if ii~=19 %test mapping on cavity 19
+            %    continue
+            %end
+            
+            
             pix0=find(Nr0==ii); % cells in cavity i
             cell0tomap=cell0(pix0);
             
@@ -459,8 +496,11 @@ if nargin==5
             pix1=find(Nr1==ii); % cells in cavity i
             cell1tomap=cell1(pix1);
            % cell1tomap
-            cell1tomap=phy_mapCellsHungarian( cell0tomap, cell1tomap,maxObjNumber,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},0);
-           % cell1tomap
+            %cell1tomap=phy_mapCellsHungarian( cell0tomap, cell1tomap,maxObjNumber,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},0);
+           
+            assignment(cell0tomap,cell1tomap,cavity.pdfout,cavity.range,[1 1 1 0],maxObjNumber);
+            
+            % cell1tomap
             %for k=1:numel(cell1tomap)
             %    cell1tomap(k).n=ii*1000+cell1tomap(k).n;
             %end
