@@ -64,6 +64,10 @@ yout2=sca*yout;
     amp=range;
     res=2*amp/(npoints-1);
     val=sca*(-amp:res:amp);
+    
+    if npoints==1
+       val=0; 
+    end
 
 % rotation
     amp=rotation;
@@ -81,6 +85,7 @@ maxe=1e12;
 
 cci=1;
 ccj=1;
+
 
 for i=val
     ccj=1;
@@ -179,7 +184,9 @@ for l=1:length(xt)
 end
 
 if display && rotation==0
-figure, pcolor(p);
+if npoints>1
+    figure, pcolor(p);
+end
 end
 
 x=maxe(3);

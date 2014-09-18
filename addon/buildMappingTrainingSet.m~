@@ -41,13 +41,7 @@ range(4)=(max(M(:,4))-min(M(:,4)))/20;
 
 if strcmp(objecttype,'Cells1')
 pdfoutCells1=pdfout;
-rangeCells1=range;
-save([path file],'pdfoutCells1','rangeCells1');
-end
-if strcmp(objecttype,'Nucleus')
-pdfoutNucleus=pdfout;
-rangeNucleus=range;
-save([path file],'pdfoutNucleus','rangeNucleus');
+save([path file],'pdfout','range');
 end
 
 %%%%%

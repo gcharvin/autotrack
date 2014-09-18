@@ -69,7 +69,9 @@ guidata(hObject, handles);
 % UIWAIT makes celltraj wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+if numel(celldat)
 refreshDisplay(handles)
+end
 
 function refreshDisplay(handles)
 global celldat segmentation
