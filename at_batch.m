@@ -283,7 +283,9 @@ for l=position % loop on positions
                 cav=[];
                 cav.pdfout=pdfoutCells1; 
                 cav.range=rangeCells1;
+                cav.cavity=cavity;
                 nstore2=mappeObjects('cells1',cc,nstore2,i,cav);
+                
             else
                 nstore2=mappeObjects('cells1',cc,nstore2,i);
             end
@@ -295,6 +297,7 @@ for l=position % loop on positions
                 cav=[];
                 cav.pdfout=pdfoutNucleus; 
                 cav.range=rangeNucleus;
+                cav.cavity=cavity;
                 nstore=mappeObjects('nucleus',cc,nstore,i,cav);
             else
                 nstore=mappeObjects('nucleus',cc,nstore,i);
@@ -339,7 +342,7 @@ for l=position % loop on positions
         [segmentation.tnucleus fchange]=phy_makeTObject(segmentation.nucleus);
         
          if numel(cavity)
-        tassignement(cav.pdfout,cav.range,[1 1 1 0],'nucleus'); 
+        tassignement(cav.pdfout,cav.range,[1 1 1 1],'nucleus'); 
          end
         
     end
@@ -351,7 +354,7 @@ for l=position % loop on positions
         [segmentation.tcells1 fchange]=phy_makeTObject(segmentation.cells1);
         
         if numel(cavity)
-        tassignement(cav.pdfout,cav.range,[1 1 1 0],'cells1'); 
+        tassignement(cav.pdfout,cav.range,[1 1 1 1],'cells1'); 
         end
     end
     timeLapse.autotrack.position(pos).cells1Mapped=segmentation.cells1Mapped;
@@ -374,7 +377,7 @@ for l=position % loop on positions
         fprintf(['//-----------------------------------//\n']);
         fprintf('\n');
         
-        at_save;
+       % at_save;
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
     
@@ -460,9 +463,9 @@ end
 if nargin==5
     nstore2=0;
     nROI=segmentation.ROI;
-    
-    
+
     if cc==1 % renumber the cells , but no mapping
+
         cells=segmentation.(objecttype)(i,:);
         Nr= [cells.Nrpoints];
         
@@ -478,10 +481,10 @@ if nargin==5
         fprintf('.');
     else % map the cells cavity by cavity
         
-        
         temp=segmentation.discardImage(1:i-1); % frame is discarded by user ; display previous frame
         trackFrame=find(temp==0,1,'last');
         
+
         cell0=segmentation.(objecttype)(trackFrame,:); % mapped
         totcells=segmentation.(objecttype)(1:trackFrame,:); totcells=totcells(:); ntot=[totcells(:).Nrpoints];
 
@@ -492,18 +495,28 @@ if nargin==5
         Nr0= [cell0.Nrpoints];
         Nr1= [cell1.Nrpoints];
         
+        if cavity.cavity==0
+            cavity.cavity=1:numel(segmentation.ROI(i).ROI);
+        end
+        
         % first rename cell0 for input
-        for iik=1:numel(segmentation.ROI(i).ROI) % change this here to take the actual nummber of cavity
+        for iik=1:numel(segmentation.ROI(i).ROI) 
             
-            fprintf('.');
+       
             
             ii=segmentation.ROI(i).ROI(iik).n;
             
+           
+           % if numel(find(cavity.cavity==ii))==0
+           %     continue
+           % end
+            
+            fprintf('.');
+                 
             %if ii~=19 %test mapping on cavity 19
             %    continue
             %end
-            
-            
+
             pix0=find(Nr0==ii); % cells in cavity i
             cell0tomap=cell0(pix0);
             
@@ -542,18 +555,13 @@ if nargin==5
            % cell1tomap
             %cell1tomap=phy_mapCellsHungarian( cell0tomap, cell1tomap,maxObjNumber,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},0);
            
-            assignment(cell0tomap,cell1tomap,cavity.pdfout,cavity.range,[1 1 1 0],maxObjNumber);
+            assignment(cell0tomap,cell1tomap,cavity.pdfout,cavity.range,[1 1 1 1],maxObjNumber);
             
             % cell1tomap
             %for k=1:numel(cell1tomap)
             %    cell1tomap(k).n=ii*1000+cell1tomap(k).n;
             %end
-        end
-        
-        
-        
-        
-        
+        end 
     end
 end
 
@@ -645,10 +653,12 @@ end
 cc=0;
 cells=phy_Object;
 
-
 for k=cavity
+    
     fprintf('.');
-    roiarr=ROI(k).box;
+    nc=[ROI.n];
+    kk=find(nc==k);
+    roiarr=ROI(kk).box;
     % size(ROI(k).BW)
     
     imtemp=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
@@ -683,7 +693,7 @@ for k=cavity
         cells(cc+j).area=celltemp(j).area;
         cells(cc+j).fluoMean(1)=celltemp(j).fluoMean(1);
         cells(cc+j).fluoVar(1)=celltemp(j).fluoVar(1);
-        cells(cc+j).Nrpoints=ROI(k).n; % cavity number
+        cells(cc+j).Nrpoints=k; % cavity number
         cells(cc+j).n=cc+j;
     end
     cc=cc+length(celltemp);

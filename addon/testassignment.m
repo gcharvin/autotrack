@@ -1,7 +1,7 @@
 function testassignment(frames,cavity,pdfout,range)
 global segmentation
 
-enable=[1 1 1 0]; % sometimes problems with intensities ... to be fixed
+enable=[1 1 0 0]; % sometimes problems with intensities ... to be fixed
 
 %ncav=[segmentation.ROI(frame).ROI.n]
 %pix=find(ncav==cavity)
@@ -35,6 +35,20 @@ ind1=find([cell1.ox]~=0);
 %ind0
 %%%% thid filter should be removed once integrated in at_batch
 ind0r=[]; % filter cells outside of cavity
+
+
+
+            
+%             % set up filter to filter out cells leaving te cavity
+%             if orient==1
+%             filterpos = (box(2)+box(4)/5);
+%             pix=find(oy>filterpos);
+%             else
+%             filterpos = (box(2)+4*box(4)/5); 
+%             pix=find(oy<filterpos);
+%             end
+
+
 for i=1:length(ind0)
     [x0, y0, area0, intensity0]=offsetCoordinates(cell0(ind0(i)));
     

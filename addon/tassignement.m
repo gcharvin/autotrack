@@ -97,7 +97,7 @@ for k=1:numel(D) % loop on cavity number
             
             coef=coef-(st-en-1)*5;
             
-            if coef>-60 % cutoff proba
+            if coef>-80 % cutoff proba; %60
                 M(i,j)=coef;
             else
                 M(i,j)=-Inf;

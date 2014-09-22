@@ -102,6 +102,12 @@ for i=1:numel(segmentation.tcells1)
         %            cc2=cc2+1;
         %         end
         
+        % remove points where intensity decreases too much (prevents
+        % mapping from non-cell to cell)
+        if abs(meanint2-meanint)>400
+            continue
+        end
+        
         M(cc,:)=[ox oy area meanint ox2-ox oy2-oy area2-area meanint2-meanint];
         cc=cc+1;
         

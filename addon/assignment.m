@@ -42,31 +42,43 @@ for i=1:length(ind0)
     
     for j=1:length(ind1)
         
+ 
         
         jd=ind1(j);
         [x1, y1, area1, intensity1]=offsetCoordinates(cell1(jd));
         
         dist = sqrt((x1-x0)^2+(y1-y0)^2); % distance between cells in pixels
         
+                if display
+        if i==1
+            line(cell1(jd).x+150,-cell1(jd).y,'Color','b');
+        end
+         end
+        
+        
         if dist > 7*sqrt(range(3)/pi) % if cells are well separated, don't compute proba
-        coef=-300;
+        continue
         else
         varz=[x0 y0 area0 intensity0 x1-x0 y1-y0 area1-area0 intensity1-intensity0];
         coef=log(computeProba(pdfout,range,enable,varz));
         end
         
-        if coef>-60 % cutoff proba
+        if abs(intensity1-intensity0)>250 % difference in intensities too high
+            continue
+        end
+        
+%         if  cell0(id).n==261260
+%         cell0(id).n, cell1(jd).n,varz,coef
+%         end
+
+%coef
+
+        if coef>-80 % cutoff proba
         M(i,j)=coef;
-        else
-        M(i,j)=-Inf;    
+   %     else
+   %     M(i,j)=-Inf;    
         end
        
-        
-        if display
-        if i==1
-            line(cell1(jd).x+150,-cell1(jd).y,'Color','b');
-        end
-        end
         
     end
 end
