@@ -197,8 +197,8 @@ for l=position % loop on positions
              
                 if i==frames(1)
                     fprintf(['Find cavity for the first frame:' num2str(i) '; Be patient...\n']);
-                    %[x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',1,'npoints',31,'scale',0.2);
-                    x=-9.33; y=57.8; theta=0.68;
+                    [x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',2.5,'npoints',31,'scale',0.2);
+                    %x=-9.33; y=57.8; theta=0.68;
                 end
                 
                 fprintf(['Fine adjutsment of cavity position\n']); pause(0.01);
