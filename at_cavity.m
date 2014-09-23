@@ -52,7 +52,10 @@ imagstore=imag1;
 %imag1=imresize(imag1,sca);
 
 %x=[]; y=[]; theta=[]; ROI=[]; outgrid=[];
+
+if npoints~=1
 [imag1 ang]=detectLines(imag1);
+end
 
 %if numel(init)==0
 %    init=[0 0 ang];
@@ -133,6 +136,8 @@ for i=val
     end
      cci=cci+1;
 end
+
+
 
 maxe(2:3)=(maxe(2:3))/sca;
 

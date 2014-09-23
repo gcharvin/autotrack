@@ -197,13 +197,13 @@ for l=position % loop on positions
              
                 if i==frames(1)
                     fprintf(['Find cavity for the first frame:' num2str(i) '; Be patient...\n']);
-                    [x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',2.5,'npoints',31,'scale',0.2);
-                    %x=-9.33; y=57.8; theta=0.68;
+                    %[x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',2.5,'npoints',31,'scale',0.2);
+                    x=-9.33; y=57.8; theta=0.68;
                 end
                 
                 fprintf(['Fine adjutsment of cavity position\n']); pause(0.01);
                 [x y theta ROI ~] = at_cavity(i,'range',30,'rotation',0.2,'npoints',9, 'init',[x y theta],'scale',0.2);
-                [x y theta ROI outgrid] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',1);%,'grid',grid);
+                [x y theta ROI outgrid] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',0.5);%,'grid',grid);
                 
                 
                 % use moving average over 5 frames to prevent defects in tracking
@@ -658,6 +658,7 @@ for k=cavity
     fprintf('.');
     nc=[ROI.n];
     kk=find(nc==k);
+    %ROI
     roiarr=ROI(kk).box;
     % size(ROI(k).BW)
     

@@ -49,7 +49,7 @@ for i=1:length(ind0)
         
         dist = sqrt((x1-x0)^2+(y1-y0)^2); % distance between cells in pixels
         
-                if display
+            if display
         if i==1
             line(cell1(jd).x+150,-cell1(jd).y,'Color','b');
         end
@@ -58,18 +58,23 @@ for i=1:length(ind0)
         
         if dist > 7*sqrt(range(3)/pi) % if cells are well separated, don't compute proba
         continue
-        else
-        varz=[x0 y0 area0 intensity0 x1-x0 y1-y0 area1-area0 intensity1-intensity0];
-        coef=log(computeProba(pdfout,range,enable,varz));
         end
         
         if abs(intensity1-intensity0)>250 % difference in intensities too high
             continue
         end
         
-%         if  cell0(id).n==261260
-%         cell0(id).n, cell1(jd).n,varz,coef
-%         end
+        varz=[x0 y0 area0 intensity0 x1-x0 y1-y0 area1-area0 intensity1-intensity0];
+        coef=log(computeProba(pdfout,range,enable,varz));
+
+        
+         % if  cell0(id).n==260007
+         %cell0(id).n, cell1(jd).n,varz,coef
+        % end
+        
+   
+        
+ 
 
 %coef
 
