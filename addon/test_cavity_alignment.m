@@ -1,4 +1,4 @@
-function test_cavity_alignment
+function test_cavity_alignment(frames)
 
 
 % rough alignment on first frame // default grid
@@ -18,7 +18,7 @@ grid=[x0; y0];
 
 xout=[]; yout=[];
 
-for i=1:10
+for i=frames
 
  tic;   
 % fine alignement with rotation
@@ -27,7 +27,7 @@ for i=1:10
 %'fine2'
 % fine alignement without rotation
 
-[x y theta ROI] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',1);%,'grid',grid);
+[x y theta ROI] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',1,'display');%,'grid',grid);
 
 xout=[xout x];
 yout=[yout y];

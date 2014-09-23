@@ -48,12 +48,22 @@ end
 imag1=phy_loadTimeLapseImage(segmentation.position,frame,1,'non');
 imagstore=imag1;
 
+
+
+%sca=0.5;
+%imag1=imresize(imag1,sca);
+
+%x=[]; y=[]; theta=[]; ROI=[]; outgrid=[];
+imag1=detectLines(imag1);
+
 if display
-    figure, imshow(imag1,[]); hold on; %line(xout,yout,'Color','g','LineWidth',2);
+    figure, imshow(imag1,[]); hold on; line(xout,yout,'Color','g','LineWidth',2);
 end
 
-sca=0.2;
 imag1=imresize(imag1,sca);
+
+%return;
+
 %imag1=edge(imag1,'prewitt');
 
 xout2=sca*xout;
@@ -192,6 +202,63 @@ end
 x=maxe(3);
 y=maxe(2);
 theta=maxe(4);
+
+function BW=detectLines(imag1)
+
+level=graythresh(imag1);
+BW=im2bw(imag1,level);
+BW=imclose(BW,strel('disk',20));
+BW=bwareaopen(BW,100);
+L=bwlabel(~BW);
+%figure, imshow(L,[]);
+stats=regionprops(L,'Area','Perimeter','Extent');
+
+a=[stats.Area];
+p=[stats.Perimeter];
+pix=find(a>10^5);
+
+r=p./a; r=r(pix);
+[rmax ix]=sort(r);
+val=ix(end);
+val=pix(val);
+
+BW=~(L==val);
+%figure, imshow(L==val,[]);
+return;
+
+[H,T,R] = hough(BW);
+%figure, imshow(H,[],'XData',T,'YData',R,...
+           % 'InitialMagnification','fit');
+%xlabel('\theta'), ylabel('\rho');
+%axis on, axis normal, hold on;
+
+P  = houghpeaks(H,200,'threshold',ceil(0.01*max(H(:))));
+x = T(P(:,2)); y = R(P(:,1));
+%plot(x,y,'s','color','white');
+
+% Find lines and plot them
+lines = houghlines(BW,T,R,P,'FillGap',20,'MinLength',50);
+figure, imshow(imag1,[]), hold on
+max_len = 0;
+for k = 1:length(lines)
+   xy = [lines(k).point1; lines(k).point2];
+   plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
+
+   % Plot beginnings and ends of lines
+   plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
+   plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
+
+   % Determine the endpoints of the longest line segment
+   len = norm(lines(k).point1 - lines(k).point2);
+   if ( len > max_len)
+      max_len = len;
+      xy_long = xy;
+   end
+end
+
+% highlight the longest line segment
+plot(xy_long(:,1),xy_long(:,2),'LineWidth',2,'Color','blue');
+
 
 function [xout, yout]=rorateLine(x,y,ang,sca)
 

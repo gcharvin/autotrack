@@ -578,7 +578,7 @@ if ishandle(hcells)
     imshow(imcells,[]); hold on;
     warning on all
     
-    cellsout=segmentation.(objecttype)(i,:);
+    cellsout=segmentation.('cells1')(i,:);
     
     for j=1:length(cellsout)
         
