@@ -48,14 +48,17 @@ end
 imag1=phy_loadTimeLapseImage(segmentation.position,frame,1,'non');
 imagstore=imag1;
 
-
-
 %sca=0.5;
 %imag1=imresize(imag1,sca);
 
 %x=[]; y=[]; theta=[]; ROI=[]; outgrid=[];
-imag1=detectLines(imag1);
+[imag1 ang]=detectLines(imag1);
 
+%if numel(init)==0
+%    init=[0 0 ang];
+%end
+
+%return;
 if display
     figure, imshow(imag1,[]); hold on; line(xout,yout,'Color','g','LineWidth',2);
 end
@@ -203,62 +206,82 @@ x=maxe(3);
 y=maxe(2);
 theta=maxe(4);
 
-function BW=detectLines(imag1)
+function [BW ang]=detectLines(imag1)
 
 level=graythresh(imag1);
 BW=im2bw(imag1,level);
+%figure, imshow(BW,[]);
 BW=imclose(BW,strel('disk',20));
 BW=bwareaopen(BW,100);
+%figure, imshow(BW,[]);
+
 L=bwlabel(~BW);
-%figure, imshow(L,[]);
-stats=regionprops(L,'Area','Perimeter','Extent');
+%figure, imshow(L,[0 5]);
+stats=regionprops(L,'Area','Perimeter','Extent','Orientation');
 
-a=[stats.Area];
-p=[stats.Perimeter];
-pix=find(a>10^5);
+a=[stats.Orientation];
 
-r=p./a; r=r(pix);
-[rmax ix]=sort(r);
-val=ix(end);
-val=pix(val);
+bins=0:1:1000;
+hi=hist(L(size(L,1)/2:size(L,1)/2,1:size(L,1)),bins);
+[pix ix]=max(hi);
 
-BW=~(L==val);
-%figure, imshow(L==val,[]);
-return;
+BW=~(L==ix-1);
 
-[H,T,R] = hough(BW);
-%figure, imshow(H,[],'XData',T,'YData',R,...
-           % 'InitialMagnification','fit');
-%xlabel('\theta'), ylabel('\rho');
-%axis on, axis normal, hold on;
+ang=a(ix-1);
 
-P  = houghpeaks(H,200,'threshold',ceil(0.01*max(H(:))));
-x = T(P(:,2)); y = R(P(:,1));
-%plot(x,y,'s','color','white');
 
-% Find lines and plot them
-lines = houghlines(BW,T,R,P,'FillGap',20,'MinLength',50);
-figure, imshow(imag1,[]), hold on
-max_len = 0;
-for k = 1:length(lines)
-   xy = [lines(k).point1; lines(k).point2];
-   plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
-
-   % Plot beginnings and ends of lines
-   plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
-   plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
-
-   % Determine the endpoints of the longest line segment
-   len = norm(lines(k).point1 - lines(k).point2);
-   if ( len > max_len)
-      max_len = len;
-      xy_long = xy;
-   end
-end
+% BW=edge(BW,'canny');
+% 
+% figure, imshow(BW,[]);
+% 
+% [H,T,R] = hough(BW);
+% %figure, imshow(H,[],'XData',T,'YData',R,...
+%            % 'InitialMagnification','fit');
+% %xlabel('\theta'), ylabel('\rho');
+% %axis on, axis normal, hold on;
+% 
+% P  = houghpeaks(H,200,'threshold',ceil(0.01*max(H(:))));
+% x = T(P(:,2)); y = R(P(:,1));
+% %plot(x,y,'s','color','white');
+% 
+% % Find lines and plot them
+% lines = houghlines(BW,T,R,P,'FillGap',20,'MinLength',50);
+% figure, imshow(imag1,[]), hold on
+% max_len = 0;
+% 
+% Pmean=0; cc=0; h=[];
+% 
+% for k = 1:length(lines)
+%    xy = [lines(k).point1; lines(k).point2];
+%    plot(xy(:,1),xy(:,2),'LineWidth',2,'Color','green');
+% 
+%    % Plot beginnings and ends of lines
+%    plot(xy(1,1),xy(1,2),'x','LineWidth',2,'Color','yellow');
+%    plot(xy(2,1),xy(2,2),'x','LineWidth',2,'Color','red');
+% 
+%    % Determine the endpoints of the longest line segment
+%    len = norm(lines(k).point1 - lines(k).point2);
+%    if ( len > max_len)
+%       max_len = len;
+%       xy_long = xy;
+%    end
+%    
+%    len=sqrt((xy(2,2)-xy(1,2))^2+(xy(2,1)-xy(1,1))^2);
+%    
+%    %if len>200
+%    P = atan2(xy(2,2)-xy(1,2),xy(2,1)-xy(1,1));
+%    cc=cc+1;
+%    Pmean = Pmean+ 180*P/pi;
+%    h=[h P*180/pi];
+%    %end
+% end
+% 
+% Pmean=Pmean/cc
+% 
+% figure, hist(h,20);
 
 % highlight the longest line segment
-plot(xy_long(:,1),xy_long(:,2),'LineWidth',2,'Color','blue');
-
+%plot(xy_long(:,1),xy_long(:,2),'LineWidth',2,'Color','blue');
 
 function [xout, yout]=rorateLine(x,y,ang,sca)
 
