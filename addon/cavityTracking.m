@@ -32,3 +32,4 @@ xlabel('frames');
 
 pos=segmentation.position;
 saveas(h,fullfile(timeLapse.realPath,timeLapse.pathList.position{pos},'cavityTracking.fig'));
+close;

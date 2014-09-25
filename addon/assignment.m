@@ -176,5 +176,5 @@ ox=ox-cx;
 
 %pause
 
-area=celltemp.area;
-intensity=celltemp.fluoMean(1);
+area=celltemp.area; %/segmentation.processing.avgCells1.area;
+intensity=celltemp.fluoMean(1); %/segmentation.processing.avgCells1.inte;

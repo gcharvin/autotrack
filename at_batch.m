@@ -25,7 +25,6 @@
 function at_batch(frames, position,varargin)
 global segmentation timeLapse
 
-
 % test if projetct is loaded
 
 if ~isfield(timeLapse,'autotrack')
@@ -105,33 +104,13 @@ if display
     end
 end
 
-if mapCells
-    %pth=mfilename
-    %'load the training set for cell mapping
-    
-    pth=mfilename('fullpath');
-    pth=pth(1:end-8);
-   
-    load([pth '/addon/trainingsetCells1.mat']);
-end
-
-if mapNucleus
-    %pth=mfilename
-    %'load the training set for cell mapping
-    
-    pth=mfilename('fullpath');
-    pth=pth(1:end-8);
-   
-    load([pth '/addon/trainingsetNucleus.mat']);
-end
-
 
 for l=position % loop on positions
     
     % initialization
     cc=1;
     nstore=0; % nucleus number counter
-    nstore2=0; % cells number counter
+    
     
     if l==-1
         pos=segmentation.position;
@@ -147,216 +126,34 @@ for l=position % loop on positions
     fprintf(['//-----------------------------------//\n']);
     fprintf('\n');
     
-    if segNucleus at_log(['Segment nucleus parameters: ' num2str(timeLapse.autotrack.processing.nucleus')],'a',pos,'batch'); end
-    if segCells at_log(['Segment cells parameters: ' num2str(timeLapse.autotrack.processing.cells1')],'a',pos,'batch'); end
-    if mapNucleus at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch'); end
     
     if segCells
-        
-        timeLapse.autotrack.position(pos).cells1Segmented=zeros(1,timeLapse.numberOfFrames);
-        segmentation.cells1Segmented=zeros(1,timeLapse.numberOfFrames);
-        
-        segmentation.ROI=[];
-        segmentation.ROI.ROI=[];
-        segmentation.ROI.x=[];
-        segmentation.ROI.y=[];
-        segmentation.ROI.theta=[];
-        segmentation.ROI.outgrid=[];
+        at_batch_segCells(pos,frames,cavity);
     end
     if mapCells
-        timeLapse.autotrack.position(pos).cells1Mapped=zeros(1,timeLapse.numberOfFrames);
-        segmentation.cells1Mapped=zeros(1,timeLapse.numberOfFrames);
+        at_batch_mapCells(pos,frames,cavity);
     end
+    
     if segNucleus
-        timeLapse.autotrack.position(pos).nucleusSegmented=zeros(1,timeLapse.numberOfFrames);
-        segmentation.nucleusSegmented=zeros(1,timeLapse.numberOfFrames);
+        at_batch_segNucleus(pos,frames,cavity);
     end
     if mapNucleus
-        timeLapse.autotrack.position(pos).nucleusMapped=zeros(1,timeLapse.numberOfFrames);
-        segmentation.nucleusMapped=zeros(1,timeLapse.numberOfFrames);
+        at_batch_mapNucleus(pos,frames,cavity);
     end
     
-    for i=frames % loop on frames
-        fprintf(['//-----------------------------------//\n']);
-        fprintf(['// Entering frame:' num2str(i) ' for position:' num2str(pos) '//\n']);
-        fprintf(['//-----------------------------------//\n']);
-        fprintf('\n');
-        
-        imcell=[];
-        imbud=[];
-        
-          if segCells
-              
-         if numel(cavity)
-             segmentation.ROI(i).ROI=[];
-             segmentation.ROI(i).x=[];
-             segmentation.ROI(i).y=[];
-             segmentation.ROI(i).theta=[];
-             segmentation.ROI(i).outgrid=[];
-             
-             
-                if i==frames(1)
-                    fprintf(['Find cavity for the first frame:' num2str(i) '; Be patient...\n']);
-                    %[x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',2.5,'npoints',31,'scale',0.2);
-                    x=-9.33; y=57.8; theta=0.68;
-                end
-                
-                fprintf(['Fine adjutsment of cavity position\n']); pause(0.01);
-                [x y theta ROI ~] = at_cavity(i,'range',30,'rotation',0.2,'npoints',9, 'init',[x y theta],'scale',0.2);
-                [x y theta ROI outgrid] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',0.5);%,'grid',grid);
-                
-                
-                % use moving average over 5 frames to prevent defects in tracking
-                if i>frames(1)
-                minFrame=max(frames(1),i-5);
-                
-                xtemp=0; ytemp=0; thetatemp=0;
-                ccavg=0;
-                
-               % x,y,theta
-                for m=minFrame:i-1
-                    xtemp=xtemp+segmentation.ROI(m).x;
-                    ytemp=ytemp+segmentation.ROI(m).y;
-                    thetatemp=thetatemp+segmentation.ROI(m).theta;
-                    ccavg=ccavg+1; 
-                end
-                
-                xtemp=xtemp+x;
-                ytemp=ytemp+y;
-                thetatemp=thetatemp+theta;
-                ccavg=ccavg+1; 
-                
-                xtemp=xtemp/ccavg;
-                ytemp=ytemp/ccavg;
-                
-                thetatemp=thetatemp/ccavg;
-                
-                [x y theta ROI outgrid] = at_cavity(i,'range',1,'npoints',1, 'init',[xtemp ytemp thetatemp],'scale',1);%,'grid',grid);
-                end
-                
-                % use moving averaging to smoothen cavity motion (in case
-                % of errors)
-                
-                % call at_cavity with one starting point and no iteration
-                % to do the smotthing average ! 
-                
-                
-                if i==frames(1)
-                    oldROI=ROI;
-                else
-                    oldROI=segmentation.ROI(i-1).ROI;
-                end
-                
-                fprintf(['Map cavity from previous frame\n']); pause(0.01);
-                newROI=at_mapROI(ROI,oldROI);
-                
-                %segmentation.ROI(i).ROI=ROI;
-                segmentation.ROI(i).ROI=newROI;
-                segmentation.ROI(i).x=x;
-                segmentation.ROI(i).y=y;
-                segmentation.ROI(i).theta=theta;
-                segmentation.ROI(i).outgrid=outgrid;
-         end
-            
-      
-            fprintf(['Segment Cells:']);
-            imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1),cavity);
-            
-        end
-        
-        if segNucleus
-            fprintf(['Segment Nuclei:']);
-            imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1),binning,cavity);
-        end
-        
-        
-        %         if gaufit SHOULD NOT USE
-        %             fprintf(['Gaussian fit - pos:' num2str(pos) ' - frame:' num2str(i) '\n']);
-        %             cha=timeLapse.autotrack.processing.nucleus(1);
-        %             gaussianFluoFit(i,cha);
-        %         end
-        
-        if mapCells
-            fprintf(['Map Cells:']);
-            
-            if numel(cavity)
-                cav=[];
-                cav.pdfout=pdfoutCells1; 
-                cav.range=rangeCells1;
-                cav.cavity=cavity;
-                nstore2=mappeObjects('cells1',cc,nstore2,i,cav);
-                
-            else
-                nstore2=mappeObjects('cells1',cc,nstore2,i);
-            end
-        end
-        
-        if mapNucleus
-            fprintf(['Map Nuclei:']);
-            if numel(cavity)
-                cav=[];
-                cav.pdfout=pdfoutNucleus; 
-                cav.range=rangeNucleus;
-                cav.cavity=cavity;
-                nstore=mappeObjects('nucleus',cc,nstore,i,cav);
-            else
-                nstore=mappeObjects('nucleus',cc,nstore,i);
-            end
-        end
-        
-        
-        if display
-            if numel(imbud)~=0
-                if binning~=1
-                    imbud= imresize(imbud,binning);
-                end
-            end
-            displayCells(imcell,imbud,i,hcells,hnucleus)
-        end
-        
-        fprintf('\n');
-        cc=cc+1;
-    end
     
-   % at_log(['Segmentation/Mapping is done for position : ' num2str(pos)],'a',pos,'batch')
+    %         if display
+    %             if numel(imbud)~=0
+    %                 if binning~=1
+    %                     imbud= imresize(imbud,binning);
+    %                 end
+    %             end
+    %             displayCells(imcell,imbud,i,hcells,hnucleus)
+    %         end
     
-    
-    if segCells
-        segmentation.cells1Segmented(frames(1):frames(end))=1;
-        
-        if numel(cavity)
-           % make report for cavity tracking
-           cavityTracking()
-        end
-    end
     timeLapse.autotrack.position(pos).cells1Segmented=segmentation.cells1Segmented;
-    
-    if segNucleus
-        segmentation.nucleusSegmented(frames(1):frames(end))=1;
-    end
     timeLapse.autotrack.position(pos).nucleusSegmented=segmentation.nucleusSegmented;
-    
-    if mapNucleus
-        fprintf(['Create Nuclei TObjects for position:' num2str(pos) '\n']);
-        segmentation.nucleusMapped(frames(1):frames(end))=1;
-        [segmentation.tnucleus fchange]=phy_makeTObject(segmentation.nucleus);
-        
-         if numel(cavity)
-        tassignement(cav.pdfout,cav.range,[1 1 1 1],'nucleus'); 
-         end
-        
-    end
     timeLapse.autotrack.position(pos).nucleusMapped=segmentation.nucleusMapped;
-    
-    if mapCells
-        fprintf(['Create Cells TObjects for position:' num2str(pos) '\n']);
-        segmentation.cells1Mapped(frames(1):frames(end))=1;
-        [segmentation.tcells1 fchange]=phy_makeTObject(segmentation.cells1);
-        
-        if numel(cavity)
-        tassignement(cav.pdfout,cav.range,[1 1 1 1],'cells1'); 
-        end
-    end
     timeLapse.autotrack.position(pos).cells1Mapped=segmentation.cells1Mapped;
     
     segmentation.frameChanged(frames(1):frames(end))=1;
@@ -370,14 +167,14 @@ for l=position % loop on positions
         at_log(['Start mapCell Nucleus  for position : ' num2str(pos)],'a',pos,'batch')
         at_mapCellsNucleus(timeLapse.autotrack.processing.nucleus(1));
     end
-
+    
     if  segCells || mapCells || segNucleus || mapNucleus
-                fprintf(['//-----------------------------------//\n']);
+        fprintf(['//-----------------------------------//\n']);
         fprintf(['Saving pos: ' num2str(pos) '\n\n']);
         fprintf(['//-----------------------------------//\n']);
         fprintf('\n');
         
-       % at_save;
+        at_save;
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
     
@@ -389,7 +186,6 @@ for l=position % loop on positions
     end
     
 end
-
 
 
 if display
@@ -418,154 +214,8 @@ end
 % end
 
 
-% function nstore=mappeNucleus(cc,nstore,i)
-% global segmentation
-% 
-% if cc>1
-%     
-%     nstore=max(nstore, max([segmentation.nucleus(i-1,:).n]));
-%     
-%     temp=segmentation.discardImage(1:i-1); % frame is discarded by user ; display previous frame
-%     trackFrame=find(temp==0,1,'last');
-%     
-%     cell0=segmentation.nucleus(trackFrame,:);
-%     cell1=segmentation.nucleus(i,:);
-%     
-%     parametres=segmentation.processing.parameters{4,9};
-%     
-%     segmentation.nucleus(i,:)=phy_mapCellsHungarian(cell0,cell1,nstore,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},parametres{6,2});
-% end
-
-function nstore2=mappeObjects(objecttype,cc,nstore2,i,cavity)
-global segmentation
 
 
-if nargin==4
-    if cc>1
-        
-        nstore2=max(nstore2, max([segmentation.(objecttype)(i-1,:).n]));
-        
-        temp=segmentation.discardImage(1:i-1); % frame is discarded by user ; display previous frame
-        trackFrame=find(temp==0,1,'last');
-        
-        cell0=segmentation.(objecttype)(trackFrame,:);
-        cell1=segmentation.(objecttype)(i,:);
-        
-        parametres=segmentation.processing.parameters{4,9};
-        
-        segmentation.(objecttype)(i,:)=phy_mapCellsHungarian(cell0,cell1,nstore2,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},parametres{6,2});
-        
-        
-        fprintf('.');
-    end
-end
-
-if nargin==5
-    nstore2=0;
-    nROI=segmentation.ROI;
-
-    if cc==1 % renumber the cells , but no mapping
-
-        cells=segmentation.(objecttype)(i,:);
-        Nr= [cells.Nrpoints];
-        
-        
-        for ii=1:max(Nr)
-            pix=find(Nr==ii);
-            dd=1;
-            for j=pix;
-                cells(j).n= ii*10000+dd;
-                dd=dd+1;
-            end
-        end
-        fprintf('.');
-    else % map the cells cavity by cavity
-        
-        temp=segmentation.discardImage(1:i-1); % frame is discarded by user ; display previous frame
-        trackFrame=find(temp==0,1,'last');
-        
-
-        cell0=segmentation.(objecttype)(trackFrame,:); % mapped
-        totcells=segmentation.(objecttype)(1:trackFrame,:); totcells=totcells(:); ntot=[totcells(:).Nrpoints];
-
-        cell1=segmentation.(objecttype)(i,:); % not mapped
-        
-        parametres=segmentation.processing.parameters{4,9};
-        
-        Nr0= [cell0.Nrpoints];
-        Nr1= [cell1.Nrpoints];
-        
-        if cavity.cavity==0
-            cavity.cavity=1:numel(segmentation.ROI(i).ROI);
-        end
-        
-        % first rename cell0 for input
-        for iik=1:numel(segmentation.ROI(i).ROI) 
-            
-       
-            
-            ii=segmentation.ROI(i).ROI(iik).n;
-            
-           
-           % if numel(find(cavity.cavity==ii))==0
-           %     continue
-           % end
-            
-            fprintf('.');
-                 
-            %if ii~=19 %test mapping on cavity 19
-            %    continue
-            %end
-
-            pix0=find(Nr0==ii); % cells in cavity i
-            cell0tomap=cell0(pix0);
-            
-            totcellsN=find(ntot==ii); % all cells in time in cavity
-            ntoti=totcells(totcellsN);
-            
-            if numel([ntoti.n])==0
-            maxObjNumber=ii*10000;
-            else
-            maxObjNumber=max([ntoti.n]);
-            end
-            
-            %maxObjNumber
-            % remove cells too close to exit of cavity using cavity
-            % orientation
-            
-            %size(segmentation.ROI), size(segmentation.ROI(i).ROI)
-            
-            orient=segmentation.ROI(i).ROI(iik).orient; 
-            box=segmentation.ROI(i).ROI(iik).box;
-            oy=[cell0tomap.oy];
-            
-            % set up filter to filter out cells leaving te cavity
-            if orient==1
-            filterpos = (box(2)+box(4)/5);
-            pix=find(oy>filterpos);
-            else
-            filterpos = (box(2)+4*box(4)/5); 
-            pix=find(oy<filterpos);
-            end
-              
-            cell0tomap=cell0tomap(pix);
-            
-            pix1=find(Nr1==ii); % cells in cavity i
-            cell1tomap=cell1(pix1);
-           % cell1tomap
-            %cell1tomap=phy_mapCellsHungarian( cell0tomap, cell1tomap,maxObjNumber,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},0);
-           
-            assignment(cell0tomap,cell1tomap,cavity.pdfout,cavity.range,[1 1 1 1],maxObjNumber);
-            
-            % cell1tomap
-            %for k=1:numel(cell1tomap)
-            %    cell1tomap(k).n=ii*1000+cell1tomap(k).n;
-            %end
-        end 
-    end
-end
-
-fprintf('\n');
 
 
 function displayCells(imcells,imbud,i,hcells,hnucleus,binning)
@@ -612,192 +262,7 @@ if ishandle(hnucleus)
 end
 
 
-%%
-function imcells=segmentCells(i,channel,cavity)
-global segmentation
 
-imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
-segmentation.cells1(i,:)=phy_Object;
-
-% cov=std(double(imcells(:)))/mean(double(imcells(:)));
-% if cov<0.26
-%     segmentation.discardImage(i)=1;
-%     return;
-% end
-
-if ~isfield(segmentation,'ROI')
-     nROI=1;
-       ROI.box=[1 1 size(imcells,2) size(imcells,1)];
-        BW=[];
-        cavity=1;
-else
-    if numel(segmentation.ROI(i).ROI.orient)==0
-        nROI=1;
-        ROI.box=[1 1 size(imcells,2) size(imcells,1)];
-        BW=[];
-        cavity=1;
-    else
-        ROI=segmentation.ROI(i).ROI;
-        nROI=length(ROI);
-        if cavity==0
-            cavity=1:nROI;
-        end
-        
-        BW=poly2mask(segmentation.ROI(i).outgrid(1,:),segmentation.ROI(i).outgrid(2,:),size(imcells,1),size(imcells,2));
-        BW=imerode(BW, strel('Disk',3));
-       %figure, imshow(BW,[]);
-       %pause
-    end
-end
-
-cc=0;
-cells=phy_Object;
-
-for k=cavity
-    
-    fprintf('.');
-    nc=[ROI.n];
-    kk=find(nc==k);
-    %ROI
-    roiarr=ROI(kk).box;
-    % size(ROI(k).BW)
-    
-    imtemp=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
-    
-    %size(imtemp)
-    
-   
-    
-    if numel(BW)~=0
-        BWzoom=BW(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
-         %figure, imshow(mat2gray(imtemp)+BWzoom,[]); hold on;
-         %pause
-        % close
-        celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
-            segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
-            segmentation.processing.parameters{1,14}{7,2},BWzoom);
-    else
-        celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
-            segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
-            segmentation.processing.parameters{1,14}{7,2});
-    end
-    
-    if numel(celltemp)==1 && celltemp.n==0
-        continue
-    end
-    
-    for j=1:length(celltemp)
-        cells(cc+j).x=celltemp(j).x+roiarr(1)-1;
-        cells(cc+j).y=celltemp(j).y+roiarr(2)-1;
-        cells(cc+j).ox=celltemp(j).ox+roiarr(1)-1;
-        cells(cc+j).oy=celltemp(j).oy+roiarr(2)-1;
-        cells(cc+j).area=celltemp(j).area;
-        cells(cc+j).fluoMean(1)=celltemp(j).fluoMean(1);
-        cells(cc+j).fluoVar(1)=celltemp(j).fluoVar(1);
-        cells(cc+j).Nrpoints=k; % cavity number
-        cells(cc+j).n=cc+j;
-    end
-    cc=cc+length(celltemp);
-end
-
-
-for j=1:length(cells)
-    segmentation.cells1(i,j)=cells(j);
-    segmentation.cells1(i,j).image=i;
-end
-
-fprintf('\n');
-
-%%
-function imcells=segmentNucleus(i,channel,binning,cavity)
-global segmentation
-
-imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
-%warning off all
-%imbud=imresize(imbud,2);
-%warning on all
-
-%figure, imshow(imbud,[]);
-
-parametres=segmentation.processing.parameters{4,15};
-
-if ~isfield(segmentation,'ROI')
-     nROI=1;
-       ROI.box=[1 1 size(imcells,2) size(imcells,1)];
-        BW=[];
-        cavity=1;
-else
-    if numel(segmentation.ROI(i).ROI.orient)==0
-        nROI=1;
-        ROI.box=[1 1 size(imcells,2) size(imcells,1)];
-        BW=[];
-        cavity=1;
-    else
-        ROI=segmentation.ROI(i).ROI;
-        nROI=length(ROI);
-        if cavity==0
-            cavity=1:nROI;
-        end
-        
-        %BW=poly2mask(segmentation.ROI(i).outgrid(1,:),segmentation.ROI(i).outgrid(2,:),size(imcells,1),size(imcells,2));
-        %BW=imerode(BW, strel('Disk',3));
-       %figure, imshow(BW,[]);
-       %pause
-    end
-end
-
-cc=0;
-cells=phy_Object;
-
-for k=cavity
-    
-    roiarr=ROI(k).box;
-
-%roiarr=round(roiarr/binning)
-    
-    imtemp=imcells(roiarr(k,2):roiarr(k,2)+roiarr(k,4)-1,roiarr(k,1):roiarr(k,1)+roiarr(k,3)-1);
-    
-    %figure, imshow(imtemp,[]);
-    
-    celltemp=phy_segmentNucleus(imtemp,parametres{4,2},parametres{2,2},parametres{3,2},parametres{1,2});
-    
-    for j=1:length(celltemp)
-        cells(cc+j).x=celltemp(j).x+roiarr(k,1)-1;
-        cells(cc+j).y=celltemp(j).y+roiarr(k,2)-1;
-        cells(cc+j).ox=celltemp(j).ox+roiarr(k,1)-1;
-        cells(cc+j).oy=celltemp(j).oy+roiarr(k,2)-1;
-        cells(cc+j).fluoMean=celltemp(j).fluoMean;
-        cells(cc+j).Nrpoints=celltemp(j).Nrpoints;
-        cells(cc+j).fluoMin=celltemp(j).fluoMin;
-        cells(cc+j).fluoMax=celltemp(j).fluoMax;
-        cells(cc+j).area=celltemp(j).area;
-        cells(cc+j).n=cc+j;
-    end
-    cc=cc+length(celltemp);
-end
-
-
-for j=1:length(cells)
-    segmentation.nucleus(i,j)=cells(j);
-    segmentation.nucleus(i,j).image=i;
-    segmentation.nucleus(i,j).x=binning*segmentation.nucleus(i,j).x;
-    segmentation.nucleus(i,j).y=binning*segmentation.nucleus(i,j).y;
-    segmentation.nucleus(i,j).oy=mean(segmentation.nucleus(i,j).y);
-    segmentation.nucleus(i,j).ox=mean(segmentation.nucleus(i,j).x);
-    segmentation.nucleus(i,j).area=binning*binning*segmentation.nucleus(i,j).area;
-    segmentation.nucleus(i,j).Mean_cell=struct('peak',0,'area',0,'background',0);
-    
-    % measure total fluorescence within nucleus  contour
-    [peak, area, bckgrd, ~]=at_measureNucleusFluo(segmentation.nucleus(i,j),imcells,binning);
-    
-    segmentation.nucleus(i,j).Mean_cell=struct('peak',peak,'area',area,'background',bckgrd);
-end
-
-
-%c=segmentation.nucleus(i,3).Mean_cell
-
-
-%%
 function value = getMapValue(map, key)
 value = 0;
 
