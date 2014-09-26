@@ -21,6 +21,8 @@ for i=frames
     
 end
 
+segmentation.nucleusSegmented(frames(1):frames(end))=1;
+
 
 
 
@@ -111,6 +113,6 @@ end
 
 %c=segmentation.nucleus(i,3).Mean_cell
 
- segmentation.nucleusSegmented(frames(1):frames(end))=1;
+ 
 
 %%
