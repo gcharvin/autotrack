@@ -43,18 +43,23 @@ if ~isfield(segmentation,'ROI')
        ROI.box=[1 1 size(imcells,2) size(imcells,1)];
         BW=[];
         cavity=1;
+        ROI.n=1;
+        
 else
     if numel(segmentation.ROI(i).ROI.orient)==0
         nROI=1;
         ROI.box=[1 1 size(imcells,2) size(imcells,1)];
         BW=[];
         cavity=1;
+        ROI.n=1;
     else
+        
         ROI=segmentation.ROI(i).ROI;
         nROI=length(ROI);
         if cavity==0
             cavity=1:nROI;
         end
+        
         
         %BW=poly2mask(segmentation.ROI(i).outgrid(1,:),segmentation.ROI(i).outgrid(2,:),size(imcells,1),size(imcells,2));
         %BW=imerode(BW, strel('Disk',3));
@@ -68,11 +73,13 @@ cells=phy_Object;
 
 for k=cavity
     
-    roiarr=ROI(k).box;
-
-%roiarr=round(roiarr/binning)
+    nc=[ROI.n];
+    kk=find(nc==k);
+    %ROI
+    roiarr=ROI(kk).box;
+    % size(ROI(k).BW)
     
-    imtemp=imcells(roiarr(k,2):roiarr(k,2)+roiarr(k,4)-1,roiarr(k,1):roiarr(k,1)+roiarr(k,3)-1);
+    imtemp=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
     
     %figure, imshow(imtemp,[]);
     
