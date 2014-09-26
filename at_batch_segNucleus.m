@@ -1,4 +1,4 @@
-function at_batch_segNucleus(pos,frames,cavity)
+function at_batch_segNucleus(pos,frames,cavity,binning)
 global segmentation timeLapse
 
 at_log(['Segment nucleus parameters: ' num2str(timeLapse.autotrack.processing.nucleus')],'a',pos,'batch');

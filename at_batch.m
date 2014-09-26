@@ -135,7 +135,7 @@ for l=position % loop on positions
     end
     
     if segNucleus
-        at_batch_segNucleus(pos,frames,cavity);
+        at_batch_segNucleus(pos,frames,cavity,binning);
     end
     if mapNucleus
         at_batch_mapNucleus(pos,frames,cavity);
