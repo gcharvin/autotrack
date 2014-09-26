@@ -9,12 +9,14 @@ at_log(['Segment cells parameters: ' num2str(timeLapse.autotrack.processing.cell
 timeLapse.autotrack.position(pos).cells1Segmented=zeros(1,timeLapse.numberOfFrames);
 segmentation.cells1Segmented=zeros(1,timeLapse.numberOfFrames);
 
+ if numel(cavity) % track cavities
 segmentation.ROI=[];
 segmentation.ROI.ROI=[];
 segmentation.ROI.x=[];
 segmentation.ROI.y=[];
 segmentation.ROI.theta=[];
 segmentation.ROI.outgrid=[];
+ end
 
 fprintf(['// Cell segmentation - position: ' num2str(pos) '//\n']);
 
@@ -127,12 +129,14 @@ if ~isfield(segmentation,'ROI')
     ROI.box=[1 1 size(imcells,2) size(imcells,1)];
     BW=[];
     cavity=1;
+    ROI.n=1;
 else
     if numel(segmentation.ROI(i).ROI.orient)==0
         nROI=1;
         ROI.box=[1 1 size(imcells,2) size(imcells,1)];
         BW=[];
         cavity=1;
+        ROI.n=1;
     else
         ROI=segmentation.ROI(i).ROI;
         nROI=length(ROI);

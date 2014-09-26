@@ -1,4 +1,4 @@
-function at_batch_segNucleus(pos,frames,cavity)
+function at_batch_segNucleus(pos,frames,cavity,binning)
 global segmentation timeLapse
 
 at_log(['Segment nucleus parameters: ' num2str(timeLapse.autotrack.processing.nucleus')],'a',pos,'batch');
@@ -20,6 +20,8 @@ for i=frames
     imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1),binning,cavity);
     
 end
+
+segmentation.nucleusSegmented(frames(1):frames(end))=1;
 
 
 
@@ -111,6 +113,6 @@ end
 
 %c=segmentation.nucleus(i,3).Mean_cell
 
- segmentation.nucleusSegmented(frames(1):frames(end))=1;
+ 
 
 %%
