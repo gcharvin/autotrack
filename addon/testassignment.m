@@ -1,7 +1,7 @@
 function testassignment(frames,cavity,pdfout,range)
 global segmentation
 
-enable=[1 1 0 0]; % sometimes problems with intensities ... to be fixed
+enable=[1 1 1 1]; % sometimes problems with intensities ... to be fixed
 
 %ncav=[segmentation.ROI(frame).ROI.n]
 %pix=find(ncav==cavity)

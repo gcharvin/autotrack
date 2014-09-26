@@ -166,7 +166,7 @@ yt=yt+maxe(2);
 
 BW=poly2mask(xt,yt,size(imagstore,1),size(imagstore,2));
 im=mat2gray(imagstore);
-BW=imerode(BW, strel('Disk',3));
+BW=imerode(BW, strel('Disk',15)); %3
 outgrid=[xt; yt];
 
 if display
