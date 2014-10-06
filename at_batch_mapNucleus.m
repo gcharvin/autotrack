@@ -4,10 +4,11 @@ global segmentation timeLapse
 
 % load training set
     
-    pth=mfilename('fullpath');
-    pth=pth(1:end-19);
-    
-    load([pth '/addon/trainingsetNucleus.mat']);
+% disabled training set
+%     pth=mfilename('fullpath');
+%     pth=pth(1:end-19);
+%     
+%     load([pth '/addon/trainingsetNucleus.mat']);
     
     
 at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch');
@@ -25,10 +26,10 @@ for i=frames
     fprintf(['// Nucleus segmentation - position: ' num2str(pos) 'frame :' num2str(i) '//\n']);
     if numel(cavity)
         cav=[];
-        cav.pdfout=pdfoutNucleus;
-        cav.range=rangeNucleus;
-        cav.cavity=cavity;
-        nstore=at_map('nucleus',cc,nstore,i,cav);
+        %cav.pdfout=pdfoutNucleus; % no training set
+        %cav.range=rangeNucleus;
+        %cav.cavity=cavity;
+        nstore=at_map('nucleus',cc,nstore,i); %,cav);
     else
         nstore=at_map('nucleus',cc,nstore,i);
     end
