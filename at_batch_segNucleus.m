@@ -76,7 +76,7 @@ for k=cavity
     nc=[ROI.n];
     kk=find(nc==k);
     %ROI
-    roiarr=ROI(kk).box;
+    roiarr=ROI(kk).box/binning;
     % size(ROI(k).BW)
     
     imtemp=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
@@ -86,12 +86,12 @@ for k=cavity
     celltemp=phy_segmentNucleus(imtemp,parametres{4,2},parametres{2,2},parametres{3,2},parametres{1,2});
     
     for j=1:length(celltemp)
-        cells(cc+j).x=celltemp(j).x+roiarr(k,1)-1;
-        cells(cc+j).y=celltemp(j).y+roiarr(k,2)-1;
-        cells(cc+j).ox=celltemp(j).ox+roiarr(k,1)-1;
-        cells(cc+j).oy=celltemp(j).oy+roiarr(k,2)-1;
+        cells(cc+j).x=celltemp(j).x+roiarr(1)-1;
+        cells(cc+j).y=celltemp(j).y+roiarr(2)-1;
+        cells(cc+j).ox=celltemp(j).ox+roiarr(1)-1;
+        cells(cc+j).oy=celltemp(j).oy+roiarr(2)-1;
         cells(cc+j).fluoMean=celltemp(j).fluoMean;
-        cells(cc+j).Nrpoints=celltemp(j).Nrpoints;
+        cells(cc+j).Nrpoints=k;
         cells(cc+j).fluoMin=celltemp(j).fluoMin;
         cells(cc+j).fluoMax=celltemp(j).fluoMax;
         cells(cc+j).area=celltemp(j).area;
