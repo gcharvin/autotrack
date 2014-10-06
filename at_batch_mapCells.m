@@ -23,6 +23,9 @@ fprintf(['// Cells mapping - position: ' num2str(pos) '//\n']);
 
 
 % first determine average intensity and size of cells
+
+fprintf(['// Cell mapping - position: ' num2str(pos) '-Measure average cell size and intensity...\n']);
+
 area=[segmentation.cells1.area];
 area=mean(area(area~=0))
 

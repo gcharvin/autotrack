@@ -239,8 +239,8 @@ ox=ox-cx;
 
 %pause
 
-area=segmentation.tcells1(i).Obj(j).area;% /segmentation.processing.avgCells1.area;
-meanint=segmentation.tcells1(i).Obj(j).fluoMean(1);%/segmentation.processing.avgCells1.inte;
+area=segmentation.tcells1(i).Obj(j).area/segmentation.processing.avgCells1.area;
+meanint=segmentation.tcells1(i).Obj(j).fluoMean(1)/segmentation.processing.avgCells1.inte;
 
 %varint=segmentation.tcells1(i).Obj(j).fluoVar(1);
 %ecc=0;
