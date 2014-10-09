@@ -105,10 +105,10 @@ if nargin==5
             
             % set up filter to filter out cells leaving te cavity
             if orient==1
-            filterpos = (box(2)+box(4)/5);
+            filterpos = (box(2)+1.5*box(4)/5);
             pix=find(oy>filterpos);
             else
-            filterpos = (box(2)+4*box(4)/5); 
+            filterpos = (box(2)+3.5*box(4)/5); 
             pix=find(oy<filterpos);
             end
               
@@ -118,7 +118,7 @@ if nargin==5
             cell1tomap=cell1(pix1);
            % cell1tomap
             %cell1tomap=phy_mapCellsHungarian( cell0tomap, cell1tomap,maxObjNumber,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},0);
-           
+            %cavity
             assignment(cell0tomap,cell1tomap,cavity.pdfout,cavity.range,[1 1 1 1],maxObjNumber);
             
             % cell1tomap

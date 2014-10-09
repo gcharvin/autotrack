@@ -1,4 +1,5 @@
 function assignment(cell0,cell1,pdfout,range,enable,maxObjNumber)
+global segmentation
 
 % perform hungarian assignment based on porbability of association and
 % using hungarian method for assignement
@@ -17,6 +18,8 @@ display=1;
 else
 display=0;   
 end
+
+%display=1;
 
 ind0=find([cell0.ox]~=0);
 ind1=find([cell1.ox]~=0);
@@ -41,9 +44,7 @@ for i=1:length(ind0)
     end
     
     for j=1:length(ind1)
-        
- 
-        
+
         jd=ind1(j);
         [x1, y1, area1, intensity1]=offsetCoordinates(cell1(jd));
         
@@ -56,15 +57,21 @@ for i=1:length(ind0)
          end
         
         
-        if dist > 7*sqrt(range(3)/pi) % if cells are well separated, don't compute proba
+        if dist > 7*sqrt(segmentation.processing.avgCells1.area*range(3)/pi) 
+            % if cells are well separated, don't compute proba
         continue
         end
         
-        if abs(intensity1-intensity0)>250 % difference in intensities too high
+        if abs(intensity1-intensity0)>0.3*intensity0 % difference in intensities too high
             continue
         end
         
-        varz=[x0 y0 area0 intensity0 x1-x0 y1-y0 area1-area0 intensity1-intensity0];
+        area0n=area0/segmentation.processing.avgCells1.area;
+        area1n=area1/segmentation.processing.avgCells1.area;
+        intensity0n=intensity0/segmentation.processing.avgCells1.inte;
+        intensity1n=intensity1/segmentation.processing.avgCells1.inte;
+        
+        varz=[x0 y0 area0n intensity0n x1-x0 y1-y0 area1n-area0n intensity1n-intensity0n];
         coef=log(computeProba(pdfout,range,enable,varz));
 
         
@@ -176,5 +183,5 @@ ox=ox-cx;
 
 %pause
 
-area=celltemp.area/segmentation.processing.avgCells1.area;
-intensity=celltemp.fluoMean(1)/segmentation.processing.avgCells1.inte;
+area=celltemp.area;%segmentation.processing.avgCells1.area;
+intensity=celltemp.fluoMean(1);%segmentation.processing.avgCells1.inte;

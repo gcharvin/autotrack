@@ -146,8 +146,8 @@ for l=position % loop on positions
             
             if i==frames(1)
                 fprintf(['Find cavity for the first frame:' num2str(i) '; Be patient...\n']);
-                %[x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',2.5,'npoints',31,'scale',0.2);
-                x=-9.33; y=57.8; theta=0.68;
+                [x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',2.5,'npoints',31,'scale',0.2);
+                %x=-9.33; y=57.8; theta=0.68;
             end
             
             fprintf(['Fine adjutsment of cavity position\n']); pause(0.01);
@@ -213,6 +213,7 @@ for l=position % loop on positions
     end
     if mapCells
         at_batch_mapCells(pos,frames,cavity);
+        %return;
     end
     
     if segNucleus
@@ -221,16 +222,7 @@ for l=position % loop on positions
     if mapNucleus
         at_batch_mapNucleus(pos,frames,cavity);
     end
-    
-    
-    %         if display
-    %             if numel(imbud)~=0
-    %                 if binning~=1
-    %                     imbud= imresize(imbud,binning);
-    %                 end
-    %             end
-    %             displayCells(imcell,imbud,i,hcells,hnucleus)
-    %         end
+   
     
     timeLapse.autotrack.position(pos).cells1Segmented=segmentation.cells1Segmented;
     timeLapse.autotrack.position(pos).nucleusSegmented=segmentation.nucleusSegmented;
@@ -255,7 +247,7 @@ for l=position % loop on positions
         fprintf(['//-----------------------------------//\n']);
         fprintf('\n');
         
-        at_save;
+         at_save;
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
     

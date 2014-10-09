@@ -35,7 +35,6 @@ inte=mean(inte(inte~=0))
 segmentation.processing.avgCells1=[];
 segmentation.processing.avgCells1.area=area;
 segmentation.processing.avgCells1.inte=inte;
-
 %
 
 for i=frames
