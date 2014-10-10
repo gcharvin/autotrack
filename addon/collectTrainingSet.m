@@ -1,4 +1,4 @@
-function collectTrainingSet(cavity,option,display)
+function collectTrainingSet(cavity,option,display,objecttype)
 global segmentation
 
 if strcmp(option,'new') % start new training dataset
@@ -12,36 +12,39 @@ if strcmp(option,'append') % append from previous dataset
     cc=size(M,1)+1;
 end
 
+[file,path] = uiputfile(['traineddata-' objecttype '.mat'],'Save file name');
+
+
 %if nargin==0
 
 %cc2=1;
 
-for i=1:numel(segmentation.tcells1)
+for i=1:numel(segmentation.(['t' objecttype]))
     
-    if segmentation.tcells1(i).N==0
+    if segmentation.(['t' objecttype])(i).N==0
         continue
     end
     
-    if numel(segmentation.tcells1(i).Obj)<2
+    if numel(segmentation.(['t' objecttype])(i).Obj)<2
         continue
     end
     
     if numel(cavity) % if particular cavities need to be tracked
-        pix=find(cavity==segmentation.tcells1(i).Obj(1).Nrpoints);
+        pix=find(cavity==segmentation.(['t' objecttype])(i).Obj(1).Nrpoints);
         
         if numel(pix)==0
             continue;
         end
     end
     
-    cav=segmentation.tcells1(i).Obj(1).Nrpoints;
+    cav=segmentation.(['t' objecttype])(i).Obj(1).Nrpoints;
     
     
-    for j=1:numel(segmentation.tcells1(i).Obj)-1
+    for j=1:numel(segmentation.(['t' objecttype])(i).Obj)-1
         
         % filter cells in the ammped part of the cavity
         
-        frame=segmentation.tcells1(i).Obj(j).image;
+        frame=segmentation.(['t' objecttype])(i).Obj(j).image;
         
         cavlist=[segmentation.ROI(frame).ROI.n];
         pix=find(cavlist==cav);
@@ -49,7 +52,7 @@ for i=1:numel(segmentation.tcells1)
         orient=segmentation.ROI(frame).ROI(pix).orient;
         box=segmentation.ROI(frame).ROI(pix).box;
         
-        oy=segmentation.tcells1(i).Obj(j).oy;
+        oy=segmentation.(['t' objecttype])(i).Obj(j).oy;
         
         % set up filter to filter out cells leaving te cavity
         if orient==1
@@ -71,7 +74,7 @@ for i=1:numel(segmentation.tcells1)
         
         % var at time j
         
-        [ox,oy,area,meanint]=getvar(i,j);
+        [ox,oy,area,meanint]=getvar(i,j,objecttype);
         
         if area==0;
             continue
@@ -79,7 +82,7 @@ for i=1:numel(segmentation.tcells1)
         
         % var at time j+1
         
-        [ox2,oy2,area2,meanint2]=getvar(i,j+1);
+        [ox2,oy2,area2,meanint2]=getvar(i,j+1,objecttype);
         
         if area==0;
             continue
@@ -91,13 +94,13 @@ for i=1:numel(segmentation.tcells1)
         %             cc2=cc2+1;
         %         end
         %
-        %         if j==numel(segmentation.tcells1(i).Obj)-1
+        %         if j==numel(segmentation.(['t' objecttype])(i).Obj)-1
         %             [ox3,oy3,area3,meanint3]=getvar(i,j+1);
         %            % app(cc2,:)=[ox3 oy3 area3 meanint3 -1]; % cell dissappear
         %             cc2=cc2+1;
         %         end
         %
-        %         if j~=1 && j~=numel(segmentation.tcells1(i).Obj)-1
+        %         if j~=1 && j~=numel(segmentation.(['t' objecttype])(i).Obj)-1
         %           % app(cc2,:)=[ox oy area meanint 0]; % cell is there
         %            cc2=cc2+1;
         %         end
@@ -120,7 +123,7 @@ for i=1:numel(segmentation.tcells1)
     
 end
 
-[file,path] = uiputfile('traineddata.mat','Save file name');
+
 save([path file],'M');
 
 
@@ -194,17 +197,17 @@ end
 
 
 
-function [ox,oy,area,meanint]=getvar(i,j)
+function [ox,oy,area,meanint]=getvar(i,j,objecttype)
 global segmentation
 
 %fprintf('----------')
 
-ox=segmentation.tcells1(i).Obj(j).ox;
-oy=segmentation.tcells1(i).Obj(j).oy;
+ox=segmentation.(['t' objecttype])(i).Obj(j).ox;
+oy=segmentation.(['t' objecttype])(i).Obj(j).oy;
 
-cavity=segmentation.tcells1(i).Obj(j).Nrpoints;
+cavity=segmentation.(['t' objecttype])(i).Obj(j).Nrpoints;
 
-frame= segmentation.tcells1(i).Obj(j).image;
+frame= segmentation.(['t' objecttype])(i).Obj(j).image;
 
 if numel(segmentation.ROI)<frame
     area=0;
@@ -239,10 +242,10 @@ ox=ox-cx;
 
 %pause
 
-area=segmentation.tcells1(i).Obj(j).area/segmentation.processing.avgCells1.area;
-meanint=segmentation.tcells1(i).Obj(j).fluoMean(1)/segmentation.processing.avgCells1.inte;
+area=segmentation.(['t' objecttype])(i).Obj(j).area/segmentation.processing.avgCells1.area;
+meanint=segmentation.(['t' objecttype])(i).Obj(j).fluoMean(1)/segmentation.processing.avgCells1.inte;
 
-%varint=segmentation.tcells1(i).Obj(j).fluoVar(1);
+%varint=segmentation.(['t' objecttype])(i).Obj(j).fluoVar(1);
 %ecc=0;
 
 
