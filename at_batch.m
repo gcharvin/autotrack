@@ -14,7 +14,8 @@
 % 'cellcycle':extract cellcycle phase
 % 'display' : display running segmentation
 % 'binning', bin : binning factor used for nucleus : default 2
-% 'cavity' , : find ROI associated with cavities : 0 : process all
+% 'cavity' , : find ROI associated with cavities : 0 : process all; -1 :
+% use existing tracking in segmentation variable
 % cavities, array : process specific cavities
 
 %
@@ -126,7 +127,7 @@ for l=position % loop on positions
     fprintf(['//-----------------------------------//\n']);
     fprintf('\n');
     
-    if numel(cavity) %track cavities
+    if numel(cavity) & cavity>=0 %track cavities
         segmentation.ROI=[];
         segmentation.ROI.ROI=[];
         segmentation.ROI.x=[];
