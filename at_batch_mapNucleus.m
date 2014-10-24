@@ -23,7 +23,7 @@ fprintf(['// Nucleus mapping - position: ' num2str(pos) '//\n']);
 
 for i=frames
     
-    fprintf(['// Nucleus segmentation - position: ' num2str(pos) 'frame :' num2str(i) '//\n']);
+    fprintf(['// Nucleus mapping - position: ' num2str(pos) 'frame :' num2str(i) '//\n']);
     if numel(cavity)
         cav=[];
         %cav.pdfout=pdfoutNucleus; % no training set
