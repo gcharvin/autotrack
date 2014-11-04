@@ -8,12 +8,13 @@
 
 % 'cells' : segment cell contours
 % 'nucleus' : segment and score nuclei
+% 'foci' : segment foci
 % 'mapnucleus': map nuclei
 % 'mapcells': map cells; in case this is selected, then a link between
 % nuclei and cells is established
 % 'cellcycle':extract cellcycle phase
 % 'display' : display running segmentation
-% 'binning', bin : binning factor used for nucleus : default 2
+% 'binning', bin : binning factor used for nucleus or foci: default 2
 % 'cavity' , : find ROI associated with cavities : 0 : process all; -1 :
 % use existing tracking in segmentation variable
 % cavities, array : process specific cavities
@@ -72,6 +73,7 @@ if nargin==0
         frames=str2num(answer{1});
         frames=frames(1):frames(end);
         segNucleus=1;
+        segFoci=1;
         segCells=1;
         mapNucleus=1;
         mapCells=1;
@@ -84,6 +86,7 @@ if nargin==0
 else
     segCells = getMapValue(varargin, 'cells');
     segNucleus = getMapValue(varargin, 'nucleus');
+    segFoci = getMapValue(varargin,'foci');
     mapNucleus = getMapValue(varargin, 'mapnucleus');
     mapCells = getMapValue(varargin, 'mapcells');
     cellcycle = getMapValue(varargin, 'cellcycle');
@@ -97,11 +100,15 @@ end
 if display
     hcells=[];
     hnucleus=[];
+    hfoci=[];
     if segCells
         hcells=figure('Position',[10 10 800 600]);
     end
     if segNucleus
         hnucleus=figure('Position',[1000 10 800 600]);
+    end
+    if segFoci
+        hfoci=figure('Position',[1000 10 800 600]);
     end
 end
 
@@ -111,7 +118,6 @@ for l=position % loop on positions
     % initialization
     cc=1;
     nstore=0; % nucleus number counter
-    
     
     if l==-1
         pos=segmentation.position;
@@ -134,8 +140,7 @@ for l=position % loop on positions
         segmentation.ROI.y=[];
         segmentation.ROI.theta=[];
         segmentation.ROI.outgrid=[];
-        
-        
+              
         for i=frames % loop on frames
             fprintf(['// Cavity tracking - position: ' num2str(pos) ' - frame :' num2str(i) '//\n']);
             
@@ -223,10 +228,15 @@ for l=position % loop on positions
     if mapNucleus
         at_batch_mapNucleus(pos,frames,cavity);
     end
+    
+    if segFoci
+        at_batch_segFoci(pos,frames,cavity,binning);
+    end
    
     
     timeLapse.autotrack.position(pos).cells1Segmented=segmentation.cells1Segmented;
     timeLapse.autotrack.position(pos).nucleusSegmented=segmentation.nucleusSegmented;
+    timeLapse.autotrack.position(pos).fociSegmented=segmentation.fociSegmented;
     timeLapse.autotrack.position(pos).nucleusMapped=segmentation.nucleusMapped;
     timeLapse.autotrack.position(pos).cells1Mapped=segmentation.cells1Mapped;
     
@@ -242,13 +252,13 @@ for l=position % loop on positions
         at_mapCellsNucleus(timeLapse.autotrack.processing.nucleus(1));
     end
     
-    if  segCells || mapCells || segNucleus || mapNucleus
+    if  segCells || mapCells || segNucleus || mapNucleus || segFoci
         fprintf(['//-----------------------------------//\n']);
         fprintf(['Saving pos: ' num2str(pos) '\n\n']);
         fprintf(['//-----------------------------------//\n']);
         fprintf('\n');
         
-         at_save;
+        %at_save;
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
     
@@ -268,6 +278,9 @@ if display
     end
     if ishandle(hnucleus)
         close(hnucleus);
+    end
+    if ishandle(hfoci)
+        close(hfoci);
     end
 end
 
@@ -292,7 +305,7 @@ end
 
 
 
-function displayCells(imcells,imbud,i,hcells,hnucleus,binning)
+function displayCells(imcells,imbud,i,hcells,hnucleus,hfoci,binning)
 global segmentation
 
 if ishandle(hcells)
@@ -332,6 +345,27 @@ if ishandle(hnucleus)
     end
     
     text(10,10,['Nucleus - Position: ' num2str(segmentation.position) ' -Frame:' num2str(i)],'Color','g');
+    
+end
+
+if ishandle(hfoci)
+    figure(hfoci);
+    
+    warning off all
+    imshow(imbud,[]); hold on;
+    warning on all
+    
+    cellsout=segmentation.foci(i,:);
+    
+    for j=1:length(cellsout)
+        
+        line(cellsout(j).x,cellsout(j).y,'Color','y','LineWidth',1);
+        
+        %a=mean(cellsout(j).x), b=cellsout(j).ox
+        text(cellsout(j).ox,cellsout(j).oy,num2str(cellsout(j).n),'Color','g');
+    end
+    
+    text(10,10,['Foci - Position: ' num2str(segmentation.position) ' -Frame:' num2str(i)],'Color','y');
     
 end
 
