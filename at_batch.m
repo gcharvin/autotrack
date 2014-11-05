@@ -258,7 +258,7 @@ for l=position % loop on positions
         fprintf(['//-----------------------------------//\n']);
         fprintf('\n');
         
-        %at_save;
+        at_save;
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
     
