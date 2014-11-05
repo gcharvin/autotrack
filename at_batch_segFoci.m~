@@ -59,7 +59,7 @@ end
 cc=0;
 cells=phy_Object;
 
-for k=cavity
+for k=2%cavity
     
     nc=[ROI.n];
     kk=find(nc==k);
@@ -73,19 +73,18 @@ for k=cavity
     % size(ROI(k).BW)
 
     warning off all;
-    imtemp=zeros(roiarr(4),roiarr(4));
-    x=(roiarr(4)-roiarr(3))/2;
-    imtemp(1:roiarr(4),x:x+roiarr(3)-1)=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
-    %imtemp=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
+    imptem=zeros(roiarr(4);
+    imtemp=imcells(roiarr(2):roiarr(2)+roiarr(4)-1,roiarr(1):roiarr(1)+roiarr(3)-1);
+    %imtemp=imcells(roiarr(2):roiarr(2)+300,roiarr(1)-150:roiarr(1)+150);
     %figure, imshow(imtemp,[]);
     warning on all;
     %celltemp=phy_segmentFoci(imtemp,parametres{2,2},parametres{3,2},parametres{5,2},parametres{4,2});
     celltemp=phy_segmentFoci(imtemp,1,1000,60,17);
     
     for j=1:length(celltemp)
-        cells(cc+j).x=celltemp(j).x+roiarr(1)-1-x;
+        cells(cc+j).x=celltemp(j).x+roiarr(1)-1;
         cells(cc+j).y=celltemp(j).y+roiarr(2)-1;
-        cells(cc+j).ox=celltemp(j).ox+roiarr(1)-1-x;
+        cells(cc+j).ox=celltemp(j).ox+roiarr(1)-1;
         cells(cc+j).oy=celltemp(j).oy+roiarr(2)-1;
         cells(cc+j).fluoMean=celltemp(j).fluoMean;
         cells(cc+j).Nrpoints=celltemp(j).Nrpoints;
