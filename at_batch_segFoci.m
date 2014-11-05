@@ -80,7 +80,7 @@ for k=cavity
     %figure, imshow(imtemp,[]);
     warning on all;
     %celltemp=phy_segmentFoci(imtemp,parametres{2,2},parametres{3,2},parametres{5,2},parametres{4,2});
-    celltemp=phy_segmentFoci(imtemp,1,1000,60,17);
+    celltemp=phy_segmentFoci(imtemp,1,1000,80,17);
     
     for j=1:length(celltemp)
         cells(cc+j).x=celltemp(j).x+roiarr(1)-1-x;
