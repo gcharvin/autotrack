@@ -1,4 +1,5 @@
 
+
 % batch segmentation and mapping for HTB2 marked cells
 
 % position : [ 1 2 3 8] : list positions to be anayzed
@@ -219,6 +220,8 @@ for l=position % loop on positions
     if segNucleus
         at_batch_segNucleus(pos,frames,cavity,binning);
     end
+    
+    
     if mapNucleus
         at_batch_mapNucleus(pos,frames,cavity);
     end

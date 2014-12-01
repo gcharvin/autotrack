@@ -193,7 +193,7 @@ for i=1:length(tcells)
    text((st+en)/2,10,num2str(tcells(i)));
 end
 
-xlim([xmin xmax]);
+xlim([xmin xmax+1]);
 set(gca,'YTick',[],'XTickLabel',{});
 title(['Cavity : ' num2str(mat{ind,1})]);
 
@@ -219,7 +219,7 @@ plot(x,vol,'Color','k','LineWidth',2);
 set(gca,'XTickLabel',{})
 ylabel('Y Position');
 
-xlim([xmin xmax]);
+xlim([xmin xmax+1]);
 ylim([-200 200])
 
 % plotting cell area
@@ -237,7 +237,7 @@ plot(x,vol,'Color','k','LineWidth',2);
 ylabel('Area');
 set(gca,'XTickLabel',{})
 
-xlim([xmin xmax]);
+xlim([xmin xmax+1]);
 %ylim([-0 5000])
 
 
@@ -264,7 +264,7 @@ plot(x,vol,'Color','k','LineWidth',2);
 ylabel('PH intensity');
 
 
-xlim([xmin xmax]);
+xlim([xmin xmax+1]);
 ylim([500 1500])
 
 if fluo==1 
@@ -295,7 +295,7 @@ plot(x,vol,'Color','k','LineWidth',2);
 ylabel('Channel 2');
 
 
-xlim([xmin xmax]);
+xlim([xmin xmax+1]);
 ylim([700 2000])
 if fluo==2 
     xlabel('Time (frames)'); 
@@ -325,7 +325,7 @@ plot(x,vol,'Color','k','LineWidth',2);
 xlabel('Time (frames)');
 ylabel('mCh');
 
-xlim([xmin xmax]);
+xlim([xmin xmax+1]);
 ylim([0 0.3])
 if fluo==3 
     xlabel('Time (frames)');
