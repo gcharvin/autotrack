@@ -63,7 +63,7 @@ else
     else
         ROI=segmentation.ROI(i).ROI;
         nROI=length(ROI);
-        if cavity==0
+        if cavity==0 || cavity==-1
             cavity=1:nROI;
         end
         
@@ -80,9 +80,13 @@ cells=phy_Object;
 for k=cavity
     
     fprintf('.');
-    nc=[ROI.n];
+    nc=[ROI.n];%,k
     kk=find(nc==k);
-    %ROI
+    
+    if numel(kk)==0
+        continue
+    end
+    %b=ROI(kk)
     roiarr=ROI(kk).box;
     % size(ROI(k).BW)
     
