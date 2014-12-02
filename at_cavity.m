@@ -166,7 +166,7 @@ yt=yt+maxe(2);
 
 BW=poly2mask(xt,yt,size(imagstore,1),size(imagstore,2));
 im=mat2gray(imagstore);
-BW=imerode(BW, strel('Disk',3));
+BW=imerode(BW, strel('Disk',15)); %3
 outgrid=[xt; yt];
 
 if display
@@ -228,11 +228,18 @@ a=[stats.Orientation];
 
 bins=0:1:1000;
 hi=hist(L(size(L,1)/2:size(L,1)/2,1:size(L,1)),bins);
-[pix ix]=max(hi);
+% [pix ix]=max(hi);
+% 
+% BW=~(L==ix-1);
+% 
+% ang=a(ix-1);
+[pix ix]=max(hi(2:end));
+ 
+BW=~(L==ix);
+ 
+ang=a(ix);
 
-BW=~(L==ix-1);
 
-ang=a(ix-1);
 
 
 % BW=edge(BW,'canny');

@@ -58,7 +58,7 @@ if segNucleus
     
     parametres=segmentation.processing.parameters{4,15};
     
-    thr=parametres{4,2};
+    thr=parametres{4,2}
     
     disp(['Input threshold : ' num2str(thr)]);
     

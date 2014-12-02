@@ -17,8 +17,13 @@ end
 load(strcat(PathName,FileName));
 else
  load(path);
+
  [PathName, FileName, ext] = fileparts(path);
 % PathName, FileName
+
+if numel(PathName)==0
+   PathName=pwd; 
+end
 end
 
 timeLapse.realPath=PathName;

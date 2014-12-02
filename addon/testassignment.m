@@ -1,7 +1,7 @@
 function testassignment(frames,cavity,pdfout,range)
 global segmentation
 
-enable=[1 1 0 0]; % sometimes problems with intensities ... to be fixed
+enable=[1 1 1 1]; % sometimes problems with intensities ... to be fixed
 
 %ncav=[segmentation.ROI(frame).ROI.n]
 %pix=find(ncav==cavity)
@@ -20,10 +20,12 @@ end
 
 cell0=cell0(pix0);
 
+ncav=[segmentation.ROI(frame).ROI.n];
+pix=find(ncav==cavity);
+cavity=pix;
 
-%ncav=[segmentation.ROI(frame+1).ROI.n];
-%pix=find(ncav==cavity);
-%cav=pix; % find real id for cavity
+orient=segmentation.ROI(frame).ROI(cavity).orient;
+box=segmentation.ROI(frame).ROI(cavity).box;
 
 cell1=segmentation.cells1(frame+1,:);
 pix1=find([cell1.Nrpoints]==cavity);
@@ -36,32 +38,32 @@ ind1=find([cell1.ox]~=0);
 %%%% thid filter should be removed once integrated in at_batch
 ind0r=[]; % filter cells outside of cavity
 
-
-
+            oy=[cell0.oy];
             
-%             % set up filter to filter out cells leaving te cavity
-%             if orient==1
-%             filterpos = (box(2)+box(4)/5);
-%             pix=find(oy>filterpos);
-%             else
-%             filterpos = (box(2)+4*box(4)/5); 
-%             pix=find(oy<filterpos);
-%             end
+            % set up filter to filter out cells leaving te cavity
+            if orient==1
+            filterpos = (box(2)+1.5*box(4)/5);
+            pix=find(oy>filterpos);
+            else
+            filterpos = (box(2)+3.5*box(4)/5); 
+            pix=find(oy<filterpos);
+            end
 
+cell0=cell0(pix);
 
-for i=1:length(ind0)
-    [x0, y0, area0, intensity0]=offsetCoordinates(cell0(ind0(i)));
-    
-     if y0>120 % filterpos
-         continue
-     end
-     
-     ind0r=[ind0r ind0(i)];
-end
-ind0=ind0r;
+% for i=1:length(ind0)
+%     [x0, y0, area0, intensity0]=offsetCoordinates(cell0(ind0(i)));
+%     
+%      if y0>120 % filterpos
+%          continue
+%      end
+%      
+%      ind0r=[ind0r ind0(i)];
+% end
+% ind0=ind0r;
 %%%%%%%%%%%
 
-cell0=cell0(ind0);
+%cell0=cell0(ind0);
 
 if numel(pix1)==0
   break;    

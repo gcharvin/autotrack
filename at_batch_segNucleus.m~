@@ -36,11 +36,11 @@ imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
 
 %figure, imshow(imbud,[]);
 
-parametres=segmentation.processing.parameters{4,15};
+parametres=segmentation.processing.parameters{4,15}
 
 if ~isfield(segmentation,'ROI')
      nROI=1;
-       ROI.box=binning*[1 1 size(imcells,2) size(imcells,1)];
+       ROI.box=[1 1 size(imcells,2) size(imcells,1)];
         BW=[];
         cavity=1;
         ROI.n=1;
@@ -48,7 +48,7 @@ if ~isfield(segmentation,'ROI')
 else
     if numel(segmentation.ROI(i).ROI.orient)==0
         nROI=1;
-        ROI.box=binning*[1 1 size(imcells,2) size(imcells,1)];
+        ROI.box=[1 1 size(imcells,2) size(imcells,1)];
         BW=[];
         cavity=1;
         ROI.n=1;
