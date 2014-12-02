@@ -32,6 +32,7 @@ function  installPathsFrom( dirName, varargin )
 c_loc = pwd ;
  
 installCall = 'installMe(varargin{:})' ;
+%dirName='C:/Users/garmendi/Documents/GitHub/autotrack/addon/Maggot_v3'
 cd( dirName ) ;
 evalin('caller',installCall) ;
 cd( c_loc ) ;
