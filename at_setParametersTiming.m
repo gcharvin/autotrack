@@ -58,6 +58,20 @@ if numel(datastat)
    end
 end
 
+
+if usejava('jvm') && ~feature('ShowFigureWindows')
+    % use text-based alternative (input)
+    
+    answer{1} = input('Timings : Min/Max Tdiv (frames) ', 's');
+    answer{2} = input('Timings : Min/Max TG1 (frames) ', 's');
+    answer{3} = input('Timings : Min/Max TS (frames) ', 's');
+    answer{4} = input('Timings : Min/Max TG2 (frames) ', 's');
+    answer{5} = input('Timings : Min/Max Tana (frames)', 's');
+    answer{6} = input('Timings : Max Chi2', 's');
+    
+else
+    % use GUI dialogs (questdlg)
+    
 defaultanswer={num2str(tdiv),num2str(tg1),num2str(ts),num2str(tg2),num2str(tana),num2str(chi)};
 
 prompt={'Min/Max Tdiv (frames)',...
@@ -69,6 +83,8 @@ prompt={'Min/Max Tdiv (frames)',...
 
 name='Timing Par.';
 numlines=1; answer=inputdlg(prompt,name,numlines,defaultanswer);
+end
+
 if numel(answer)==0 return; end
 
 if isfield(timeLapse,'autotrack')
