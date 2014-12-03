@@ -5,20 +5,20 @@ global segmentation timeLapse
 if numel(cavity)
 % load training set
     
-<<<<<<< HEAD
+%<<<<<<< HEAD
     pth=mfilename('fullpath');
     pth=pth(1:end-19);
     
     load([pth '/addon/trainingsetNucleus.mat']);
 end
-=======
+%=======
 % disabled training set
 %     pth=mfilename('fullpath');
 %     pth=pth(1:end-19);
 %     
 %     load([pth '/addon/trainingsetNucleus.mat']);
     
->>>>>>> origin/master
+%>>>>>>> origin/master
     
 at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch');
 
