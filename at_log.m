@@ -5,7 +5,9 @@ function at_log(str,writestyle,pos,name)
 global timeLapse segmentation
 
 
+
 f=strcat(timeLapse.realPath,'/',timeLapse.pathList.position{pos},name,'-report.txt');
+
 
 fid= fopen(f,writestyle);
 fprintf(fid,'%s\r',str);
