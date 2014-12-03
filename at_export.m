@@ -17,9 +17,12 @@ end
  
 stats=statstemp;
 
-
+if numel(userpath)==0
+    localpath=pwd;
+else
 localpath=userpath;
 localpath=localpath(1:end-1);
+end
 
 if nargin==3
     
