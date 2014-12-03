@@ -55,7 +55,6 @@ else
 end
 
 
-
 %%% cells1 segmentation
 if isfield(timeLapse.autotrack.processing,'cells1')
     tcells1=timeLapse.autotrack.processing.cells1;

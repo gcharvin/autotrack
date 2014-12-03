@@ -6,7 +6,7 @@ global segmentation timeLapse
     pth=mfilename('fullpath');
     pth=pth(1:end-17);
     
-    load([pth '/addon/trainingsetCells1.mat']);
+    load([pth '/addon/trainingSetCells1.mat']);
 
 % init
 at_log(['Map cells parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch');
@@ -27,10 +27,10 @@ fprintf(['// Cells mapping - position: ' num2str(pos) '//\n']);
 fprintf(['// Cell mapping - position: ' num2str(pos) '-Measure average cell size and intensity...\n']);
 
 area=[segmentation.cells1.area];
-area=mean(area(area~=0))
+area=mean(area(area~=0));
 
 inte=[segmentation.cells1.fluoMean];
-inte=mean(inte(inte~=0))
+inte=mean(inte(inte~=0));
 
 segmentation.processing.avgCells1=[];
 segmentation.processing.avgCells1.area=area;

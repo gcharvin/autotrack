@@ -453,8 +453,14 @@ global segmentation celldat timeLapse
 
 fprintf(['Saving Celltraj for position: ' num2str(segmentation.position) '...\n']);
     
+
+if numel(userpath)==0
+    localpath=pwd;
+else
 localpath=userpath;
 localpath=localpath(1:end-1);
+end
+
 pos=segmentation.position;
 objecttype='cells1';
 

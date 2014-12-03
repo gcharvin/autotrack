@@ -30,8 +30,12 @@ if fraC==0 && fraN==0
    segmentation.ROI=timeLapse.autotrack.position(segmentation.position).ROI;
     end
    
+    if numel(userpath)==0
+     localpath=pwd;
+    else
    localpath=userpath;
 localpath=localpath(1:end-1);
+    end
 
 save([localpath '/segmentation-autotrack.mat'],'segmentation');
 eval(['!mv ' [localpath '/segmentation-autotrack.mat'] ' ' fullfile(timeLapse.realPath,timeLapse.pathList.position{position},filen)]);

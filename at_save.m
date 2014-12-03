@@ -5,8 +5,12 @@ pos=segmentation.position;
 
 fprintf(['Saving Position: ' num2str(pos) '...\n']);
     
+if numel(userpath)==0
+    localpath=pwd;
+else
 localpath=userpath;
 localpath=localpath(1:end-1);
+end
 
 if isunix
 save([localpath '/segmentation-autotrack.mat'],'segmentation');
