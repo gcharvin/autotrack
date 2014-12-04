@@ -58,20 +58,29 @@ handles.output = hObject;
 % reload previous global variable
 global sequence
 
-if ~isfield(sequence,'project')
-    setupSequence()
-end
-
-updateSequence(handles)
-
 % Update handles structure
 guidata(hObject, handles);
+
+if ~isfield(sequence,'project')
+    out=setupSequence();
+end
+
+if out==1
+updateSequence(handles)
+end
+
+
 
 % UIWAIT makes at_montage wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-function setupSequence
+function out=setupSequence
 global segmentation timeLapse sequence
+
+if numel(timeLapse)==0
+    out=0;
+    return;
+end
 
 sequence=[];
 sequence.project.path=timeLapse.realPath; 
@@ -126,6 +135,8 @@ for i=1:3
     sequence.contour{i,4}='';
     sequence.contour{i,5}=false;
 end
+
+out=1;
 
 
 function updateSequence(handles,option)
