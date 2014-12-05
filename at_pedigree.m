@@ -1,5 +1,5 @@
 
-function at_pedigree(plotType,minmax)
+function at_pedigree(plotType,object,minmax,channel)
 % plot pedigree
 % plotType : 0: links, 1: timings, 2: fluo
 
@@ -14,8 +14,8 @@ segmentation.pedigree.makeType=1;
 segmentation.pedigree.minmax=minmax;
 segmentation.pedigree.orientation=0;
 segmentation.pedigree.cellindex=[];
-segmentation.pedigree.channel=timeLapse.autotrack.processing.nucleus(1);
-segmentation.pedigree.objects='nucleus';
+segmentation.pedigree.channel=channel; %timeLapse.autotrack.processing.nucleus(1);
+segmentation.pedigree.objects=object;
 
 
 varargin={};
@@ -25,7 +25,7 @@ if numel(segmentation.pedigree.cellindex)~=0
     varargin{end+1}=segmentation.pedigree.cellindex;
 end
 
-varargin{end+1}='Mode';
+varargin{end+1}='mode';
 varargin{end+1}=segmentation.pedigree.plotType;
 
 if segmentation.pedigree.plotType==2
