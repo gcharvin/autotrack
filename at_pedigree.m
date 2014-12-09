@@ -1,5 +1,5 @@
 
-function at_pedigree(plotType,object,minmax,channel)
+function [hf ha hc]=at_pedigree(plotType,object,minmax,channel,feature,cellindex)
 % plot pedigree
 % plotType : 0: links, 1: timings, 2: fluo
 
@@ -13,10 +13,10 @@ segmentation.pedigree.plotType=plotType;
 segmentation.pedigree.makeType=1;
 segmentation.pedigree.minmax=minmax;
 segmentation.pedigree.orientation=0;
-segmentation.pedigree.cellindex=[];
+segmentation.pedigree.cellindex=cellindex;
 segmentation.pedigree.channel=channel; %timeLapse.autotrack.processing.nucleus(1);
-segmentation.pedigree.objects=object;
-
+segmentation.pedigree.object=object;
+segmentation.pedigree.feature=feature;
 
 varargin={};
 
@@ -36,8 +36,11 @@ if segmentation.pedigree.orientation
     varargin{end+1}='vertical';
 end
 
-varargin{end+1}='Object';
-varargin{end+1}=segmentation.pedigree.objects;
+varargin{end+1}='object';
+varargin{end+1}=segmentation.pedigree.object;
 
-phy_plotPedigree(varargin{:});
+varargin{end+1}='feature';
+varargin{end+1}=segmentation.pedigree.feature;
+
+[hf ha hc]=phy_plotPedigree(varargin{:});
 
