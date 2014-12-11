@@ -1030,14 +1030,13 @@ switch lower(qpengine)
         Aeq = Deq; beq = veq;
         lb = []; ub = [];
         % medium-scale algorithm, because rge presense of linear inequalities
-        H,g,-D,-LU,Aeq,beq,lb,ub,s0,qpoptions
+        %H,g,-D,-LU,Aeq,beq,lb,ub,s0,qpoptions
     
         
-        
         [alpha trash ier qpout lbd] = quadprog(H, g, -D, -LU, ...
-                                  Aeq, beq, lb, ub, s0, qpoptions) %#ok
+                                  Aeq, beq, lb, ub, s0, qpoptions); %#ok
                               
-                              pause
+                       
                               
         if ier<0 && BSFK_DISPLAY>=1
             warning('BSFK:QPNonConvergence', ...
