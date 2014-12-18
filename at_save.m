@@ -12,8 +12,14 @@ localpath=userpath;
 localpath=localpath(1:end-1);
 end
 
+
 if isunix
+    
+
 save([localpath '/segmentation-autotrack.mat'],'segmentation');
+
+%save(fullfile(timeLapse.realPath,timeLapse.pathList.position{pos},'segmentation-autotrack.mat'),'segmentation');
+
 eval(['!mv ' [localpath '/segmentation-autotrack.mat'] ' ' fullfile(timeLapse.realPath,timeLapse.pathList.position{pos},'segmentation-autotrack.mat')]);
 %
 

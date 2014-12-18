@@ -213,6 +213,11 @@ for l=position % loop on positions
             segmentation.ROI(i).theta=theta;
             segmentation.ROI(i).outgrid=outgrid;
         end
+        
+           if numel(cavity)
+           % make report for cavity tracking
+           cavityTracking(frames)
+           end
     end
     
     if segCells

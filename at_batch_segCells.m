@@ -12,6 +12,7 @@ segmentation.cells1Segmented=zeros(1,timeLapse.numberOfFrames);
 
 fprintf(['// Cell segmentation - position: ' num2str(pos) '//\n']);
 
+
 for i=frames % loop on frames
     fprintf(['// Cell segmentation - position: ' num2str(pos) ' - frame :' num2str(i) '//\n']);
     
@@ -19,8 +20,7 @@ for i=frames % loop on frames
       fprintf(['\n']);
     end
     
-    
-    
+   
     
     fprintf(['Segment Cells:']);
     imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1),cavity);
@@ -29,10 +29,7 @@ end
 
        segmentation.cells1Segmented(frames(1):frames(end))=1;
         
-        if numel(cavity)
-           % make report for cavity tracking
-           cavityTracking()
-        end
+     
         
 
 function imcells=segmentCells(i,channel,cavity)
