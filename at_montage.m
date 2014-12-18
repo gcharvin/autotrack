@@ -22,7 +22,7 @@ function varargout = at_montage(varargin)
 
 % Edit the above text to modify the response to help at_montage
 
-% Last Modified by GUIDE v2.5 01-Dec-2014 15:30:36
+% Last Modified by GUIDE v2.5 15-Dec-2014 21:18:59
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -61,13 +61,16 @@ global sequence
 % Update handles structure
 guidata(hObject, handles);
 
+
+
 if ~isfield(sequence,'project')
     out=setupSequence();
 end
 
-if out==1
+
+%if out==1
 updateSequence(handles)
-end
+%end
 
 
 
@@ -86,6 +89,8 @@ sequence=[];
 sequence.project.path=timeLapse.realPath; 
 sequence.project.name=timeLapse.realName;
 sequence.project.position=segmentation.position;
+sequence.project.seqname='myseqproject.mat';
+sequence.project.seqpath=[pwd '/'];
 
 sequence.handles=[];
 sequence.param={'1200 800', '1', '', '1', num2str(timeLapse.numberOfFrames'),'5'};
@@ -167,21 +172,50 @@ function saveMontageAs_Callback(hObject, eventdata, handles)
 % hObject    handle to saveMontageAs (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global sequence
 
+[files path]=uiputfile('myproject','Choose sequence project name');
+
+if files==0
+    return
+end
+
+sequence.project.seqpath=path;
+sequence.project.seqname=files;
+
+save([sequence.project.path sequence.project.seqname],'sequence');
+
+
+updateSequence(handles)
 
 % --- Executes on button press in saveMontage.
 function saveMontage_Callback(hObject, eventdata, handles)
 % hObject    handle to saveMontage (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global sequence
 
+save([sequence.project.seqpath sequence.project.seqname],'sequence');
 
 % --- Executes on button press in openMontage.
 function openMontage_Callback(hObject, eventdata, handles)
 % hObject    handle to openMontage (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global sequence
 
+[files path]=uigetfile('.mat','Enter sequence file project');
+
+if files==0
+    return
+end
+
+load([path files]);
+
+sequence.project.seqpath=path;
+sequence.project.seqname=files;
+
+updateSequence(handles);
 
 % --- Executes on button press in newMontage.
 function newMontage_Callback(hObject, eventdata, handles)
@@ -238,6 +272,12 @@ function makeMovie_Callback(hObject, eventdata, handles)
 % hObject    handle to makeMovie (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global sequence segmentation
+
+channelGroups=;
+framesIndices=;
+manualStart=0;
+exportMontage('','', segmentation.position, channelGroups, frameIndices, manualStart, segmentation, varargin)
 
 
 % --- Executes when entered data in editable cell(s) in tableparameter.
@@ -252,8 +292,38 @@ function tableparameter_CellEditCallback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 global sequence
+
 sequence.param=get(hObject,'Data');
-updateSequence(handles)
+
+ind=eventdata.Indices(1);
+
+switch ind
+    case 4
+        % update frame number
+        inte=str2num(sequence.param{5})-str2num(sequence.param{4})+1;
+        inte=round(inte/str2num(sequence.param{6}));
+        sequence.param(7)={num2str(str2num(sequence.param{4}):inte:str2num(sequence.param{5}))};
+
+    case 5
+        inte=str2num(sequence.param{5})-str2num(sequence.param{4})+1;
+        inte=round(inte/str2num(sequence.param{6}));
+        sequence.param(7)={num2str(str2num(sequence.param{4}):inte:str2num(sequence.param{5}))};
+
+        
+    case 6
+        inte=str2num(sequence.param{5})-str2num(sequence.param{4})+1;
+        inte=round(inte/str2num(sequence.param{6}));
+        sequence.param(7)={num2str(str2num(sequence.param{4}):inte:str2num(sequence.param{5}))};
+  
+    case 7
+        frames=str2num(sequence.param{7});
+        sequence.param{4}=num2str(frames(1));
+        sequence.param{5}=num2str(frames(end));
+        sequence.param{6}=num2str(numel(frames));
+end
+        
+        
+updateSequence(handles);
 
 
 % --- Executes on button press in plot.
@@ -285,11 +355,15 @@ nch= sum(pix);
 a=str2num(sequence.param{1,1});
 roi=str2num(sequence.param{8,1});
 
-sequence.handles=figure('Color','w','Position',[50 50 1*a(1) a(1)*roi(4)*nlin/(roi(3)*ncol)]);
+%
+track=str2num(sequence.param{9,1});
+
+sequence.handles.hf=figure('Color','w','Position',[50 50 1*a(1) a(1)*roi(4)*nlin/(roi(3)*ncol)]);
 
 % generate panel
 
-p=panel();
+sequence.handles.hp=panel();
+p=sequence.handles.hp;
 p.de.margin=0;
 p.pack(nlin,ncol);
 p.fontsize=24;
@@ -345,7 +419,7 @@ for i=1:nframes
          tim=[]; 
       end
       
-      [hf h]=phy_showImage('frames',nimages(i),'ROI',roi,'channels',ch(dich),'timestamp',tim,'contours',cont(dico),'tracking',[]);
+      [hf h]=phy_showImage('frames',nimages(i),'ROI',roi,'channels',ch(dich),'timestamp',tim,'contours',cont(dico),'tracking',track);
 
       p(j+cc,cd).select(h);  
       
@@ -361,3 +435,25 @@ end
 p.de.margin=0;
 
 p(1,1).marginleft=15;
+
+
+% --- Executes on button press in pdfExport.
+function pdfExport_Callback(hObject, eventdata, handles)
+% hObject    handle to pdfExport (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global sequence
+
+
+if isfield(sequence,'handles')
+    if isfield(sequence.handles,'hf')
+       if ishandle(sequence.handles.hf)
+           
+           [pth nme]=fileparts(sequence.project.seqname)
+          myExportFig([sequence.project.seqpath nme '.pdf'],sequence.handles.hf);
+       end
+    end
+end
+
+
