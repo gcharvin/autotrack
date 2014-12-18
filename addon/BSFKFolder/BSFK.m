@@ -999,6 +999,7 @@ end
 H = B.' * B;
 g = -(y.' * B).';
 
+
 cls = class(g);
 
 % Normalized constraints
@@ -1024,19 +1025,27 @@ switch lower(qpengine)
         lagrangetol = 1e-3*norm(g);
         
         qpoptions = optimset('Display','off',...
-                             'LargeScale','off');
+                             'LargeScale','off','Algorithm','active-set');
         s0 = zeros(size(g),cls);
         Aeq = Deq; beq = veq;
         lb = []; ub = [];
         % medium-scale algorithm, because rge presense of linear inequalities
+        %H,g,-D,-LU,Aeq,beq,lb,ub,s0,qpoptions
+    
+        
         [alpha trash ier qpout lbd] = quadprog(H, g, -D, -LU, ...
                                   Aeq, beq, lb, ub, s0, qpoptions); %#ok
+                              
+                       
+                              
         if ier<0 && BSFK_DISPLAY>=1
             warning('BSFK:QPNonConvergence', ...
                     'ConL2Fit: not convergence encountered by MINQDEF');
         end
                
+       
         % dual variable
+    
         uineq = lbd.ineqlin(:);
         ueq = lbd.eqlin(:);
         % Check the sign of the lagrange multiplier
