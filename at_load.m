@@ -5,7 +5,12 @@ global timeLapse segmentation
 
 out=1;
 
-
+  if ~exist('javitools.AVITools', 'class')
+        p = mfilename('fullpath');
+        [p f e]=fileparts(p);
+        javaaddpath([p './javitools.jar']);
+  end
+    
 if nargin==0
 [FileName,PathName,FilterIndex] = uigetfile({'*.mat','Time Lapse project'},'Select time lapse project',[]);
 
