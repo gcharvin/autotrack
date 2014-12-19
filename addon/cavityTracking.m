@@ -1,4 +1,4 @@
-function cavityTracking()
+function cavityTracking(frames)
 
 global segmentation timeLapse
 
@@ -8,12 +8,11 @@ p=panel();
 p.pack('v',{1/3 1/3 1/3});
 
 
-frames=find(segmentation.cells1Segmented);
+%frames=find(segmentation.cells1Segmented);
 
 x=[segmentation.ROI.x];
 y=[segmentation.ROI.y];
 theta=[segmentation.ROI.theta];
-
 
 p(1).select();
 plot(frames,x);
