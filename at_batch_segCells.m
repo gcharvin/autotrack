@@ -22,7 +22,7 @@ for i=frames % loop on frames
     
    
     
-    fprintf(['Segment Cells:']);
+    fprintf(['Segment Cells: \n']);
     imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1),cavity);
     
 end
@@ -125,6 +125,7 @@ for k=cavity
     cc=cc+length(celltemp);
 end
 
+fprintf(['\n' num2str(cc) ' Cells found !']);
 
 for j=1:length(cells)
     segmentation.cells1(i,j)=cells(j);
