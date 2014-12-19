@@ -274,9 +274,88 @@ function makeMovie_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global sequence segmentation
 
-channelGroups=;
-framesIndices=;
+sequence.param=get(handles.tableparameter,'Data');
+sequence.display=get(handles.tabledisplay,'Data');
+sequence.channel=get(handles.tablechannel,'Data');
+sequence.contour=get(handles.tablecontour,'Data');
+
+channelGroups={};
+framesIndices=str2num(sequence.param{4}):1:str2num(sequence.param{5});
 manualStart=0;
+
+varargin(1:2)={'ROI', str2num(sequence.param{8})};
+
+[pth nme]=fileparts(sequence.project.seqname)
+
+varargin(3:4)={'output', nme};
+
+if numel(sequence.param{3})~=0
+ varargin(end+1:end+2)={'cavity', str2num(sequence.param{3})};   
+end
+
+
+
+% generate panel structure
+
+pix=~cellfun(@isempty,sequence.display(:,1));
+pix=cellfun(@mean,sequence.display(pix,1));
+pix=find(pix==1)
+
+cc=1;
+for i=pix'
+    'ok'
+   channelGroup(cc)= {'1 0 1 0'};
+   cc=cc+1;
+end
+
+
+
+
+nlin= str2num(sequence.param{2,1}) * sum(pix);
+ncol= ceil(str2num(sequence.param{6,1})/str2num(sequence.param{2,1}));
+nframes= str2num(sequence.param{6,1});
+nch= sum(pix);
+
+% generate figure;
+
+
+
+%
+%track=str2num(sequence.param{9,1});
+
+
+
+
+% get channels settings
+
+for i=1:size(sequence.channel,1)
+    if i==1
+
+       ch=struct('number',i,'rgb',str2num(sequence.channel{i,2}),'binning',sequence.channel{i,6},'limits',[sequence.channel{i,3} sequence.channel{i,4}]);
+    else
+       ch(i)=struct('number',i,'rgb',str2num(sequence.channel{i,2}),'binning',sequence.channel{i,6},'limits',[sequence.channel{i,3} sequence.channel{i,4}]);
+    end
+end
+
+% adjust timeLapse high and low level so that levels are identical for
+% movie generation
+
+% get contours settings
+
+for i=1:size(sequence.contour,1)
+    if i==1
+       cont=struct('object',sequence.contour{i,1},'color',str2num(sequence.contour{i,2}),'lineWidth',str2num(sequence.contour{i,3}),'link',double(sequence.contour{i,5}),'incells',str2num(sequence.contour{i,4}),'cycle',[]);
+    else
+       cont(i)=struct('object',sequence.contour{i,1},'color',str2num(sequence.contour{i,2}),'lineWidth',str2num(sequence.contour{i,3}),'link',double(sequence.contour{i,5}),'incells',str2num(sequence.contour{i,4}),'cycle',[]);
+    end
+    
+    %cont.channelGroup=[1 2];
+end
+
+varargin(end+1:end+2)={'contours',cont}
+
+cont.channelGroup=[1 2];
+
 exportMontage('','', segmentation.position, channelGroups, frameIndices, manualStart, segmentation, varargin)
 
 
@@ -434,7 +513,7 @@ end
 
 p.de.margin=0;
 
-p(1,1).marginleft=15;
+%p(1,1).marginleft=15;
 
 
 % --- Executes on button press in pdfExport.
