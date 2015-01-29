@@ -6,9 +6,9 @@ disp('Setting processing parameters');
 
 % default parameters values
 
-tcells1=[1 400 10000 50 0.35];
-tnucleus=[2 10 4000 1000];
-tmapping=[1 40 1 1 0 0];
+%tcells1=[1 400 10000 50 0.35];
+%tnucleus=[2 10 4000 1000];
+%tmapping=[1 40 1 1 0 0];
 
 
 if ~isfield(timeLapse.autotrack,'processing')
@@ -35,7 +35,7 @@ end
 
 % input param file
 if usejava('jvm') && ~feature('ShowFigureWindows')
-    button = input('Input path for existing parmeter file:', 's');
+    button = input('Input path for existing parameter file:', 's');
     if numel(button)~=0
        load(button); 
        timeLapse.autotrack.processing=processing;
@@ -43,7 +43,7 @@ if usejava('jvm') && ~feature('ShowFigureWindows')
        return;
     end
 else
-    [FileName,PathName,FilterIndex] = uigetfile({'*.mat','Param file .mat'},'Select parameter file :',[]);
+    [FileName,PathName,FilterIndex] = uigetfile({'*.mat','Param file .mat'},'Select parameter file, otherwise press Cancel :',[]);
     
     if FileName==0
     else
@@ -54,140 +54,168 @@ else
     end
 end
 
-
-%%% cells1 segmentation
-if isfield(timeLapse.autotrack.processing,'cells1')
-    tcells1=timeLapse.autotrack.processing.cells1;
-else
-    
-    timeLapse.autotrack.processing.cells1=tcells1;
-end
-
-
 if usejava('jvm') && ~feature('ShowFigureWindows')
-    %     % use text-based alternative (input)
-    
-    answer{1} = input('Cells : channel ? ', 's');
-    answer{2} = input('Cells : min size (pixels) ? ', 's');
-    answer{3} = input('Cells : max size (pixels) ? ', 's');
-    answer{4} = input('Cells : typical cell diameter (pixels) ? ', 's');
-    answer{5} = input('Cells : threshold (0.15-0.35) ? ', 's');
-    answer=cellfun(@str2num, answer, 'unif', 0);
-    
+    disp('Cannot use a GUI to set parameter in this mode !');
+end
+
+segCellPar=[]; 
+mapCellPar=[]; 
+segNucleusPar=[]; 
+mapNucleusPar=[]; 
+segFociPar=[]; 
+mapFociPar=[]; 
+
+if ~isfield(timeLapse.autotrack,'processing') | numel(timeLapse.autotrack.processing)==0
+%%% input parameter values|
+
+processing=[];
+
+processing.segCells=true;
+processing.segCellsMethod='phy_segmentPhaseContrast';
+
+processing.mapCells=true;
+processing.mapCellsMethod='phy_mapCellsHungarian';
+
+processing.segNucleus=false;
+processing.segNucleusMethod='phy_segmentNucleus';
+
+processing.mapNucleus=false;
+processing.mapNucleusMethod='phy_mapCellsHungarian';
+
+processing.segFoci=false;
+processing.segFociMethod='phy_segmentFoci';
+
+processing.mapFoci=false;
+processing.mapFociMethod='phy_mapCellsHungarian';
+
+processing.cellcycle=false;
+processing.display=false;
+processing.binning=2;
+processing.cavity=[];
+
 else
-    % use GUI dialogs (questdlg)
-    
-    defaultanswer=arrayfun(@num2str, tcells1, 'unif', 0);
-    
-    prompt={'Channel',...
-        'Min Size (pixels)',...
-        'Max Size (pixels)',...
-        'Typical cell diameter (pixels)',...
-        'Threshold (0.15-0.35)'};
-    
-    name='Cell Par.';
-    numlines=1; answer=inputdlg(prompt,name,numlines,defaultanswer);
-    if numel(answer)==0 return; end
-    
-    answer=cellfun(@str2num, answer, 'unif', 0);
-    
+  processing=timeLapse.autotrack.processing;  
+  
+  if isfield(processing,'mapCellsPar')
+     mapCellsPar=processing.mapCellsPar;
+     processing=rmfield(processing,'mapCellsPar');
+  else
+     mapCellPar=[];
+  end
+   if isfield(processing,'segCellsPar')
+     segCellPar=processing.segCellsPar;
+     processing=rmfield(processing,'segCellsPar');
+   else
+      segCellsPar=[]; 
+   end
+   if isfield(processing,'segNucleusPar')
+      segNucleusPar=processing.segNucleusPar;
+     processing=rmfield(processing,'segNucleusPar');
+   else
+      segNucleusPar=[]; 
+   end
+   if isfield(processing,'mapNucleusPar')
+     mapNucleusPar=processing.mapNucleusPar;
+     processing=rmfield(processing,'mapNucleusPar');
+   else
+     mapNucleusPar=[];   
+   end
+   if isfield(processing,'segFociPar')
+      segFociPar=processing.segFociPar;
+     processing=rmfield(processing,'segFociPar');
+   else
+      segFociPar=[]; 
+   end
+   if isfield(processing,'mapFociPar')
+      mapFociPar=processing.mapFociPar;
+     processing=rmfield(processing,'mapFociPar');
+   else
+      mapFociPar=[]; 
+   end
+  
 end
 
 
-timeLapse.autotrack.processing.cells1=cell2mat(answer);
+description{1}='Check if cells must be segmented';
+description{end+1}='Specify cells segmentation function name';
 
+description{end+1}='Check if cells must be mapped';
+description{end+1}='Specify cells mapping function name';
 
-%%% nucleus segmentation
+description{end+1}='Check if nuclei must be segmented';
+description{end+1}='Specify nuclei segmentation function name';
 
+description{end+1}='Check if nuclei must be mapped';
+description{end+1}='Specify nuclei mapping function name';
 
-if isfield(timeLapse.autotrack.processing,'nucleus')
-    tnucleus=timeLapse.autotrack.processing.nucleus;
-else
-    timeLapse.autotrack.processing.nucleus=tnucleus;
+description{end+1}='Check if foci must be segmented';
+description{end+1}='Specify foci segmentation function name';
+
+description{end+1}='Check if foci must be mapped';
+description{end+1}='Specify foci mapping function name';
+
+description{end+1}='Check if cell cycle analysis must be performed';
+description{end+1}='Check if you want to display the segmentation process';
+description{end+1}='Enter binning for channel of nucleus';
+description{end+1}='Enter the numbers of the cavity to be tracked. If no cavity, put []; if cavity are present but should not be tracked, put -1';
+ 
+
+[hPropsPane,processing,OK] = at_propertiesGUI(0, processing,'Enter parameters for at_batch',description);
+
+if OK==0
+return;
 end
 
-if usejava('jvm') && ~feature('ShowFigureWindows')
-    % use text-based alternative (input)
+if processing.segCells
     
-    answer{1} = input('Nucleus : channel ? ', 's');
-    answer{2} = input('Nucleus : min size (pixels) ? ', 's');
-    answer{3} = input('Nucleus : max size (pixels) ? ', 's');
-    answer{4} = input('Nucleus : threshold (fluo) ? ', 's');
-    answer=cellfun(@str2num, answer, 'unif', 0);
-    
-else
-    % use GUI dialogs (questdlg)
-    
-    defaultanswer=arrayfun(@num2str, tnucleus, 'unif', 0);
-    
-    prompt={'Channel',...
-        'Min Size (pixels)',...
-        'Max Size (pixels)',...
-        'Threshold (fluo A.U.)'};
-    
-    name='Nucleus Par.';
-    numlines=1; answer=inputdlg(prompt,name,numlines,defaultanswer);
-    if numel(answer)==0 return; end
-    
-    answer=cellfun(@str2num, answer, 'unif', 0);
-    
-end
-
-
-timeLapse.autotrack.processing.nucleus=cell2mat(answer);
-
-%%% mapping parameters
-
-
-if isfield(timeLapse.autotrack.processing,'mapping')
-    tmapping=timeLapse.autotrack.processing.mapping;
-    
-    if numel(tmapping)==4
-        tmapping=[tmapping; 0; 0];  % for old projects
+    if numel(segCellPar)==0
+   param=feval(processing.segCellsMethod);
+    else
+   param= segCellPar;    
     end
-else
-    timeLapse.autotrack.processing.mapping=tmapping;
+   param=feval(processing.segCellsMethod,param);
+   processing.segCellsPar=param;
+end
+
+if processing.mapCells
+   param=feval(processing.mapCellsMethod);
+   param=feval(processing.mapCellsMethod,param);
+   processing.mapCellsPar=param;
+end
+
+if processing.segNucleus
+   param=feval(processing.segNucleusMethod);
+   param=feval(processing.segNucleusMethod,param);
+   processing.segNucleusPar=param;
+end
+
+if processing.mapNucleus
+   param=feval(processing.mapNucleusMethod);
+   param=feval(processing.mapNucleusMethod,param);
+   processing.mapNucleusPar=param;
+end
+
+if processing.segFoci
+   param=feval(processing.segFociMethod);
+   param=feval(processing.segFociMethod,param);
+   processing.segFociPar=param;
+end
+
+if processing.mapFoci
+   param=feval(processing.mapFociMethod);
+   param=feval(processing.mapFociMethod,param);
+   processing.mapFociPar=param;
 end
 
 
-if usejava('jvm') && ~feature('ShowFigureWindows')
-    % use text-based alternative (input)
-    
-    answer{1} = input('Mapping : peristence ? ', 's');
-    answer{2} = input('Mapping : max distance ? ', 's');
-    answer{3} = input('Mapping : allow cell shrink ? ', 's');
-    answer{4} = input('Mapping : weight distance ? ', 's');
-    answer{5} = input('Mapping : weight size ? ', 's');
-    answer{6} = input('Mapping : filter ? ', 's');
-    
-    answer=cellfun(@str2num, answer, 'unif', 0);
-    
-else
-    % use GUI dialogs (questdlg)
-    defaultanswer=arrayfun(@num2str, tmapping, 'unif', 0);
-    
-    prompt={'Persistence NOT USED',...
-        'Max Distance',...
-        'Allow Cell Shrink',...
-        'Weight Distance', ...
-        'Weight Size', ...
-        'Filter'};
-    
-    name='Mapping Par.';
-    numlines=1; answer=inputdlg(prompt,name,numlines,defaultanswer);
-    if numel(answer)==0 return; end
-    
-    answer=cellfun(@str2num, answer, 'unif', 0);
-end
-
-timeLapse.autotrack.processing.mapping=cell2mat(answer);
+timeLapse.autotrack.processing=processing;
 
 at_setParametersTiming();
 
 timing=timeLapse.autotrack.processing;
 processing=timeLapse.autotrack.timing;
 
-save('parameters.mat','processing','timing')
+save([timeLapse.realPath '/at_batch_processing_parameters.mat'],'processing','timing')
 
 
 

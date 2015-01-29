@@ -1,7 +1,7 @@
 function at_batch_segNucleus(pos,frames,cavity,binning)
 global segmentation timeLapse
 
-at_log(['Segment nucleus parameters: ' num2str(timeLapse.autotrack.processing.nucleus')],'a',pos,'batch');
+%at_log(['Segment nucleus parameters: ' num2str(timeLapse.autotrack.processing.nucleus')],'a',pos,'batch');
 
 timeLapse.autotrack.position(pos).nucleusSegmented=zeros(1,timeLapse.numberOfFrames);
 segmentation.nucleusSegmented=zeros(1,timeLapse.numberOfFrames);
@@ -17,7 +17,7 @@ for i=frames
       fprintf(['\n']);
     end
     
-    imbud=segmentNucleus(i,timeLapse.autotrack.processing.nucleus(1),binning,cavity);
+    imbud=segmentNucleus(i,binning,cavity);
     
 end
 
@@ -26,8 +26,10 @@ segmentation.nucleusSegmented(frames(1):frames(end))=1;
 
 
 
-function imcells=segmentNucleus(i,channel,binning,cavity)
-global segmentation
+function imcells=segmentNucleus(i,binning,cavity)
+global segmentation timeLapse
+
+channel=timeLapse.autotrack.processing.segNucleusPar.channel;
 
 imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
 %warning off all
@@ -36,7 +38,6 @@ imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
 
 %figure, imshow(imbud,[]);
 
-parametres=segmentation.processing.parameters{4,15};
 
 if ~isfield(segmentation,'ROI')
      nROI=1;
@@ -85,7 +86,9 @@ for k=cavity
     
     %figure, imshow(imtemp,[]);
     
-    celltemp=phy_segmentNucleus(imtemp,parametres{4,2},parametres{2,2},parametres{3,2},parametres{1,2});
+    param=timeLapse.autotrack.processing.segNucleusPar;
+    celltemp=feval(timeLapse.autotrack.processing.segNucleusMethod,imtemp,param);
+        
     
     for j=1:length(celltemp)
         cells(cc+j).x=celltemp(j).x+roiarr(1)-1;

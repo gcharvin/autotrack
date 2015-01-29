@@ -2,7 +2,7 @@ function at_batch_segCells(pos,frames,cavity)
 global segmentation timeLapse
 
 
-at_log(['Segment cells parameters: ' num2str(timeLapse.autotrack.processing.cells1')],'a',pos,'batch');
+%at_log(['Segment cells parameters: ' num2str(timeLapse.autotrack.processing.cells1')],'a',pos,'batch');
 
 
 % init segmentation variable
@@ -23,19 +23,22 @@ for i=frames % loop on frames
    
     
     fprintf(['Segment Cells: \n']);
-    imcell=segmentCells(i,timeLapse.autotrack.processing.cells1(1),cavity);
+    imcell=segmentCells(i,cavity);
     
 end
 
        segmentation.cells1Segmented(frames(1):frames(end))=1;
         
      
-        
+       
+function imcells=segmentCells(i,cavity)
+global segmentation timeLapse
 
-function imcells=segmentCells(i,channel,cavity)
-global segmentation
+channel=timeLapse.autotrack.processing.segCellsPar.channel;
+
 
 imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
+
 segmentation.cells1(i,:)=phy_Object;
 
 % cov=std(double(imcells(:)))/mean(double(imcells(:)));
@@ -98,13 +101,23 @@ for k=cavity
         %figure, imshow(mat2gray(imtemp)+BWzoom,[]); hold on;
         %pause
         % close
-        celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
-            segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
-            segmentation.processing.parameters{1,14}{7,2},BWzoom);
+        %celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
+         %   segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
+         %   segmentation.processing.parameters{1,14}{7,2},BWzoom);
+        
+        param=timeLapse.autotrack.processing.segCellsPar;
+        param.mask=BWzoom;
+        
+        celltemp=feval(timeLapse.autotrack.processing.segCellsMethod,imtemp,param);
+        
     else
-        celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
-            segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
-            segmentation.processing.parameters{1,14}{7,2});
+        %celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
+          %  segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
+          %  segmentation.processing.parameters{1,14}{7,2});
+          
+       param=timeLapse.autotrack.processing.segCellsPar;
+        
+        celltemp=feval(timeLapse.autotrack.processing.segCellsMethod,imtemp,param);   
     end
     
     if numel(celltemp)==1 && celltemp.n==0

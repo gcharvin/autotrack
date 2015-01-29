@@ -100,6 +100,7 @@ inte=round(inte/str2num(sequence.param{6}));
 
 sequence.param(end+1)={num2str(str2num(sequence.param{4}):inte:str2num(sequence.param{5}))};
 sequence.param(end+1)={num2str([1 1 timeLapse.list(1).videoResolution(1) timeLapse.list(1).videoResolution(2)])};
+sequence.param(end+1)={''};
 
 sequence.param=sequence.param';
 
@@ -174,7 +175,7 @@ function saveMontageAs_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global sequence
 
-[files path]=uiputfile('myproject','Choose sequence project name');
+[files path]=uiputfile('.mat','Enter sequence file project');
 
 if files==0
     return
@@ -299,16 +300,14 @@ end
 
 pix=~cellfun(@isempty,sequence.display(:,1));
 pix=cellfun(@mean,sequence.display(pix,1));
-pix=find(pix==1)
+pix=find(pix==1);
 
 cc=1;
 for i=pix'
-    'ok'
+  %  'ok'
    channelGroup(cc)= {'1 0 1 0'};
    cc=cc+1;
 end
-
-
 
 
 nlin= str2num(sequence.param{2,1}) * sum(pix);
@@ -317,8 +316,6 @@ nframes= str2num(sequence.param{6,1});
 nch= sum(pix);
 
 % generate figure;
-
-
 
 %
 %track=str2num(sequence.param{9,1});
@@ -338,7 +335,7 @@ for i=1:size(sequence.channel,1)
 end
 
 % adjust timeLapse high and low level so that levels are identical for
-% movie generation
+% movie generation  
 
 % get contours settings
 
@@ -353,6 +350,8 @@ for i=1:size(sequence.contour,1)
 end
 
 varargin(end+1:end+2)={'contours',cont}
+
+%cont
 
 cont.channelGroup=[1 2];
 
@@ -435,6 +434,7 @@ a=str2num(sequence.param{1,1});
 roi=str2num(sequence.param{8,1});
 
 %
+
 track=str2num(sequence.param{9,1});
 
 sequence.handles.hf=figure('Color','w','Position',[50 50 1*a(1) a(1)*roi(4)*nlin/(roi(3)*ncol)]);
@@ -443,10 +443,11 @@ sequence.handles.hf=figure('Color','w','Position',[50 50 1*a(1) a(1)*roi(4)*nlin
 
 sequence.handles.hp=panel();
 p=sequence.handles.hp;
-p.de.margin=0;
+p.de.margin=40;
 p.pack(nlin,ncol);
 p.fontsize=24;
 
+mar=2;
 cc=0;
 cd=0;
 
@@ -500,7 +501,16 @@ for i=1:nframes
       
       [hf h]=phy_showImage('frames',nimages(i),'ROI',roi,'channels',ch(dich),'timestamp',tim,'contours',cont(dico),'tracking',track);
 
+      p(j+cc).marginleft=0;
+      p(j+cc).marginright=mar;
+      p(j+cc).marginbottom=mar;
+      p(j+cc).margintop=mar;
+      
       p(j+cc,cd).select(h);  
+      p(j+cc,cd).marginleft=mar;
+      p(j+cc,cd).marginright=mar;
+      p(j+cc,cd).marginbottom=mar;
+      p(j+cc,cd).margintop=mar;
       
         if cd==1
          ylabel(sequence.display(j,2)) 
@@ -511,7 +521,8 @@ for i=1:nframes
      
 end
 
-p.de.margin=0;
+p.marginleft=30;
+%p.de.margin=0;
 
 %p(1,1).marginleft=15;
 

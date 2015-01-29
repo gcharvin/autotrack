@@ -20,7 +20,7 @@ end
     
 %>>>>>>> origin/master
     
-at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch');
+%at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch');
 
 timeLapse.autotrack.position(pos).nucleusMapped=zeros(1,timeLapse.numberOfFrames);
 segmentation.nucleusMapped=zeros(1,timeLapse.numberOfFrames);

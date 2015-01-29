@@ -1,31 +1,17 @@
 
 
-% batch segmentation and mapping for HTB2 marked cells
+% batch segmentation and mapping objects
 
+% arguments : 
+% frames : array of frames to be analyzed; exe: frames=1:240;
 % position : [ 1 2 3 8] : list positions to be anayzed
-% path, file, frames
-
-% optional arguments:
-
-% 'cells' : segment cell contours
-% 'nucleus' : segment and score nuclei
-% 'foci' : segment foci
-% 'mapnucleus': map nuclei
-% 'mapcells': map cells; in case this is selected, then a link between
-% nuclei and cells is established
-% 'cellcycle':extract cellcycle phase
-% 'display' : display running segmentation
-% 'binning', bin : binning factor used for nucleus or foci: default 2
-% 'cavity' , : find ROI associated with cavities : 0 : process all; -1 :
-% use existing tracking in segmentation variable
-% cavities, array : process specific cavities
-
 %
 % example :
-% at_batch(1:175,5,'cells','nucleus','mapnucleus','mapcells','cellcycle','display')
+% at_batch(1:175,5)
+%
+% other parameters must be defined using at_setParameters
 
-
-function at_batch(frames, position,varargin)
+function at_batch(frames, position)
 global segmentation timeLapse
 
 % test if projetct is loaded
@@ -62,43 +48,8 @@ end
 
 
 
-% if no argument is provided
-if nargin==0
-    % input dialog for frame if not provided
-    defaultanswer={['1 ' num2str(timeLapse.numberOfFrames)]};prompt={'Frames to segment'}; name='Input Frames (min max)';
-    numlines=1; answer=inputdlg(prompt,name,numlines,defaultanswer);
-    
-    if numel(answer)==0
-        return;
-    else
-        frames=str2num(answer{1});
-        frames=frames(1):frames(end);
-        segNucleus=1;
-        segFoci=1;
-        segCells=1;
-        mapNucleus=1;
-        mapCells=1;
-        %  gaufit=1;
-        display=1;
-        binning=0;
-        cavity=[];
-    end
-    
-else
-    segCells = getMapValue(varargin, 'cells');
-    segNucleus = getMapValue(varargin, 'nucleus');
-    segFoci = getMapValue(varargin,'foci');
-    mapNucleus = getMapValue(varargin, 'mapnucleus');
-    mapCells = getMapValue(varargin, 'mapcells');
-    cellcycle = getMapValue(varargin, 'cellcycle');
-    display = getMapValue(varargin, 'display');
-    binning = getBinningValue(varargin, 'binning');
-    cavity=  getCavityValue(varargin, 'cavity');
-    %  gaufit = getMapValue(varargin, 'gaufit');
-end
 
-
-if display
+if timeLapse.autotrack.processing.display
     hcells=[];
     hnucleus=[];
     hfoci=[];
@@ -134,111 +85,29 @@ for l=position % loop on positions
     fprintf(['//-----------------------------------//\n']);
     fprintf('\n');
     
-    if numel(cavity) & cavity>=0 %track cavities
-        segmentation.ROI=[];
-        segmentation.ROI.ROI=[];
-        segmentation.ROI.x=[];
-        segmentation.ROI.y=[];
-        segmentation.ROI.theta=[];
-        segmentation.ROI.outgrid=[];
-              
-        for i=frames % loop on frames
-            fprintf(['// Cavity tracking - position: ' num2str(pos) ' - frame :' num2str(i) '//\n']);
-            
-            segmentation.ROI(i).ROI=[];
-            segmentation.ROI(i).x=[];
-            segmentation.ROI(i).y=[];
-            segmentation.ROI(i).theta=[];
-            segmentation.ROI(i).outgrid=[];
-            
-            if i==frames(1)
-                fprintf(['Find cavity for the first frame:' num2str(i) '; Be patient...\n']);
-                [x y theta ROI ~] = at_cavity(frames(1),'range',70,'rotation',2.5,'npoints',31,'scale',0.2);
-                %x=-9.33; y=57.8; theta=0.68;
-            end
-            
-            fprintf(['Fine adjutsment of cavity position\n']); pause(0.01);
-            [x y theta ROI ~] = at_cavity(i,'range',30,'rotation',0.2,'npoints',9, 'init',[x y theta],'scale',0.2);
-            [x y theta ROI outgrid] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',0.5);%,'grid',grid);
-            
-            
-            % use moving average over 5 frames to prevent defects in tracking
-            if i>frames(1)
-                minFrame=max(frames(1),i-5);
-                
-                xtemp=0; ytemp=0; thetatemp=0;
-                ccavg=0;
-                
-                % x,y,theta
-                for m=minFrame:i-1
-                    xtemp=xtemp+segmentation.ROI(m).x;
-                    ytemp=ytemp+segmentation.ROI(m).y;
-                    thetatemp=thetatemp+segmentation.ROI(m).theta;
-                    ccavg=ccavg+1;
-                end
-                
-                xtemp=xtemp+x;
-                ytemp=ytemp+y;
-                thetatemp=thetatemp+theta;
-                ccavg=ccavg+1;
-                
-                xtemp=xtemp/ccavg;
-                ytemp=ytemp/ccavg;
-                
-                thetatemp=thetatemp/ccavg;
-                
-                [x y theta ROI outgrid] = at_cavity(i,'range',1,'npoints',1, 'init',[xtemp ytemp thetatemp],'scale',1);%,'grid',grid);
-            end
-            
-            % use moving averaging to smoothen cavity motion (in case
-            % of errors)
-            
-            % call at_cavity with one starting point and no iteration
-            % to do the smotthing average !
-            
-            
-            if i==frames(1)
-                oldROI=ROI;
-            else
-                oldROI=segmentation.ROI(i-1).ROI;
-            end
-            
-            fprintf(['Map cavity from previous frame\n']); pause(0.01);
-            newROI=at_mapROI(ROI,oldROI);
-            
-            %segmentation.ROI(i).ROI=ROI;
-            segmentation.ROI(i).ROI=newROI;
-            segmentation.ROI(i).x=x;
-            segmentation.ROI(i).y=y;
-            segmentation.ROI(i).theta=theta;
-            segmentation.ROI(i).outgrid=outgrid;
-        end
-        
-           if numel(cavity)
-           % make report for cavity tracking
-           cavityTracking(frames)
-           end
+    if numel(timeLapse.autotrack.processing.cavity)
+       at_batch_findCavity(pos,frames,cavity);
     end
     
-    if segCells
-        at_batch_segCells(pos,frames,cavity);
-    end
-    if mapCells
-        at_batch_mapCells(pos,frames,cavity);
-        %return;
+    if timeLapse.autotrack.processing.segCells
+        at_batch_segCells(pos,frames,timeLapse.autotrack.processing.cavity);
     end
     
-    if segNucleus
-        at_batch_segNucleus(pos,frames,cavity,binning);
+    if timeLapse.autotrack.processing.mapCells
+        at_batch_mapCells(pos,frames,timeLapse.autotrack.processing.cavity);
+    end
+    
+    if timeLapse.autotrack.processing.segNucleus
+        at_batch_segNucleus(pos,frames,timeLapse.autotrack.processing.cavity,timeLapse.autotrack.processing.binning);
     end
     
     
-    if mapNucleus
-        at_batch_mapNucleus(pos,frames,cavity);
+    if timeLapse.autotrack.processing.mapNucleus
+        at_batch_mapNucleus(pos,frames,timeLapse.autotrack.processing.cavity);
     end
     
-    if segFoci
-        at_batch_segFoci(pos,frames,cavity,binning);
+    if timeLapse.autotrack.processing.segFoci
+        at_batch_segFoci(pos,frames,timeLapse.autotrack.processing.cavity,timeLapse.autotrack.processing.binning);
     end
    
     
@@ -250,17 +119,17 @@ for l=position % loop on positions
     
     segmentation.frameChanged(frames(1):frames(end))=1;
     
-    if mapCells && mapNucleus
+    if timeLapse.autotrack.processing.mapCells && timeLapse.autotrack.processing.mapNucleus
         
         at_log(['Start Link Nucleus/Cells  for position : ' num2str(pos)],'a',pos,'batch');
         fprintf(['Link Nucleus/Cells - pos:' num2str(pos) '\n']);
         at_linkCellNucleus;
         fprintf(['Parentage Cells - pos:' num2str(pos) '\n']);
         at_log(['Start mapCell Nucleus  for position : ' num2str(pos)],'a',pos,'batch')
-        at_mapCellsNucleus(timeLapse.autotrack.processing.nucleus(1));
+        at_mapCellsNucleus(timeLapse.autotrack.processing.segNucleusPar.channel);
     end
     
-    if  segCells || mapCells || segNucleus || mapNucleus || segFoci
+    if  timeLapse.autotrack.processing.segCells || timeLapse.autotrack.processing.mapCells || timeLapse.autotrack.processing.segNucleus || timeLapse.autotrack.processing.mapNucleus || timeLapse.autotrack.processing.segFoci
         fprintf(['//-----------------------------------//\n']);
         fprintf(['Saving pos: ' num2str(pos) '\n\n']);
         fprintf(['//-----------------------------------//\n']);
@@ -270,7 +139,7 @@ for l=position % loop on positions
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')
     end
     
-    if cellcycle
+    if timeLapse.autotrack.processing.cellcycle
         at_log(['Start cell cycle analysis : ' num2str(pos)],'a',pos,'batch')
         fprintf(['Cell cycle analysis- pos: ' num2str(pos) '\n\n']);
         at_cellCycle2([],0); % last argument is position number
@@ -280,7 +149,7 @@ for l=position % loop on positions
 end
 
 
-if display
+if timeLapse.autotrack.processing.display
     if ishandle(hcells)
         close(hcells);
     end
@@ -375,39 +244,4 @@ if ishandle(hfoci)
     
     text(10,10,['Foci - Position: ' num2str(segmentation.position) ' -Frame:' num2str(i)],'Color','y');
     
-end
-
-
-
-function value = getMapValue(map, key)
-value = 0;
-
-for i = 1:1:numel(map)
-    if strcmp(map{i}, key)
-        value = 1;
-        
-        return
-    end
-end
-
-function value = getBinningValue(map, key)
-value = 2;
-
-for i = 1:1:numel(map)
-    if strcmp(map{i}, key)
-        value = map{i+1};
-        
-        return
-    end
-end
-
-function value = getCavityValue(map, key)
-value = [];
-
-for i = 1:1:numel(map)
-    if strcmp(map{i}, key)
-        value = map{i+1};
-        
-        return
-    end
 end

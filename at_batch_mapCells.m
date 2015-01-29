@@ -9,7 +9,7 @@ global segmentation timeLapse
     load([pth '/addon/trainingSetCells1.mat']);
 
 % init
-at_log(['Map cells parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch');
+%at_log(['Map cells parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch');
 
 timeLapse.autotrack.position(pos).cells1Mapped=zeros(1,timeLapse.numberOfFrames);
 segmentation.cells1Mapped=zeros(1,timeLapse.numberOfFrames);

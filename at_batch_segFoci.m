@@ -17,7 +17,7 @@ for i=frames
       fprintf(['\n']);
     end
     
-    imbud=segmentFoci(i,timeLapse.autotrack.processing.foci(1),binning,cavity);
+    imbud=segmentFoci(i,binning,cavity);
     
 end
 
@@ -26,8 +26,9 @@ segmentation.fociSegmented(frames(1):frames(end))=1;
 
 
 
-function imcells=segmentFoci(i,channel,binning,cavity)
+function imcells=segmentFoci(i,binning,cavity)
 global segmentation
+channel=timeLapse.autotrack.processing.segNucleusPar.channel;
 
 imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');%load binned image
 imcells=imresize(imcells,2);
@@ -80,7 +81,13 @@ for k=cavity
     %figure, imshow(imtemp,[]);
     warning on all;
     %celltemp=phy_segmentFoci(imtemp,parametres{2,2},parametres{3,2},parametres{5,2},parametres{4,2});
-    celltemp=phy_segmentFoci(imtemp,1,1000,60,17);
+    
+    param=timeLapse.autotrack.processing.segFociPar;
+    
+    celltemp=feval(timeLapse.autotrack.processing.segFociMethod,imtemp,param);
+        
+    
+    %celltemp=phy_segmentFoci(imtemp,1,1000,60,17);
     
     for j=1:length(celltemp)
         cells(cc+j).x=celltemp(j).x+roiarr(1)-1-x;

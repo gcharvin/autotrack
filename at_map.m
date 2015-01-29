@@ -1,7 +1,7 @@
 function nstore2=at_map(objecttype,cc,nstore2,i,cavity)
 
 
-global segmentation
+global segmentation timeLapse
 
 
 if nargin==4
@@ -15,9 +15,18 @@ if nargin==4
         cell0=segmentation.(objecttype)(trackFrame,:);
         cell1=segmentation.(objecttype)(i,:);
         
-        parametres=segmentation.processing.parameters{4,9};
         
-        segmentation.(objecttype)(i,:)=phy_mapCellsHungarian(cell0,cell1,nstore2,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},parametres{6,2});
+        if strcmp(objecttype,'cells1')
+         param=timeLapse.autotrack.processing.mapCellsPar;
+        
+        [segmentation.(objecttype)(i,:) OK]=feval(timeLapse.autotrack.processing.mapCellsMethod,cell0,cell1,nstore2,param);
+        end
+        if strcmp(objecttype,'nucleus')
+         param=timeLapse.autotrack.processing.mapNucleusPar;
+        
+        [segmentation.(objecttype)(i,:) OK]=feval(timeLapse.autotrack.processing.mapNucleusMethod,cell0,cell1,nstore2,param);
+        end
+        %[segmentation.(objecttype)(i,:) ~]=phy_mapCellsHungarian(cell0,cell1,nstore2,param);
         
         
         fprintf('.');

@@ -1,5 +1,5 @@
 
-function [hf ha hc]=at_pedigree(plotType,object,minmax,channel,feature,cellindex)
+function [hf ha hc]=at_pedigree(plotType,object,minmax,channel,feature,cellindex,logscale)
 % plot pedigree
 % plotType : 0: links, 1: timings, 2: fluo
 
@@ -17,6 +17,7 @@ segmentation.pedigree.cellindex=cellindex;
 segmentation.pedigree.channel=channel; %timeLapse.autotrack.processing.nucleus(1);
 segmentation.pedigree.object=object;
 segmentation.pedigree.feature=feature;
+segmentation.pedigree.log=logscale;
 
 varargin={};
 
@@ -34,6 +35,10 @@ end
 
 if segmentation.pedigree.orientation
     varargin{end+1}='vertical';
+end
+
+if segmentation.pedigree.log
+    varargin{end+1}='log';
 end
 
 varargin{end+1}='object';
