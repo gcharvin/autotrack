@@ -56,9 +56,7 @@ at_tranferParametersToSegmentation()
 
 if segNucleus
     
-    parametres=segmentation.processing.parameters{4,15};
-    
-    thr=parametres{4,2}
+    thr=timeLapse.autotrack.processing.segNucleusPar.thr;
     
     disp(['Input threshold : ' num2str(thr)]);
     
@@ -128,8 +126,7 @@ end
 
 if segCells
     
-    parametres=segmentation.processing.parameters{1,14};
-    thr=parametres{5,2};
+    thr=timeLapse.autotrack.processing.segCellsPar.thresh;
     
      if cavity==1
                 fprintf(['Finding cavity...']);
@@ -166,33 +163,32 @@ end
 
 
 function [imbud budnecktemp channel]=segmentNucleus(i,thr)
-global segmentation
+global segmentation timeLapse
 
-parametres=segmentation.processing.parameters{4,15};
-channel=parametres{1,2};
 
-imbud=phy_loadTimeLapseImage(segmentation.position,i,parametres{1,2},'non retreat');
+param=timeLapse.autotrack.processing.segNucleusPar;
+channel=param.channel;
+param.thr=thr;
+imbud=phy_loadTimeLapseImage(segmentation.position,i,param.channel,'non retreat');
 warning off all
 %imbud=imresize(imbud,2);
 warning on all
 
 %size(imbud)
 
-%figure, imshow(imbud,[]);
-budnecktemp=phy_segmentNucleus(imbud,thr,parametres{2,2},parametres{3,2},parametres{1,2});
 
+
+    budnecktemp=feval(timeLapse.autotrack.processing.segNucleusMethod,imbud,param);
+        
+    
 
 function [imcells cells]=segmentCells(i,thr,cavity)
-global segmentation
+global segmentation timeLapse
 
 
-parametres=segmentation.processing.parameters{1,14};
-siz=parametres{4,2};
-mine=parametres{2,2};
-maxe=parametres{3,2};
-channel=segmentation.processing.parameters{1,14}{1,2};
-
-imcells=phy_loadTimeLapseImage(segmentation.position,i,channel,'non retreat');
+ param=timeLapse.autotrack.processing.segCellsPar;
+param.thresh=thr;
+imcells=phy_loadTimeLapseImage(segmentation.position,i,param.channel,'non retreat');
 
 
 segmentation.cells1(i,:)=phy_Object;
@@ -236,10 +232,14 @@ if numel(ROI(k).BW)~=0
 celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
     segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
     segmentation.processing.parameters{1,14}{7,2},ROI(k).BW);
+
+ 
+        param.mask=ROI(k).BW;
+        
+        celltemp=feval(timeLapse.autotrack.processing.segCellsMethod,imtemp,param);
+        
 else
- celltemp=phy_segmentWatershedGC2(imtemp,segmentation.processing.parameters{1,14}{2,2},...
-    segmentation.processing.parameters{1,14}{3,2},segmentation.processing.parameters{1,14}{5,2},...
-    segmentation.processing.parameters{1,14}{7,2});   
+ celltemp=feval(timeLapse.autotrack.processing.segCellsMethod,imtemp,param); 
 end
 
 if numel(celltemp)==1 && celltemp.n==0
