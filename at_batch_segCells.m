@@ -116,8 +116,7 @@ for k=cavity
           %  segmentation.processing.parameters{1,14}{7,2});
           
        param=timeLapse.autotrack.processing.segCellsPar;
-        
-        celltemp=feval(timeLapse.autotrack.processing.segCellsMethod,imtemp,param);   
+       celltemp=feval(timeLapse.autotrack.processing.segCellsMethod,imtemp,param);   
     end
     
     if numel(celltemp)==1 && celltemp.n==0

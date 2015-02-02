@@ -128,7 +128,21 @@ if nargin==5
            % cell1tomap
             %cell1tomap=phy_mapCellsHungarian( cell0tomap, cell1tomap,maxObjNumber,parametres{2,2}, parametres{3,2},parametres{4,2},parametres{5,2},0);
             %cavity
-            assignment(cell0tomap,cell1tomap,cavity.pdfout,cavity.range,[1 1 1 1],maxObjNumber);
+            
+            if strcmp(objecttype,'cells1')
+                param=timeLapse.autotrack.processing.mapCellsPar;
+                
+                [cell1tomap OK]=feval(timeLapse.autotrack.processing.mapCellsMethod,cell0,cell1,maxObjNumber,param);
+            end
+            
+            if strcmp(objecttype,'nucleus')
+                param=timeLapse.autotrack.processing.mapNucleusPar;
+                
+                [cell1tomap OK]=feval(timeLapse.autotrack.processing.mapNucleusMethod,cell0,cell1,maxObjNumber,param);
+            end
+        
+            
+            %assignment(cell0tomap,cell1tomap,cavity.pdfout,cavity.range,[1 1 1 1],maxObjNumber);
             
             % cell1tomap
             %for k=1:numel(cell1tomap)

@@ -8,8 +8,6 @@ global segmentation
 % 2) physical distance between cells must be smaller than a threshold
 % 3) proba based on cell position size and intensity
 
-
-
 display=0;
 
 % list all tobject starts and ends

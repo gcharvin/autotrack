@@ -2,23 +2,6 @@ function at_batch_mapNucleus(pos,frames,cavity)
 global segmentation timeLapse
 
 
-if numel(cavity)
-% load training set
-    
-%<<<<<<< HEAD
-    pth=mfilename('fullpath');
-    pth=pth(1:end-19);
-    
-    load([pth '/addon/trainingsetNucleus.mat']);
-end
-%=======
-% disabled training set
-%     pth=mfilename('fullpath');
-%     pth=pth(1:end-19);
-%     
-%     load([pth '/addon/trainingsetNucleus.mat']);
-    
-%>>>>>>> origin/master
     
 %at_log(['Map nucleus parameters: ' num2str(timeLapse.autotrack.processing.mapping')],'a',pos,'batch');
 
@@ -26,9 +9,25 @@ timeLapse.autotrack.position(pos).nucleusMapped=zeros(1,timeLapse.numberOfFrames
 segmentation.nucleusMapped=zeros(1,timeLapse.numberOfFrames);
 
 cc=1;
-    nstore=0; % cells number counter
+nstore=0; % cells number counter
     
 fprintf(['// Nucleus mapping - position: ' num2str(pos) '//\n']);
+
+if strcmp(timeLapse.autotrack.processing.mapNucleusMethod,'phy_mapObjectTraining')
+% first determine average intensity and size of cells
+fprintf(['// Nucleus mapping - position: ' num2str(pos) '-Measure average nucleus size and intensity...\n']);
+
+area=[segmentation.nucleus.area];
+area=mean(area(area~=0));
+
+inte=[segmentation.nucleus.fluoMean];
+inte=inte(2:2:end); % watch out this may not apply to all cases;
+inte=mean(inte(inte~=0));
+
+timeLapse.autotrack.processing.mapNucleusPar.avgArea=area;
+timeLapse.autotrack.processing.mapNucleusPar.avgInte=inte;
+end
+
 
 for i=frames
     
@@ -50,6 +49,9 @@ fprintf(['Create Nuclei TObjects for position:' num2str(pos) '\n']);
 segmentation.nucleusMapped(frames(1):frames(end))=1;
 [segmentation.tnucleus fchange]=phy_makeTObject(segmentation.nucleus);
 
-if numel(cavity)
-    tassignement(cav.pdfout,cav.range,[1 1 1 1],'nucleus');
+if strcmp(timeLapse.autotrack.processing.mapNucleusMethod,'phy_mapObjectTraining')
+    pdfout=timeLapse.autotrack.processing.mapNucleusPar.pdfout;
+    range=timeLapse.autotrack.processing.mapNucleusPar.range;
+    enable=timeLapse.autotrack.processing.mapNucleusPar.enable;
+    tassignement(pdfout,range,enable,'cells1');
 end
