@@ -46,6 +46,7 @@ b1=zeros(size(g1));
 
 colind=[r1' g1' b1'];
 colind=flipud(colind);
+colind=colormap(jet(201));
 z=size(colind,1);
 
 M={};
@@ -108,6 +109,8 @@ for j=1:length(statarr)
     
     r1=(avg{j}./avg{1})-1;
     r1=min(r1,thr); r1=max(r1,-thr); 
+    
+   
     
     r1=max(1,round(z*0.5*(r1+thr)./thr));
     %r1=z*ones(1,length(r1));
