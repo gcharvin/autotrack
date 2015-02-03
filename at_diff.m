@@ -25,13 +25,13 @@ display=[display1 display2 display3 display4];
 % rm=1:1:z*z;
 % rm=reshape(rm,[z z]);
 
-<<<<<<< HEAD
-thr=1;
-=======
+%<<<<<<< HEAD
+%thr=1;
+%=======
 if nargin==2
 thr=0.3;
 end
->>>>>>> eb515003feafedb671f020e74b54691ae0408bcd
+%>>>>>>> eb515003feafedb671f020e74b54691ae0408bcd
 
 % colind=reshape(colM,[size(colM,1)*size(colM,1) 1 3]);
 % colind=permute(colind,[1 3 2]);
@@ -82,7 +82,13 @@ for ii=0:1
 for j=1:length(statarr)
     stats=datastat(statarr(j)).stats;
     M{j,1}=find(stats(:,5)==ii & stats(:,6)==0); % select D or Ms
+    
+    if isempty(strarr)
+        [pth fle ext]=fileparts(datastat(statarr(j)).path);
+        M{j,2}=fle;
+    else
     M{j,2}=strarr{j} ;
+    end
     
     T_M=stats(M{j,1},display);
     
@@ -135,7 +141,7 @@ for j=1:length(statarr)
     end
     startY=startY+spacing*cellwidth;
     %if j==1
-        Traj(rec,'Color',colind,'colorindex',cindex,'tag',['Cell type:' strarr{j} '-' num2str(ii)],h,'width',cellwidth,'startX',startX,'startY',startY,'sepColor',[1 1 1],'sepwidth',2,'gradientWidth',0);
+        Traj(rec,'Color',colind,'colorindex',cindex,'tag',['Cell type:' M{j,2} '-' num2str(ii)],h,[],'width',cellwidth,'startX',startX,'startY',startY,'sepColor',[1 1 1],'sepwidth',2);
     %end
     
     for i=1:length(avg{j}) % plot significance
@@ -149,13 +155,15 @@ for j=1:length(statarr)
     end
 end
 
-set(gca,'YTick',cellwidth*(spacing*[0:1:length(statarr)-1]+spacing),'YTickLabel',strarr);
+lab=M(:,2);
+
+set(gca,'YTick',cellwidth*(spacing*[0:1:length(statarr)-1]+spacing),'YTickLabel',lab);
 
 if ii==0
     set(gca,'XTick',[]);
 end
 
-axis equal tight
+%axis equal tight
 
 end
 

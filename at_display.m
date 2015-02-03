@@ -511,13 +511,13 @@ function load_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global datastat
 
-[FileName,PathName,FilterIndex] = uigetfile({'*.mat','Stat file'},'Select Stat File',[]);
+[FileName,PathName,FilterIndex] = uigetfile({'*.mat','Stat file'},'Select Stat File',[],'MultiSelect','on');
 
-if FileName==0
+
+if isempty(FileName)
     return;
 end
 
-load(strcat(PathName,FileName));
 
 if numel(datastat)==0
     datastat.stats=[];
@@ -529,17 +529,23 @@ else
     n=numel(datastat)+1;
 end
 
-
+for i=1:length(FileName)
+    
+    load(strcat(PathName,FileName{i}));
 
 datastat(n).stats=stats;
-datastat(n).path=strcat(PathName,FileName);
-datastat(n).selected=1;
+datastat(n).path=strcat(PathName,FileName{i});
+
 
 if exist('outlier','var')
     datastat(n).outlier=outlier;
-else
-    at_setParametersTiming;
+%else
+%    at_setParametersTiming;
 end
+n=n+1;
+end
+
+datastat(n-1).selected=1;
 
 updateDisplay(handles);
 
