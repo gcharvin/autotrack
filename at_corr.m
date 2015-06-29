@@ -24,9 +24,24 @@ display=[display1 display2 display3,display4];
 M=find(stats(:,5)==1 & stats(:,6)==0);
 D=find(stats(:,5)==0 & stats(:,6)==0);
 
+%stats(:,display2)=stats(:,display2).^1.5*(0.073)^3; % real volume
+%stats(:,display3)=stats(:,display3).^1.5*(0.073)^3; % real volume
+
+%stats(:,display4(3))=stats(:,display4(3)).^1.5*(0.073)^3; % real volume
+%stats(:,display4(1))= (stats(:,display2(2))-stats(:,display2(1)))./stats(:,display1(2)); % muunbud
+%stats(:,display4(2))= (stats(:,display2(5))-stats(:,display2(3)))./(stats(:,display1(5))+stats(:,display1(6))); % mubud
+
+
+%stats(:,display4)=stats(:,display4).^1.5*(0.073)^3; % real volume
+
+
+stats(:,display2)=stats(:,display2)+stats(:,display3); % add bud size
+%stats(:,display2(2:end))=stats(:,display2(2:end))-stats(:,display2(1:end-1)); % deltavolume
+
+%% plot delta volume
+
 X_D=stats(D,display);
 X_M=stats(M,display);
-
 
 % plot correlation between phase durations
 
@@ -41,8 +56,11 @@ X_M=stats(M,display);
     xedges = linspace(1,size(X_D,2)+1,size(X_D,2)+1);
     yedges = linspace(1,size(X_M,2)+1,size(X_M,2)+1);
 
-  figure('Color','w','Position',[100 100 800 800]); 
-  pcolor(xedges,yedges,M); colormap jet; colorbar ; axis square tight;
+  figure('Color','w','Position',[100 100 1000 500]);
+  
+  subplot(1,2,1);
+  pcolor(xedges,yedges,M); colormap jet; h=colorbar ; axis square tight;
+  set(h,'CLim',[-1 1])
   set(gca,'XTick',[1:1:size(X_M,2)]+0.5);
   set(gca,'XTickLabel',at_name(display));
   set(gca,'YTick',[1:1:size(X_M,2)]+0.5);
@@ -50,10 +68,12 @@ X_M=stats(M,display);
   title('Mother Phase Correlations');
 
 f2=[path '/' file '-corrM.pdf'];
-myExportFig(f2);
+%myExportFig(f2);
 
-  figure('Color','w','Position',[100 100 800 800]); 
-  pcolor(xedges,yedges,D); colormap jet; colorbar ; axis square tight;
+  %figure('Color','w','Position',[100 100 800 800]); 
+  subplot(1,2,2);
+  pcolor(xedges,yedges,D); colormap jet; h=colorbar ; axis square tight;
+    set(h,'CLim',[-1 1])
   set(gca,'XTick',[1:1:size(X_D,2)]+0.5);
   set(gca,'XTickLabel',at_name(display));
   set(gca,'YTick',[1:1:size(X_D,2)]+0.5);
@@ -61,4 +81,4 @@ myExportFig(f2);
   title('Daughter Phase Correlations');
 
 f2=[path '/' file '-corrD.pdf'];
-myExportFig(f2);
+%myExportFig(f2);

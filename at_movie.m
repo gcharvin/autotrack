@@ -8,6 +8,10 @@ global datastat segmentation timeLapse
 % TO DO : movie to display histograms being constructed as time goes during
 % the progresison of the cell cluster
 
+% average single cell data based on specific criteria 
+
+% calculate the orientation of the cells based on mother-bud axis
+
 
 if nargin==1
     option=0;

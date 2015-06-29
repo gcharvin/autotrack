@@ -77,6 +77,7 @@ set(handles.scatter4,'Value',1);
 
 updateDisplay(handles);
 
+
 at_displayHandles=handles;
 
 
@@ -157,6 +158,7 @@ dt2=stats(:,ind2);
 
 axes(handles.scatterplot);
 
+
 if ~strcmp(str1,str2)
     M=find(stats(:,5)==1 & stats(:,6)==0);
     %OM=find(stats(:,6)==0);
@@ -164,17 +166,20 @@ if ~strcmp(str1,str2)
     
     dt2M=dt2(M); dt1M=dt1(M);
     
+
+    
     D=find(stats(:,5)==0 & stats(:,6)==0);
     %OD=find(stats(:,6)==0);
     %iD=intersect(D,OD);
     dt2D=dt2(D); dt1D=dt1(D);
+    
     
     str='';
     
     if numel(dt2M)~=0
         h1=plot(dt2M,dt1M,'Color','r','Marker','.','MarkerSize',15,'LineStyle','none'); hold on;
         xlabel(str2); ylabel(str1);
-        cM=corrcoef(dt2,dt1);
+        cM=corrcoef(dt2M,dt1M);
         if size(cM,2)>=2
             str=[str 'Corr M: ' num2str(cM(1,2))];
         end
@@ -234,6 +239,7 @@ p = p(1,1:2);
 plotTime(p,handles);
 
 
+
 function plotTime(p,handles)
 global datastat
 
@@ -257,6 +263,9 @@ if val2>5
     ind2=15+199-5;
 end
 
+%noout=find(stats(:,6)==0);
+
+
 dt1=stats(:,ind+val1);
 dt2=stats(:,ind2+val2);
 
@@ -273,6 +282,9 @@ end
 if val2>=27 % plot mu
     dt2=stats(:,531+val2-27);
 end
+
+%dt1=dt1(noout,:);
+%dt2=dt2(noout,:);
 
 [mi ix]=min(abs(dt2-p(1)));
 
@@ -463,16 +475,18 @@ end
 stats=datastat(pix).stats;
 path=datastat(pix).path;
 outlier=datastat(pix).outlier;
+convert=datastat(pix).convert;
 
 if strcmp(path(1),'-')
     defpath=datastat(1).path;
+    %defpath='/Users/charvin/Documents/MATLAB/analysis/cellcycle/wt_batch'
     [defpath file]=fileparts(defpath);
     [file,path] = uiputfile('*.mat','Save stats file as',defpath);
     path=[path file];
     datastat(pix).path=path;
     updateDisplay(handles);
 end
-at_export(stats,path,outlier);
+at_export(stats,path,convert,outlier);
 
 
 
@@ -494,6 +508,7 @@ stats=[];
 for i=1:numel(val)
     stats=[stats ; datastat(val(i)).stats];
 end
+
 
 n=numel(datastat)+1;
 datastat(n).stats=stats;
@@ -523,24 +538,52 @@ if numel(datastat)==0
     datastat.stats=[];
     datastat.path=[];
     datastat.selected=[];
-    datastat.outliser=[];
+    datastat.outlier=[];
+    datastat.convert=[];
     n=1;
 else
     n=numel(datastat)+1;
 end
 
+if ischar(FileName)
+ FileName={FileName};
+end
+
 for i=1:length(FileName)
-    
-    load(strcat(PathName,FileName{i}));
+clear convert
+load(strcat(PathName,FileName{i}));
+
+%recalculate growth rate and volume 
+
+display1=at_name('tdiv','tg1','tbud','ts','tg2','tana');
+display2=at_name('vdiv','vg1','vs','vg2','vana');
+display3=at_name('vbdiv','vbg1','vbs','vbg2','vbana');
+display5=at_name('vndiv','vng1','vns','vng2','vnana');
+display4=at_name('mub','mb','asy');
+
+if ~exist('convert','var')
+
+prefac=4/3*1/(pi^0.5);
+
+stats(:,display2)=prefac*stats(:,display2).^1.5*(0.073)^3; % real volume
+stats(:,display3)=prefac*stats(:,display3).^1.5*(0.073)^3; % real volume
+stats(:,display5)=prefac*stats(:,display5).^1.5*(0.073)^3; % real volume
+
+stats(:,display4(3))=stats(:,display4(3)).^1.5; % real volume
+
+stats(:,display4(1))= (stats(:,display2(2))-stats(:,display2(1)))./stats(:,display1(2)); % muunbud
+
+stats(:,display4(2))= (stats(:,display3(5))+stats(:,display2(5))-stats(:,display3(3))-stats(:,display2(3)))./(stats(:,display1(5))+stats(:,display1(6))); % mubud
+end
 
 datastat(n).stats=stats;
 datastat(n).path=strcat(PathName,FileName{i});
-
+datastat(n).convert=1;
 
 if exist('outlier','var')
     datastat(n).outlier=outlier;
-%else
-%    at_setParametersTiming;
+else
+    at_setParametersTiming;
 end
 n=n+1;
 end

@@ -1,4 +1,4 @@
-function at_diff(statarr,strarr,thr)
+function at_diff(statarr,strarr,thr,option)
 global datastat
 % compare different stat files
 
@@ -28,7 +28,7 @@ display=[display1 display2 display3 display4];
 %<<<<<<< HEAD
 %thr=1;
 %=======
-if nargin==2
+if nargin>=2
 thr=0.3;
 end
 %>>>>>>> eb515003feafedb671f020e74b54691ae0408bcd
@@ -131,7 +131,16 @@ for j=1:length(statarr)
         else
             %size(rm),r1(i),r2(i)
            %id=sub2ind(size(rm),r1(i),r2(i))
+           if nargin<3
            cindex(i)= r1(i);
+           else
+              if strcmp(option,'mean')
+                  cindex(i)= r1(i);
+              end
+              if strcmp(option,'cv')
+                  cindex(i)= r2(i); 
+              end
+           end
         end
         
          if i==11 

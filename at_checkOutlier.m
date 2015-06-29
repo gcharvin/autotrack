@@ -55,6 +55,24 @@ end
 if stats(a,13)< tg2(1) || stats(a,13) > tg2(2) out=1; %'ok4',b=stats(a,13)
     str=[str '-tg2=' num2str(stats(a,13))];
 end
+
+% 
+%  if stats(a,11)*stats(a,216)<20*5 & mother==0 out=1; %'ok2',b=stats(a,11)
+%      str=[str '-vdiv x tg1'];
+%  end
+
+if stats(a,11)< 3 && stats(a,13)< 3 out=1; %'ok2',b=stats(a,11)
+    str=[str '-tg1&tg2'];
+end
+% 
+% if stats(a,11)< 0.5* stats(a,12) out=1; %'ok2',b=stats(a,11)
+%     str=[str '-tg1&ts'];
+% end
+% 
+% if stats(a,13)< 0.2* stats(a,12) out=1; %'ok2',b=stats(a,11)
+%     str=[str '-tg2&ts'];
+% end
+
 if stats(a,14)< tana(1) || stats(a,14) > tana(2) out=1; %'ok5',b=stats(a,14)
     str=[str '-tana=' num2str(stats(a,14))];
 end
@@ -96,9 +114,9 @@ end
 %    str=[str '-V_Bud_G1=' num2str(stats(a,222))];
 %end
 
-%if stats(a,223)<= 0 out=1; %'ok1',b=stats(a,10)
-%    str=[str '-VBudS=' num2str(stats(a,223))];
-%end
+% if stats(a,223)<= 0 out=1; %'ok1',b=stats(a,10)
+%   str=[str '-VBudS=' num2str(stats(a,223))];
+% end
 
 if stats(a,224)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-VBudG2=' num2str(stats(a,224))];
@@ -108,10 +126,27 @@ if stats(a,225)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-VBudA=' num2str(stats(a,225))];
 end
 
-%if stats(a,531)<= 0 out=1; %'ok1',b=stats(a,10)
-%    str=[str '-muunbud=' num2str(stats(a,531))];
-%end
+if abs(stats(a,531))> 120 out=1; %'ok1',b=stats(a,10)
+   str=[str '-muunbud=' num2str(stats(a,531))];
+end
+
+if stats(a,531)<0 && stats(a,5)==0 out=1; %'ok1',b=stats(a,10)
+   str=[str '-muunbud=' num2str(stats(a,531))];
+end
+
+if isnan(stats(a,531)) out=1;
+   str=[str '-muunbud=NaN'];
+end
+
 
 if stats(a,532)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-mubud=' num2str(stats(a,532))];
+end
+
+if isnan(stats(a,532)) out=1;
+   str=[str '-mubud=NaN'];
+end
+
+if stats(a,533)> 2 out=1; %'ok1',b=stats(a,10)
+    str=[str '-asy=' num2str(stats(a,533))];
 end

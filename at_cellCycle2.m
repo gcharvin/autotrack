@@ -93,6 +93,7 @@ for i=1:length(cellindex)
    
     
     % convert timings into physical time units:
+   
     cycles_offset=cycles-tc.detectionFrame+1;
     cut=2;
     
@@ -107,15 +108,13 @@ for i=1:length(cellindex)
             starte=cycles_offset(j);
             ende=cycles_offset(j+1);
             tdau=segmentation.tcells1(daughter);
-            
         else
             daughter=dau(j+1);
             starte=cycles_offset(j);
             ende=cycles_offset(j+1);
             tdau=segmentation.tcells1(daughter);
-            
         end
-        
+
         if isD && j==1
         mine=max(1,starte);
         else
@@ -128,6 +127,7 @@ for i=1:length(cellindex)
             mine=max(1,starte); 
         end
         
+      %  mine,maxe
         fluo_cut=fluo(mine:maxe);
         areanucl_cut=areanucl(mine:maxe);
         
@@ -145,15 +145,20 @@ for i=1:length(cellindex)
             continue
          end
          
-        
+
         [timings,frame,fluofit,chi2]= computeTimings(fluo_cut,isD & j==1,mine);
 
+       % timings
         if numel(frame)==0
             continue
         end
         
         if display
             figure(h); plot(mine+tc.detectionFrame-1:maxe+tc.detectionFrame-1-pe,fluofit,'Color','r','LineWidth',2);
+      % edit synthetic:
+         %   figure(h); plot(mine+tc.detectionFrame-2:maxe+tc.detectionFrame-2-pe,fluofit,'Color','r','LineWidth',2);
+        % restore if problems
+        
         end
         
        % mine+tc.detectionFrame-1,maxe+tc.detectionFrame-1
@@ -172,7 +177,13 @@ for i=1:length(cellindex)
            continue 
         end
         
-        [mu_unbud mu_bud tbud]=computeTBud(areaM,areaB,mine,maxe);
+        try
+        [mu_unbud mu_bud tbud]=computeTBud(areaM,areaB,mine,maxe,round(timings.tg1));
+        catch
+         mu_unbud=0 ;
+         mu_bud=0; 
+         tbud=0;
+        end
         tbud=tbud-frame.start;
         
         if display
@@ -238,7 +249,6 @@ end
 shape = struct('p',1,'lo',lo,'up',up);
 [fluofit pp chi2]=splineFitCellCycle(fluo,nknots,shape);
 
-
 if numel(pp.breaks)<=nknots %wrong number of nodes found 
     return;
 end
@@ -299,6 +309,7 @@ areaN=areaN(mineM:maxeM);
 
 %mine2=mine2-tc.detection
 
+%areaB=[tdau.Obj.image]
 areaB=[tdau.Obj.area];
 %length(areaB)
 mineB=mine-tdau.detectionFrame+1;
@@ -345,13 +356,12 @@ volume.AM=areaM(min(length(areaM),round(frame.start+frame.A-mineoffset+1)));
 volume.AB=areaB(min(length(areaM),round(frame.start+frame.A-mineoffset+1)));
 volume.AN=areaN(min(length(areaM),round(frame.start+frame.A-mineoffset+1)));
 
-function [mu_unbud,mu_bud,tbud]=computeTBud(areaM,areaB,mine,maxe)
+function [mu_unbud,mu_bud,tbud]=computeTBud(areaM,areaB,mine,maxe,tg1)
 
 % measure timing associated with bud emergence
 
 x=mine:maxe;
 ind=find(areaB>0,1,'first');
-
 
 p=polyfit(x(ind:end),areaB(ind:end),1);
 f=polyval(p,x);
@@ -362,6 +372,10 @@ tbud=x(ind2);
 % measure growth rate in unbudded / budded period
 
 mu_bud=mean(diff(areaM(ind:end)+areaB(ind:end)));
+
+%%%
+ind2=max(2,tg1);
+%%%
 mu_unbud=mean(diff(areaM(1:ind2)));
 
 %figure, plot(x,areaB); hold on; plot(x,f)
@@ -377,7 +391,6 @@ global segmentation timeLapse
 if ~isfield(timeLapse,'startedDate')
  timeLapse.startedDate=now;   
 end
-
 
 checksum=mean(double(timeLapse.startedDate));
 
@@ -417,6 +430,9 @@ cc=cc+100;
 % size information base on cell and nucleus area
 %
 
+if numel(tbud)==0
+    tbud=0;
+end
 stats(a,cc)=tbud; cc=cc+1; % timing at which bud emerges
 
 stats(a,cc)=volume.startM; cc=cc+1; %vol division

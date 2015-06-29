@@ -1,10 +1,13 @@
-function at_setParametersTiming()
+function at_setParametersTiming(all)
 global timeLapse datastat at_displayHandles
+
+%'all' : set this argument to apply the parameters to all items in the
+%datastat
 
 % default parameters values
 
 tdiv=[15 80];
-tg1=[3 25];
+tg1=[5 45];
 ts=[3 20];
 tg2=[3 25];
 tana=[2 10];
@@ -36,9 +39,11 @@ end
 
 if numel(datastat)
    for i=1:numel(datastat)
+       if nargin==0
       if datastat(i).selected==0
           continue
       end
+       end
        
       if ~isfield(datastat(i),'outlier') | numel(datastat(i).outlier)==0
           datastat(i).outlier.tdiv=tdiv;
@@ -98,9 +103,13 @@ end
 
 if numel(datastat)
    for i=1:numel(datastat)
+       
+       if nargin==0
       if datastat(i).selected==0
           continue
-      end       
+      end   
+       end
+       
           datastat(i).outlier.tdiv=str2num(answer{1});
           datastat(i).outlier.tg1=str2num(answer{2});
           datastat(i).outlier.ts=str2num(answer{3});
@@ -117,9 +126,10 @@ if numel(datastat)==0
 end
 
 for i=1:numel(datastat)
-    
+    if nargin==0
     if datastat(i).selected==0
         continue
+    end
     end
     
 stats=datastat(i).stats;

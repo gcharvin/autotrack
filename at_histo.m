@@ -83,6 +83,10 @@ for m = 1:5
         T_M{j}=coef*stats(M{j,1},ind);
         end
         
+       % if k==1
+       %    a=mean( T_M{j}) 
+       % end
+        
         leg1{j}=[M{j,2} '=' num2str(round(100*mean( T_M{j}))/100) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
         
         
@@ -123,7 +127,7 @@ end
 
 maxen=0;
 
-for i=1:length(display4) % display tbud, muunbud and mubud
+for i=1:length(display4) % display tbud, muunbud and mubud and asy
 p(2,1,i).select();
         
         ind=display4(i);
@@ -137,8 +141,19 @@ p(2,1,i).select();
         else
            coef=1; 
         end
+        
+        %if i==4
+
+
+%bb=num2str(round(100*mean( T_M{j}))/100)
+
+        %end
 
         T_M{j}=coef*stats(M{j,1},ind);
+        
+        
+        
+      %  aa=mean( T_M{j})
         
         leg1{j}=[M{j,2} '=' num2str(round(100*mean( T_M{j}))/100) '; CV=' num2str(round(100*std( T_M{j})/mean( T_M{j}))/100)];
         
