@@ -57,9 +57,9 @@ if stats(a,13)< tg2(1) || stats(a,13) > tg2(2) out=1; %'ok4',b=stats(a,13)
 end
 
 % 
-%  if stats(a,11)*stats(a,216)<20*5 & mother==0 out=1; %'ok2',b=stats(a,11)
-%      str=[str '-vdiv x tg1'];
-%  end
+ if stats(a,11)*stats(a,216)<20*5 & mother==0 out=1; %'ok2',b=stats(a,11)
+     str=[str '-vdiv x tg1'];
+ end
 
 if stats(a,11)< 3 && stats(a,13)< 3 out=1; %'ok2',b=stats(a,11)
     str=[str '-tg1&tg2'];

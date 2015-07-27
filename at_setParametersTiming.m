@@ -6,10 +6,10 @@ global timeLapse datastat at_displayHandles
 
 % default parameters values
 
-tdiv=[15 80];
-tg1=[5 45];
-ts=[3 20];
-tg2=[3 25];
+tdiv=[15 100];
+tg1=[0 100];
+ts=[0 100];
+tg2=[0 100];
 tana=[2 10];
 chi=0.01;
 

@@ -48,8 +48,15 @@ for i=1:length(cellindex)
     dat=[segmentation.tcells1(id).Obj.Mean];
     im=[segmentation.tcells1(id).Obj.image];
     %pix=find(arrx>=segmentation.tcells1(id).birthFrame,1,'first');
+    
     fluo=[dat.peak];
     areanucl=[dat.area];
+    
+    
+    % to be removed if to use traditional quantification
+    fluo=[dat.fluo];
+    fluo=fluo.*areanucl;
+    %
     
     %fluo=fluo.*areanucl; %fluo=fluo(pix:end);
     % arrx=im(pix:end);

@@ -55,7 +55,7 @@ else
     M{1,1}=find(stats(:,5)==0 & stats(:,6)==0);
     M{1,2}='Age0'; 
     
-   for j=2:6   
+   for j=2:8   
     M{j,1}=find(stats(:,5)==1 & stats(:,6)==0 & stats(:,4)==j-1);
     M{j,2}=['Age' num2str(j-1)];   
    end
