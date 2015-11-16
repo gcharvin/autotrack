@@ -17,6 +17,15 @@ for i=1:length(segmentation.tcells1)
     fprintf('.');
    
     frames=[segmentation.tcells1(i).Obj.image];
+    
+    if numel(frames)==0
+        continue
+    end
+     if numel(find(frames==0))
+        continue
+     end
+    
+    %i,frames,size(arrN)
     arrN(i,frames)=0;
     arrI(i,frames)=0;
     

@@ -18,6 +18,13 @@ for i=1:length(segmentation.tcells1)
     fprintf('.');
     frames=[segmentation.tcells1(i).Obj.image];
     
+    if numel(frames)==0
+        continue
+    end
+     if numel(find(frames==0))
+        continue
+     end
+     
     if segmentation.tcells1(i).N~=0
         segmentation.tcells1(i).setMother(0);
         segmentation.tcells1(i).removeDaughter('ALL');
@@ -155,6 +162,13 @@ firstSeg=find(segmentation.cells1Segmented,1,'first');
 for i=1:length(segmentation.tcells1)
     link=segmentation.tcells1(i).mothers;
     fr=segmentation.tcells1(i).detectionFrame; % cell is born after first frame
+    
+    if numel(fr)==0
+        continue
+    end
+    if fr==0
+        continue
+    end
     
     if arrN(i,fr)<=0 & numel(link.n)% cell does not have a nucleus when born, therefore can be linked to a mother cell
         %i,link.n,link.frame
