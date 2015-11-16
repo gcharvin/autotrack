@@ -42,8 +42,8 @@ div=stats(:,10);
 [div ix]=sort(div,'descend');
 stats=stats(ix,:);
 
-
-col=[1 0 0; 0 1 0; 1 1 0; 0 0 1];
+col=[ 1 0.2 0.2 ; 0.2 1 0.2 ; 1 1 0.2 ; 0.2 0.2 1 ];
+%col=[1 0 0; 0 1 0; 1 1 0; 0 0 1];
 h=figure;
 
 cellwidth=1;
@@ -59,23 +59,23 @@ for j=1:size(stats,1)
     rec(i,1)=0;
     rec(i,2)=stats(j,11);  
     
-    rectangle('Position',[rec(i,1),startY,stats(j,11),cellwidth],'FaceColor','r','EdgeColor','none'); % time at budding
+    rectangle('Position',[rec(i,1),startY,stats(j,11),cellwidth],'FaceColor',col(1,:),'EdgeColor','none'); % time at budding
     
     i=i+1; 
     rec(i,1)=rec(i-1,2);
     rec(i,2)=rec(i,1)+stats(j,12);  
     
-    rectangle('Position',[rec(i,1),startY,stats(j,12),cellwidth],'FaceColor','g','EdgeColor','none'); % time at budding
+    rectangle('Position',[rec(i,1),startY,stats(j,12),cellwidth],'FaceColor',col(2,:),'EdgeColor','none'); % time at budding
     i=i+1; 
     rec(i,1)=rec(i-1,2);
     rec(i,2)=rec(i,1)+stats(j,13);  
     
-    rectangle('Position',[rec(i,1),startY,stats(j,13),cellwidth],'FaceColor','y','EdgeColor','none'); % time at budding
+    rectangle('Position',[rec(i,1),startY,stats(j,13),cellwidth],'FaceColor',col(3,:),'EdgeColor','none'); % time at budding
      i=i+1;
     rec(i,1)=rec(i-1,2);
     rec(i,2)=rec(i,1)+stats(j,14);  
     
-    rectangle('Position',[rec(i,1),startY,stats(j,14),cellwidth],'FaceColor','b','EdgeColor','none'); % time at budding
+    rectangle('Position',[rec(i,1),startY,stats(j,14),cellwidth],'FaceColor',col(4,:),'EdgeColor','none'); % time at budding
      i=i+1;
     
     %cindex=1:1:4;
@@ -89,7 +89,7 @@ for j=1:size(stats,1)
      end
      
      tbudind=at_name('tbud');
-     rectangle('Position',[stats(j,tbudind),startY,3,cellwidth],'FaceColor','k','EdgeColor','none'); % time at budding
+     %rectangle('Position',[stats(j,tbudind),startY,3,cellwidth],'FaceColor','k','EdgeColor','none'); % time at budding
      
      startY=startY+cellwidth;
      

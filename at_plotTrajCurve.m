@@ -66,6 +66,7 @@ else
     cycle=cyclearr(istat);
 end
 
+
 fluoframes=at_name('fluo');
 fluofitframes=at_name('fitfluo');
 
@@ -99,24 +100,38 @@ for i=cycle'
     miney=min(miney,min(fluoc));
     maxey=max(maxey,max(fluoc));
     
+end
+
+
+for i=cycle'
+    fluoc=stats(i,fluoframes);
+    pix=find(fluoc>0);
+    fluoc=fluoc(pix);
+    fluoframescut=(1:1:numel(pix))+stats(i,7)+stats(i,8)-1;
+
+    fluofitc=stats(i,fluofitframes);
+    pix=find(fluofitc>0);
+    fluofitc=fluofitc(pix);
+    fluofitframescut=(1:1:numel(pix))+stats(i,7)+stats(i,8)-1;
+    
     if numel(patche)
         figure(hf(1)); hold on
         if cc==0
             lastx=0;
-       lastx=plotPatch(i,stats,miney,maxey,patche,'first',lastx); 
+       lastx=plotPatch(i,stats,miney,0.1*(maxey)+0,patche,'first',lastx); 
         else
-       lastx=plotPatch(i,stats,miney,maxey,patche,'notfirst',lastx);     
+       lastx=plotPatch(i,stats,miney,0.1*(maxey)+0,patche,'notfirst',lastx);     
         end
     end
     
     if fluo
         figure(hf(1)); hold on
-    plot(3*fluoframescut, fluoc, 'Color', 'k','LineWidth',2); hold on
+    plot(3*fluoframescut, fluoc, 'Color', 'g','LineWidth',2); hold on
     end
 
     if fluofit
         figure(hf(1)); hold on
-    plot(3*fluofitframescut, fluofitc, 'Color', 'r','LineWidth',2,'LineStyle','--'); hold on
+    plot(3*fluofitframescut, fluofitc, 'Color', 'k','LineWidth',2,'LineStyle','--'); hold on
     end
     
     if volume
@@ -124,40 +139,50 @@ for i=cycle'
     
     volframes=at_name('volcell');
     vol1=stats(i,volframes);
+    
+    prefac=4/3*1/(pi^0.5);
+    vol1=prefac*vol1.^1.5*(0.073)^3; % real volume
+        
     %pix=find(vol1>0);
     %vol=vol1(pix);
     
-    pix=round(stats(i,9)-stats(i,8)+1:stats(i,9)-stats(i,8)+stats(i,10));
+    pix=round(stats(i,9)-stats(i,8)+1:stats(i,9)-stats(i,8)+stats(i,10))+0;
     %take stats 
     
     vol=vol1(pix);
     
-    volframescut=pix+stats(i,7)+stats(i,9)-1;
+    volframescut=pix+stats(i,7)+stats(i,8)-1;
 
 
     budframes=at_name('volbud');
+    
     bud=stats(i,budframes);
+    bud=prefac*bud.^1.5*(0.073)^3;
     
     pixbud=intersect(find(bud>0),pix);
     
     bud=bud(pixbud);
-    budframescut=pixbud+stats(i,7)+stats(i,9)-1;
+    budframescut=pixbud+stats(i,7)+stats(i,8)-1;
     
     
     pix2=pixbud(1)-10:1:pixbud(1)-4;
-    volframescut2=pix2+stats(i,7)+stats(i,9)-1;
-
+    volframescut2=pix2+stats(i,7)+stats(i,8)-1;
+    
+    volb=bud+vol1(pixbud);
+        
     if volume
-    plot(3*volframescut, vol, 'Color', 'b','LineWidth',2); hold on
+       
+        
+    plot(3*(volframescut-1), vol, 'Color', 'k','LineWidth',2); hold on
     
     %plot(3*volframescut2, vol(pix2), 'Color', 'g','LineWidth',2); hold on
     
-    plot(3*budframescut, bud+vol1(pixbud), 'Color', 'r','LineWidth',2); hold on
+    plot(3*(budframescut-1), volb, 'Color', 'r','LineWidth',2); hold on
     end
     
     if volumefit
         
-       [x bfit]=computeTBud(bud+vol1(pixbud),0);
+       [x bfit]=computeTBud(volb,0);
        
        %plot(3*budframescut, bud+vol1(pix), 'Color', 'r','LineWidth',2); hold on
        
@@ -203,20 +228,20 @@ end
 if fluo
 figure(hf(1));
 xlim(3*[minex maxex]);
-ylim([miney maxey]);
+ylim([0 maxey]);
 
 set(gca,'FontSize',16);
-ylabel('HTB2-sfGFP','FontSize',16,'FontWeight','bold');
+ylabel('HTB2-sfGFP (A.U.)','FontSize',16,'FontWeight','bold');
 end
 
 if volume
 figure(hf(2));
 
 xlim(3*[minex maxex]);
-ylim([mineyvol maxeyvol]);
+ylim([0 maxeyvol]);
 
 set(gca,'FontSize',16);
-ylabel('Cell Size','FontSize',16,'FontWeight','bold');
+ylabel('Cell Volume (\mum^3)','FontSize',16,'FontWeight','bold');
 end
 
 
@@ -255,7 +280,9 @@ maxe=2*maxey;
 
 if strcmp(option,'first')
 x0=[0 0 stats(row,9)-stats(row,8) stats(row,9)-stats(row,8) 0]; x0=x0+stats(row,8)+offset; y1=[mine maxe maxe mine mine];
-h1=patch(sca*x0,y1,ones(1,length(x0)),'FaceColor',patche.A);
+h1 =rectangle('Position',[sca*x0(1) sca*x0(3) mine maxe-mine],'FaceColor',patche.A,'EdgeColor','k');
+
+%h1=patch(sca*x0,y1,ones(1,length(x0)),'FaceColor',patche.A);
 else
 offset=lastx-stats(row,9);
 end
@@ -264,18 +291,35 @@ end
 
 x1=[0 0 stats(row,11) stats(row,11) 0]; x1=x1+stats(row,9)+offset; y1=[mine maxe maxe mine mine];
 
-h1=patch(sca*x1,y1,ones(1,length(x1)),'FaceColor',patche.G1);
+%h1=patch(sca*x1,y1,ones(1,length(x1)),'FaceColor',patche.G1);
+
+h1 =rectangle('Position',[sca*x1(1) sca*x1(3) mine maxe-mine],'FaceColor',patche.G1,'EdgeColor','k');
+          line([sca*x1(1) sca*x1(1)],    [mine 10*(maxe-mine )],'Color','k');
+          
 %alpha(h1,0.1);
 
 x2=[0 0 stats(row,12) stats(row,12) 0]; x2=x2+stats(row,11)+stats(row,9)+offset; y1=[mine maxe maxe mine mine];
-h1=patch(sca*x2,y1,ones(1,length(x2)),'FaceColor',patche.S);
+h1 =rectangle('Position',[sca*x2(1) sca*x2(3) mine maxe-mine],'FaceColor',patche.S,'EdgeColor','k');
+ line([sca*x2(1) sca*x2(1)],    [mine 10*(maxe-mine )],'Color','k');
+    
+
+%h1=patch(sca*x2,y1,ones(1,length(x2)),'FaceColor',patche.S);
 %alpha(h1,0.1);
 
 x3=[0 0 stats(row,13) stats(row,13) 0]; x3=x3+stats(row,12)+stats(row,11)+stats(row,9)+offset; y1=[mine maxe maxe mine mine];
-h1=patch(sca*x3,y1,ones(1,length(x3)),'FaceColor',patche.G2);
+h1 =rectangle('Position',[sca*x3(1) sca*x3(3) mine maxe-mine],'FaceColor',patche.G2,'EdgeColor','k');
+    line([sca*x3(1) sca*x3(1)],    [mine 10*(maxe-mine )],'Color','k');
+ 
+%h1=patch(sca*x3,y1,ones(1,length(x3)),'FaceColor',patche.G2);
 
 x4=[0 0 stats(row,14) stats(row,14) 0]; x4=x4+stats(row,13)+stats(row,12)+stats(row,11)+stats(row,9)+offset; y1=[mine maxe maxe mine mine];
-h1=patch(sca*x4,y1,ones(1,length(x4)),'FaceColor',patche.A);
+h1 =rectangle('Position',[sca*x4(1) sca*x4(3) mine maxe-mine],'FaceColor',patche.A,'EdgeColor','k');
+    line([sca*x4(1) sca*x4(1)],    [mine 10*(maxe-mine )],'Color','k');
+    
+         text(0.5*(sca*x1(1)+sca*x2(1))-3,3*mine-maxe,'G1','FontSize',16);
+         text(0.5*(sca*x2(1)+sca*x3(1))-3,3*mine-maxe,'S','FontSize',16);
+         text(0.5*(sca*x3(1)+sca*x4(1))-3,3*mine-maxe,'G2/M','FontSize',16);
+%h1=patch(sca*x4,y1,ones(1,length(x4)),'FaceColor',patche.A);
 
 lastx=x4(3);
 %alpha(h1,0.1);

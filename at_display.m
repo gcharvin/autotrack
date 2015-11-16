@@ -551,6 +551,8 @@ end
 
 for i=1:length(FileName)
 clear convert
+%strcat(PathName,FileName{i})
+
 load(strcat(PathName,FileName{i}));
 
 %recalculate growth rate and volume 
@@ -560,10 +562,15 @@ display2=at_name('vdiv','vg1','vs','vg2','vana');
 display3=at_name('vbdiv','vbg1','vbs','vbg2','vbana');
 display5=at_name('vndiv','vng1','vns','vng2','vnana');
 display4=at_name('mub','mb','asy');
+%stats
 
 if ~exist('convert','var')
 
 prefac=4/3*1/(pi^0.5);
+
+%display2
+%size(stats)
+%a=stats(:,display2)
 
 stats(:,display2)=prefac*stats(:,display2).^1.5*(0.073)^3; % real volume
 stats(:,display3)=prefac*stats(:,display3).^1.5*(0.073)^3; % real volume

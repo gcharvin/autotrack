@@ -1,4 +1,4 @@
-function at_noise(index,leg)
+function p=at_noise(index,leg)
 global datastat
 
 % plot 1) typical temporal trace for the longest lived cell
@@ -7,7 +7,7 @@ global datastat
 
 h=figure;
 width=1000;
-height=400;
+height=500;
 set(h,'Color','w','Position',[100 100 width height]);
 p = panel();
 
@@ -16,9 +16,9 @@ col={'r','b','g','m','c','y','k','r','b','g','m','c','y','k'};
 
 cc=1;
 
-p.pack('h',{0.55 0.15 0.15 0.15});
+p.pack('h',{0.4 0.3 0.3});% 0.15});
 p.de.margin=20;
-
+p.fontsize=20;
 
 for i=index
     stats=datastat(i).stats;
@@ -80,6 +80,9 @@ for i=index
         
         htb2=htb2.*(1-cos(t)); % apodization
         
+        %figure, plot(htb2);
+        %return
+        
         [f,y]=computeSpectrum(htb2);
         
         if stats(j,6)==0
@@ -101,7 +104,7 @@ for i=index
    end
    
    %p(2).select();
-    loglog(fmean,ampmean,'Marker','o','MarkerSize',6,'Color',col{cc}); %,'LineStyle','none'); hold on
+    loglog(fmean,ampmean,'Marker','o','MarkerSize',6,'Color',col{cc},'LineWidth',2); %,'LineStyle','none'); hold on
     hold on;
    set(gca,'XScale','log'); set(gca,'YScale','log');
     
@@ -129,26 +132,36 @@ end
  %legend(str2);
  
 p(1).select();
- ylabel('Spectrum'); xlabel('Frequency (hours^-1)');
+ ylabel('Spectrum (A.U.)'); xlabel('Frequency (hours^{-1})');
  legend(str);
 
 p(2).select(); %integral of spectrum from 6 minutes to 30 minutes
 h=bar(inte');
 set(h,'faceColor','k');
 set(gca,'XTickLabel',leg);
-ylabel('HF noise');
+xticklabel_rotate({},90);
+ylabel('High freq. noise');
 
 p(3).select(); %integral of spectrum from 6 minutes to 30 minutes
 h=bar(frac');
 set(h,'faceColor','k');
-set(gca,'XTickLabel',leg);
+%set(gca,'XTickLabel',leg);
+xticklabel_rotate(1:1:1*length(leg),90,leg);
+%set(gca,'XTick',0:1:length(leg)+1);
 ylabel('% Outliers');
 
-p(4).select(); %integral of spectrum from 6 minutes to 30 minutes
-h=bar(div');
-set(h,'faceColor','k');
-set(gca,'XTickLabel',leg);
-ylabel('Mother division time (min)');
+% p(4).select(); %integral of spectrum from 6 minutes to 30 minutes
+% h=bar(div');
+% set(h,'faceColor','k');
+% set(gca,'XTickLabel',leg);
+% ylabel('Mother division time (min)');
+
+
+
+p.marginleft=25;
+p.marginbottom=25;
+p(2).marginleft=30;
+p(3).marginleft=30;
 
 function [fmean, ampmean, ftot, ytot]=averagespectrum(ftot,ytot,mtot)
 
