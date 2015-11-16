@@ -10,9 +10,6 @@ end
 stats=datastat(pix).stats;
 path=datastat(pix).path;
 
-
-
-
 [path file ext]=fileparts(path);
 
 display1=at_name('tdiv','tg1','tbud','ts','tg2','tana');
@@ -34,9 +31,13 @@ D=find(stats(:,5)==0 & stats(:,6)==0);
 
 %stats(:,display4)=stats(:,display4).^1.5*(0.073)^3; % real volume
 
-
+%stats(:,display2)=stats(:,display3);
 stats(:,display2)=stats(:,display2)+stats(:,display3); % add bud size
 %stats(:,display2(2:end))=stats(:,display2(2:end))-stats(:,display2(1:end-1)); % deltavolume
+
+%compute deltaV
+stats(:,display3)=stats(:,display2); 
+stats(:,display3(2:end))=stats(:,display3(2:end))-stats(:,display3(1:end-1)); % deltavolume
 
 %% plot delta volume
 

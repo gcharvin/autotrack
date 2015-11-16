@@ -45,6 +45,13 @@ for i=1:length(cellindex)
         continue
     end
     
+    
+    
+%     if ~isfield(segmentation.tcells1(id).Obj,'Mean')
+%       %  a=segmentation.tcells1(id).Obj(1)
+%         continue
+%     end
+    
     dat=[segmentation.tcells1(id).Obj.Mean];
     im=[segmentation.tcells1(id).Obj.image];
     %pix=find(arrx>=segmentation.tcells1(id).birthFrame,1,'first');
@@ -67,8 +74,9 @@ for i=1:length(cellindex)
     end
     
     if display
-        h=figure; plot(im,fluo,'Color','b','lineWidth',2); hold on
-        title(['Cell:' num2str(id)])
+        h=figure('Color','w'); plot(3*im,fluo,'Color','k','lineWidth',2); hold on
+        
+        %title(['Cell:' num2str(id)])
         %locmax2=locmax+arrx(1)-1;
         %line([locmax2' locmax2']',[1330*ones(size(locmax2')) 2000*ones(size(locmax2'))]','Color','m');
     end
@@ -154,17 +162,20 @@ for i=1:length(cellindex)
          
 
         [timings,frame,fluofit,chi2]= computeTimings(fluo_cut,isD & j==1,mine);
-
+%timings
        % timings
         if numel(frame)==0
             continue
         end
         
         if display
-            figure(h); plot(mine+tc.detectionFrame-1:maxe+tc.detectionFrame-1-pe,fluofit,'Color','r','LineWidth',2);
+            figure(h); plot(3*(mine+tc.detectionFrame-1:maxe+tc.detectionFrame-1-pe),fluofit,'Color','r','LineWidth',2);
       % edit synthetic:
          %   figure(h); plot(mine+tc.detectionFrame-2:maxe+tc.detectionFrame-2-pe,fluofit,'Color','r','LineWidth',2);
         % restore if problems
+        
+        set(gca,'FontSize',20);
+        xlabel('Time (min)');
         
         end
         

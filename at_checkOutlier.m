@@ -63,7 +63,9 @@ end
 
 if stats(a,11)< 3 && stats(a,13)< 3 out=1; %'ok2',b=stats(a,11)
     str=[str '-tg1&tg2'];
-end
+    end
+
+
 % 
 % if stats(a,11)< 0.5* stats(a,12) out=1; %'ok2',b=stats(a,11)
 %     str=[str '-tg1&ts'];
@@ -114,9 +116,9 @@ end
 %    str=[str '-V_Bud_G1=' num2str(stats(a,222))];
 %end
 
-% if stats(a,223)<= 0 out=1; %'ok1',b=stats(a,10)
-%   str=[str '-VBudS=' num2str(stats(a,223))];
-% end
+if stats(a,223)<= 0 out=1; %'ok1',b=stats(a,10)
+  str=[str '-VBudS=' num2str(stats(a,223))];
+end
 
 if stats(a,224)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-VBudG2=' num2str(stats(a,224))];
