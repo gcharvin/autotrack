@@ -564,24 +564,24 @@ display5=at_name('vndiv','vng1','vns','vng2','vnana');
 display4=at_name('mub','mb','asy');
 %stats
 
-if ~exist('convert','var')
-
-prefac=4/3*1/(pi^0.5);
-
-%display2
-%size(stats)
-%a=stats(:,display2)
-
-stats(:,display2)=prefac*stats(:,display2).^1.5*(0.073)^3; % real volume
-stats(:,display3)=prefac*stats(:,display3).^1.5*(0.073)^3; % real volume
-stats(:,display5)=prefac*stats(:,display5).^1.5*(0.073)^3; % real volume
-
-stats(:,display4(3))=stats(:,display4(3)).^1.5; % real volume
-
-stats(:,display4(1))= (stats(:,display2(2))-stats(:,display2(1)))./stats(:,display1(2)); % muunbud
-
-stats(:,display4(2))= (stats(:,display3(5))+stats(:,display2(5))-stats(:,display3(3))-stats(:,display2(3)))./(stats(:,display1(5))+stats(:,display1(6))); % mubud
-end
+% if ~exist('convert','var')
+% 
+% prefac=4/3*1/(pi^0.5);
+% 
+% %display2
+% %size(stats)
+% %a=stats(:,display2)
+% 
+% stats(:,display2)=prefac*stats(:,display2).^1.5*(0.073)^3; % real volume
+% stats(:,display3)=prefac*stats(:,display3).^1.5*(0.073)^3; % real volume
+% stats(:,display5)=prefac*stats(:,display5).^1.5*(0.073)^3; % real volume
+% 
+% stats(:,display4(3))=stats(:,display4(3)).^1.5; % real volume
+% 
+% stats(:,display4(1))= (stats(:,display2(2))-stats(:,display2(1)))./stats(:,display1(2)); % muunbud
+% 
+% stats(:,display4(2))= (stats(:,display3(5))+stats(:,display2(5))-stats(:,display3(3))-stats(:,display2(3)))./(stats(:,display1(5))+stats(:,display1(6))); % mubud
+% end
 
 datastat(n).stats=stats;
 datastat(n).path=strcat(PathName,FileName{i});
@@ -602,9 +602,11 @@ updateDisplay(handles);
 function updateDisplay(handles)
 global datastat
 
+
 if numel(datastat)==0
     return;
 end
+
 
 str={};
 for i=1:numel(datastat)

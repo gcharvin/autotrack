@@ -25,6 +25,8 @@ cc=cc+100; out(cc:cc+99)={'fitfluo'};
     
 
 cc=cc+100; out{cc}='tbud';
+
+% cell (excluding bud)
 cc=cc+1; out{cc}='vdiv';
 cc=cc+1; out{cc}='vg1';
 cc=cc+1; out{cc}='vs';
@@ -50,7 +52,24 @@ cc=cc+100; out(cc:cc+99)={'volnuc'};
 cc=cc+100; out{cc}='mub';
 cc=cc+1; out{cc}='mb';
 cc=cc+1; out{cc}='asy';
-    
+
+% cell volume including bud
+cc=cc+1; out{cc}='vcdiv';
+cc=cc+1; out{cc}='vcg1';
+cc=cc+1; out{cc}='vcs';
+cc=cc+1; out{cc}='vcg2';
+cc=cc+1; out{cc}='vcana';
+
+% variation of volume during cell cycle
+
+cc=cc+1; out{cc}='dvdiv';
+cc=cc+1; out{cc}='dvg1';
+cc=cc+1; out{cc}='dvs';
+cc=cc+1; out{cc}='dvg2';
+cc=cc+1; out{cc}='dvana';
+
+cc=cc+1; out{cc}='strainID';  
+
 if strcmp(class(varargin{1}),'char')
 value = getMapValue(varargin,out);
 else

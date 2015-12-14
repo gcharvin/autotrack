@@ -26,6 +26,14 @@ else
     chi=timeLapse.autotrack.timing.chi;
 end
 
+% conversion in minutes
+coef2=3;
+tdiv=coef2*tdiv;
+tg1=coef2*tg1;
+ts=coef2*ts;
+tg2=coef2*tg2;
+tana=coef2*tana;
+    
 
 cc=15;
 y=stats(a,cc:cc+100-1); pix2=y>0; y=y(pix2);
@@ -56,17 +64,17 @@ if stats(a,13)< tg2(1) || stats(a,13) > tg2(2) out=1; %'ok4',b=stats(a,13)
     str=[str '-tg2=' num2str(stats(a,13))];
 end
 
-% 
- if stats(a,11)*stats(a,216)<20*5 & mother==0 out=1; %'ok2',b=stats(a,11)
+
+ if stats(a,11)*stats(a,216)<20*5*coef2 & mother==0 out=1; %'ok2',b=stats(a,11)
      str=[str '-vdiv x tg1'];
  end
 
-if stats(a,11)< 3 && stats(a,13)< 3 out=1; %'ok2',b=stats(a,11)
+if stats(a,11)< 3*coef2 && stats(a,13)< 3*coef2 out=1; %'ok2',b=stats(a,11)
     str=[str '-tg1&tg2'];
     end
 
 
-% 
+% % 
 % if stats(a,11)< 0.5* stats(a,12) out=1; %'ok2',b=stats(a,11)
 %     str=[str '-tg1&ts'];
 % end
@@ -88,9 +96,15 @@ end
 %    str=[str '-tbud=' num2str(stats(a,215))];
 %end
 
-if stats(a,216)<= 0 out=1; %'ok1',b=stats(a,10)
+if stats(a,216)<= 0  out=1; %'ok1',b=stats(a,10)
     str=[str '-VCellDiv=' num2str(stats(a,216))];
 end
+
+
+% if stats(a,223)<= 9 | stats(a,223)>= 11 out=1; %'ok1',b=stats(a,10)
+%  str=[str '-VBudS=' num2str(stats(a,223))];
+% end
+
 
 if stats(a,217)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-VCellG1=' num2str(stats(a,217))];
@@ -116,9 +130,12 @@ end
 %    str=[str '-V_Bud_G1=' num2str(stats(a,222))];
 %end
 
-if stats(a,223)<= 0 out=1; %'ok1',b=stats(a,10)
-  str=[str '-VBudS=' num2str(stats(a,223))];
-end
+%%%
+% if stats(a,223)<= 0 out=1; %'ok1',b=stats(a,10)
+%  str=[str '-VBudS=' num2str(stats(a,223))];
+% end
+%%%
+
 
 if stats(a,224)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-VBudG2=' num2str(stats(a,224))];

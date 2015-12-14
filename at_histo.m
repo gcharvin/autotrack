@@ -71,7 +71,7 @@ for m = 1:5
         
         coef=1;
         if k==1
-            coef=3;
+            coef=1;
         end
         
         for j=1:size(M,1)
