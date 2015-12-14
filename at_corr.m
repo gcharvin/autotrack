@@ -36,8 +36,8 @@ stats(:,display2)=stats(:,display2)+stats(:,display3); % add bud size
 %stats(:,display2(2:end))=stats(:,display2(2:end))-stats(:,display2(1:end-1)); % deltavolume
 
 %compute deltaV
-stats(:,display3)=stats(:,display2); 
-stats(:,display3(2:end))=stats(:,display3(2:end))-stats(:,display3(1:end-1)); % deltavolume
+%stats(:,display3)=stats(:,display2); 
+%stats(:,display3(2:end))=stats(:,display3(2:end))-stats(:,display3(1:end-1)); % deltavolume
 
 %% plot delta volume
 
