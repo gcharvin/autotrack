@@ -10,7 +10,7 @@ end
 
 
  if isa(path,'double')
-      str=strcat(timeLapse.realPath,timeLapse.filename,'-pos',num2str(path),'-stats-autotrack.mat');
+      str=strcat(timeLapse.realPath,timeLapse.filename,'-pos',num2str(path),'-stats-autotrack-prod2.mat');
      % prod if pod fluo x area to be considerered
  else
      str=path; 

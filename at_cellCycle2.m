@@ -34,6 +34,9 @@ end
 
 for i=1:length(cellindex)
     fprintf('.');
+    if mod(i,50)==0
+        fprintf('\n');
+    end
     
     id=cellindex(i);
     
@@ -41,7 +44,7 @@ for i=1:length(cellindex)
     [arrx ix]= sort([segmentation.tcells1(id).Obj.image]); % time data for the cell
     
     if length(arrx)<minTraceDur % cell is present for a too short time; bypass
-         disp(['fluo trace is too short:' num2str(numel(arrx)) '<' num2str(minTraceDur)]);
+        % disp(['fluo trace is too short:' num2str(numel(arrx)) '<' num2str(minTraceDur)]);
         continue
     end
     
@@ -147,7 +150,7 @@ for i=1:length(cellindex)
         areanucl_cut=areanucl(mine:maxe);
         
         if numel(fluo_cut)<minTraceDur
-            disp(['fluo trace is too short:' num2str(numel(fluo_cut)) '<' num2str(minTraceDur)]);
+           % disp(['fluo trace is too short:' num2str(numel(fluo_cut)) '<' num2str(minTraceDur)]);
             continue
         end
         % spline fit to get timings
