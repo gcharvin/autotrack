@@ -157,10 +157,11 @@ description{end+1}='Specify foci mapping function name';
 description{end+1}='Check if cell cycle analysis must be performed';
 description{end+1}='Check if you want to display the segmentation process';
 description{end+1}='Enter binning for channel of nucleus';
-description{end+1}='Enter the numbers of the cavity to be tracked. If no cavity, put []; if cavity are present but should not be tracked, put -1';
+description{end+1}='Enter the numbers of the cavity to be tracked. If no cavity, put []; if cavity are present but should not be tracked, put -1; If all cavities should be tracked, put 0';
  
 
 [hPropsPane,processing,OK] = at_propertiesGUI(0, processing,'Enter parameters for at_batch',description);
+
 
 if OK==0
 return;

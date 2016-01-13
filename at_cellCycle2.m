@@ -44,11 +44,11 @@ for i=1:length(cellindex)
     [arrx ix]= sort([segmentation.tcells1(id).Obj.image]); % time data for the cell
     
     if length(arrx)<minTraceDur % cell is present for a too short time; bypass
-<<<<<<< HEAD
+%<<<<<<< HEAD
         % disp(['fluo trace is too short:' num2str(numel(arrx)) '<' num2str(minTraceDur)]);
-=======
+%=======
        %  disp(['fluo trace is too short:' num2str(numel(arrx)) '<' num2str(minTraceDur)]);
->>>>>>> 993c798fc5dc576f7ea5b46a0e5a540a58563d50
+%>>>>>>> 993c798fc5dc576f7ea5b46a0e5a540a58563d50
         continue
     end
     

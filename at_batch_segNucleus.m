@@ -76,9 +76,18 @@ cells=phy_Object;
 
 for k=cavity
     
+    
     nc=[ROI.n];
+    
+    %k,nc
+    
+    warning off all
     kk=find(nc==k);
+    warning on all
+    
     %ROI
+    
+    %a=ROI(kk).box,b=binning
     roiarr=ROI(kk).box/binning;
     % size(ROI(k).BW)
     

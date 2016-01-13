@@ -16,6 +16,7 @@ arrI=arrN; % nuclei index in tcell object
 for i=1:length(segmentation.tcells1)
     fprintf('.');
    
+   % i
     frames=[segmentation.tcells1(i).Obj.image];
     
     if numel(frames)==0
@@ -31,6 +32,7 @@ for i=1:length(segmentation.tcells1)
     
     cc=1;
     for j=frames
+        
         nucleus=segmentation.nucleus(j,:);
         cells1= segmentation.tcells1(i).Obj(cc);
         
@@ -57,6 +59,7 @@ for i=1:length(segmentation.tcells1)
             end 
         end
         if numel(n)
+           
         [score pix]=sort(score,'descend'); % sort nuclei according to fraction of contour found in cell
         n=n(pix);
         index=index(pix);

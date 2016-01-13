@@ -37,7 +37,7 @@ for i=frames
         %cav.pdfout=pdfoutNucleus; % no training set
         %cav.range=rangeNucleus;
         %cav.cavity=cavity;
-        nstore=at_map('nucleus',cc,nstore,i); %,cav);
+        nstore=at_map('nucleus',cc,nstore,i,'cavity'); %,cav);
     else
         nstore=at_map('nucleus',cc,nstore,i);
     end

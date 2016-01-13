@@ -53,13 +53,13 @@ if timeLapse.autotrack.processing.display
     hcells=[];
     hnucleus=[];
     hfoci=[];
-    if segCells
+    if timeLapse.autotrack.processing.segCells
         hcells=figure('Position',[10 10 800 600]);
     end
-    if segNucleus
+    if timeLapse.autotrack.processing.segNucleus
         hnucleus=figure('Position',[1000 10 800 600]);
     end
-    if segFoci
+    if timeLapse.autotrack.processing.segFoci
         hfoci=figure('Position',[1000 10 800 600]);
     end
 end
@@ -86,7 +86,7 @@ for l=position % loop on positions
     fprintf('\n');
     
     if numel(timeLapse.autotrack.processing.cavity)
-       at_batch_findCavity(pos,frames,cavity);
+       at_batch_findCavity(pos,frames,timeLapse.autotrack.processing.cavity);
     end
     
     if timeLapse.autotrack.processing.segCells

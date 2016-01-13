@@ -87,6 +87,8 @@ for i=1:length(segmentation.tcells1)
             pix=find(ic~=i);
             ic=ic(pix);
             
+          
+            
             if numel(ic) % another cell has the same nucleus number; nucleus is in between cells
                 link.frame=[link.frame ; j];
                 link.n=[link.n ; ic(1)]; % cell number that shares nucleus with corresponding cell
@@ -95,7 +97,7 @@ for i=1:length(segmentation.tcells1)
                 % link
                 info.status=2; % shared nucleus
                 
-               
+              
                             
             else % if not, then check when first nucleus appears and identify mother nucleus
                 ind=arrI(i,j);
@@ -106,6 +108,7 @@ for i=1:length(segmentation.tcells1)
                 if j>frames(1)
                     if arrN(i,j)~=0 && arrN(i,j-1)==0 %&& virginD==1 % should work only for the first time (virginD)
                         
+                       % j,ind
                         [candidates dist]=findNeighbors(segmentation.nucleus(j,ind),segmentation.nucleus(j,:),65); % find neighbors
                         candidates=candidates(candidates>0);
                         dist=dist(candidates>0);
@@ -323,9 +326,11 @@ end
 nc=[cellsin.n];
 val= find(nc==targetCell.n);
 
+a=targetCell.n
 %find(col==val)
 %find(row==val)
 
+%row, col, val
 pix=[find(col==val) ; find(row==val)];
 
 col=col(pix);
