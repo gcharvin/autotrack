@@ -322,6 +322,8 @@ plot(x+(1:length(fi))-1,fi,'Color','r','LineWidth',2,'LineStyle','--'); hold off
 ylabel('HTB2 fluo');
 
 [out str]=at_checkOutlier(stats,ix,[],outlier);
+%out=0;
+
 if out==1
     % str
     title(str);
