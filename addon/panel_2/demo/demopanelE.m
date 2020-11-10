@@ -1,5 +1,5 @@
 
-% You can have as many Panels as you like in one Figure.
+% You can have as many root Panels as you like in one Figure.
 %
 % (a) Create a figure with two uipanel objects.
 % (b) Attach a panel to one of these.
@@ -42,10 +42,11 @@ q.select('all');
 pause(3)
 
 % by default, only one panel can be attached to any one
-% figure. this makes for ease of use, usually. if you want
-% to attach more than one, you have to pass the 'add'
-% argument to the constructor when you create additional
-% panels.
+% figure - if an existing panel is attached when you create
+% another one, the existing one is first deleted. this makes
+% for ease of use, usually. if you want to attach more than
+% one, you have to pass the 'add' argument to the
+% constructor when you create additional panels.
 p = panel(u1, 'add');
 p.pack(2, 2);
 p.select('all');
@@ -63,9 +64,10 @@ p.select('all');
 % see?
 pause(3)
 
-% finally, let's delete the first one, just for the craic.
+% finally, let's show how to delete the first one, just for
+% the craic. you shouldn't usually need to do this, but it
+% works just fine.
 delete(p);
-
 
 
 

@@ -120,11 +120,15 @@ ylabel('actual measurements')
 p(1,1).xlabel('time (unitless)');
 p(1,1).ylabel('example data series');
 
+% we can also get a handle back to the label object, so
+% that we can access its properties.
+
 % label axis group
-p(2).xlabel('data value (furlongs per fortnight)');
+h = p(2).xlabel('data value (furlongs per fortnight)');
 p(2).ylabel('normalised frequency (%)');
 
-
+% access properties
+% get(h, ...
 
 
 
@@ -151,7 +155,7 @@ p.de.margin = 2;
 disp(sprintf('p.margin is [ %i %i %i %i ]', p.margin));
 
 % the set p.fa (family) _does_ include p, so p.fa is equal
-% to p.de plus p. if you see what I mean. check help
+% to {p.de and p}. if you see what I mean. check help
 % panel/family and help panel/descendants! you could also
 % have used the line, p.fa.margin = 2, it would have worked
 % just fine.
@@ -182,16 +186,14 @@ pause
 % the final product, by trimming the root margin to the
 % bone. eliminating any wasted whitespace like this is
 % particularly helpful in exported image files.
-p.margin = [23 20 12 12];
+p.margin = [13 10 2 2];
 
 % and let's set the global font properties, also. we can do
 % this at any point, it doesn't have to be here.
-p.fontsize = 12;
+p.fontsize = 8;
 
 % report
 disp('We''ve now adjusted the figure edge margins (and reduced the fontsize), so we''re done.');
-
-p.export('myfig.pdf')
 
 
 

@@ -1,6 +1,7 @@
 function at_plotTrajCurves(varargin)
 global datastat timeLapse
 
+%'cellid' : id of the cell to be displayed
 %'cycle', [1 2 3] : array that contains the cycles to be displayed.
 %default 1
 
@@ -35,13 +36,14 @@ fluofit=getMapOption(varargin, 'fluofit');
 volume=getMapOption(varargin, 'volume');
 volumefit=getMapOption(varargin, 'volumefit');
 
+
 if fluo
-hf=figure;
+hf=figure('Color','w');
 ha=gca;
 end
 
 if volume
-hf(2)=figure;
+hf(2)=figure('Color','w');
 ha(2)=gca;
 end
 
@@ -60,8 +62,10 @@ ncell=stats(cellid,3);
 cyclearr=find(stats(:,1)==chk & stats(:,2)==pos & stats(:,3)==ncell);
 
 if numel(cycle)==0
-    cycle=cyclearr;
+    %cycle=cyclearr;
+    cycle=cellid;
 else
+    
     [arrtemp istat icycle]=intersect(stats(cyclearr,4),cycle);
     cycle=cyclearr(istat);
 end
@@ -82,11 +86,15 @@ maxeyvol=-1e10;
 % plot curves
 
 cc=0;
+
+
 for i=cycle'
 
     fluoc=stats(i,fluoframes);
     pix=find(fluoc>0);
     fluoc=fluoc(pix);
+  %  stats(i,9:15)=stats(i,9:15)/3; %units is minutes in all the new data sets (and not frames)
+    
     fluoframescut=(1:1:numel(pix))+stats(i,7)+stats(i,8)-1;
 
     fluofitc=stats(i,fluofitframes);
@@ -140,15 +148,16 @@ for i=cycle'
     volframes=at_name('volcell');
     vol1=stats(i,volframes);
     
-    prefac=4/3*1/(pi^0.5);
-    vol1=prefac*vol1.^1.5*(0.073)^3; % real volume
+   % prefac=4/3*1/(pi^0.5);
+   % vol1=prefac*vol1.^1.5*(0.073)^3; % real volume
         
     %pix=find(vol1>0);
     %vol=vol1(pix);
     
-    pix=round(stats(i,9)-stats(i,8)+1:stats(i,9)-stats(i,8)+stats(i,10))+0;
+    %stats(i,9:15)=stats(i,9:15)/3;
+    pix=round(stats(i,9)-stats(i,8)+1:stats(i,9)-stats(i,8)+stats(i,10)/3)+0;
     %take stats 
-    
+   
     vol=vol1(pix);
     
     volframescut=pix+stats(i,7)+stats(i,8)-1;
@@ -157,7 +166,7 @@ for i=cycle'
     budframes=at_name('volbud');
     
     bud=stats(i,budframes);
-    bud=prefac*bud.^1.5*(0.073)^3;
+%    bud=prefac*bud.^1.5*(0.073)^3;
     
     pixbud=intersect(find(bud>0),pix);
     
@@ -232,6 +241,7 @@ ylim([0 maxey]);
 
 set(gca,'FontSize',16);
 ylabel('HTB2-sfGFP (A.U.)','FontSize',16,'FontWeight','bold');
+xlabel('Time (min)','FontSize',16,'FontWeight','bold');
 end
 
 if volume
@@ -242,6 +252,7 @@ ylim([0 maxeyvol]);
 
 set(gca,'FontSize',16);
 ylabel('Cell Volume (\mum^3)','FontSize',16,'FontWeight','bold');
+xlabel('Time (min)','FontSize',16,'FontWeight','bold');
 end
 
 
@@ -271,12 +282,15 @@ tbud=x(ind2);
 
 function lastx=plotPatch(i,stats,miney,maxey,patche,option,lastx)
 
-row=i; sca=3; 
-offset=stats(row,7);
+row=i; sca=1; 
+offset=3*stats(row,7);
 %offset=0;
 
 mine=0.5*miney;
 maxe=2*maxey;
+
+stats(row,9)=3*stats(row,9); 
+stats(row,8)=3*stats(row,8); 
 
 if strcmp(option,'first')
 x0=[0 0 stats(row,9)-stats(row,8) stats(row,9)-stats(row,8) 0]; x0=x0+stats(row,8)+offset; y1=[mine maxe maxe mine mine];

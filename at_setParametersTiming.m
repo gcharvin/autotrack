@@ -147,7 +147,6 @@ for j=1:size(stats,1)
     mother=stats(j,5);
     a=j;
     
-
 [out str]=at_checkOutlier(stats,a,mother,datastat(i).outlier);   
     
 if out==1

@@ -61,7 +61,7 @@ X_M=stats(M,display);
   
   subplot(1,2,1);
   pcolor(xedges,yedges,M); colormap jet; h=colorbar ; axis square tight;
-  set(h,'CLim',[-1 1])
+%  set(h,'CLim',[-1 1])
   set(gca,'XTick',[1:1:size(X_M,2)]+0.5);
   set(gca,'XTickLabel',at_name(display));
   set(gca,'YTick',[1:1:size(X_M,2)]+0.5);
@@ -74,7 +74,7 @@ f2=[path '/' file '-corrM.pdf'];
   %figure('Color','w','Position',[100 100 800 800]); 
   subplot(1,2,2);
   pcolor(xedges,yedges,D); colormap jet; h=colorbar ; axis square tight;
-    set(h,'CLim',[-1 1])
+%    set(h,'CLim',[-1 1])
   set(gca,'XTick',[1:1:size(X_D,2)]+0.5);
   set(gca,'XTickLabel',at_name(display));
   set(gca,'YTick',[1:1:size(X_D,2)]+0.5);

@@ -1,6 +1,11 @@
 
 % Panel can fix dotted/dashed lines on export.
 %
+% NB: Matlab's difficulty with dotted/dashed lines on export
+% seems to be fixed in R2014b, so if using this version or a
+% later one, this functionality of panel will be of no
+% interest. Text below was from pre R2014b.
+%
 % Dashed and dotted and chained lines do not render properly
 % when exported to image files from Matlab, many users find.
 % There are a number of solutions to this posted at file
@@ -22,6 +27,9 @@
 % * Does not currently work with 3D lines. This should be
 %   possible, but needs a bit of thought, so it'll come
 %   along later - nudge me at file exchange if you need it.
+%
+% * Currently does something a bit dumb with log plots. I
+%   should really fix that...
 
 
 

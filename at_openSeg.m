@@ -18,7 +18,10 @@ if fraC==0 && fraN==0
     segmentation=phy_createSegmentation(timeLapse,position);
     segmentation.position=position;
     
+    
+    
     filen='segmentation-autotrack.mat';
+    
     segmentation.filename=filen;
     
     if ~isfield(timeLapse,'autotrack')

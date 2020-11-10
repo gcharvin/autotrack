@@ -972,6 +972,10 @@ end % InitSmoothing
 %%
 function [alpha actset uineq ueq] = ConL2Fit(y, B, D, LU, X, Deq, veq, Xeq, ...
                                      qpengine)
+                                 
+                          
+                              %   save('/Volumes/charvin1/Cecilia/20140909/temp.mat','y','B','D','LU','X','Deq','veq','Xeq')
+                                 
 % [alpha actset u] = ConL2Fit(y, B, D, LU, X, Deq, veq, Xeq)
 % Call ConL2Fit(..., qpengine) to specify the QP engine
 %
@@ -1016,7 +1020,7 @@ veq = Xeq*veq;
 switch lower(qpengine)
     
     case {1, 'quadprog'}, % mlint does not like mixed type
-        
+ 
 %         error(['BSFK: quadprog solver is supported for shape-preserving splines\n' ...
 %                'QPC engine is recommended']);
         % Blind coded by the author, who doesn't own optimization toolbox
@@ -1028,10 +1032,12 @@ switch lower(qpengine)
                              'LargeScale','off','Algorithm','active-set');
         s0 = zeros(size(g),cls);
         Aeq = Deq; beq = veq;
-        lb = []; ub = [];
+        lb = []; ub = []; 
         % medium-scale algorithm, because rge presense of linear inequalities
         %H,g,-D,-LU,Aeq,beq,lb,ub,s0,qpoptions
     
+     %   save('/Volumes/charvin1/Cecilia/20140909/temprog.mat','H', 'g', 'D', 'LU', 'Aeq', 'beq', 'lb', 'ub', 's0', 'qpoptions');
+
         
         [alpha trash ier qpout lbd] = quadprog(H, g, -D, -LU, ...
                                   Aeq, beq, lb, ub, s0, qpoptions); %#ok
@@ -1043,9 +1049,9 @@ switch lower(qpengine)
                     'ConL2Fit: not convergence encountered by MINQDEF');
         end
                
-       
+      % return;
         % dual variable
-    
+     
         uineq = lbd.ineqlin(:);
         ueq = lbd.eqlin(:);
         % Check the sign of the lagrange multiplier
@@ -1073,6 +1079,7 @@ switch lower(qpengine)
         end
         
         % dual variable
+      
         uineq = lbd.inequality(:);
         ueq = lbd.equality(:);
         % Check the sign of the lagrange multiplier

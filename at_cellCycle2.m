@@ -66,7 +66,6 @@ for i=1:length(cellindex)
     fluo=[dat.peak];
     areanucl=[dat.area];
     
-    
     % to be removed if to use traditional quantification
     fluo=[dat.fluo];
     fluo=fluo.*areanucl;
@@ -167,7 +166,8 @@ for i=1:length(cellindex)
             continue
          end
          
-
+       % figure, plot(fluo_cut);
+        
         [timings,frame,fluofit,chi2]= computeTimings(fluo_cut,isD & j==1,mine);
 %timings
        % timings
@@ -231,9 +231,7 @@ for i=1:length(cellindex)
         else
             mother=1;
         end
-       
-       
-        
+
         stats=addToStats(stats,a,id,j,mother,fluo_cut,fluofit,areaM,areaB,areaN,areanucl,chi2,timings,volume,mu_unbud,mu_bud,tbud,mine);
         
         %segmentation.tnucleus(id).mothers=tstr;
@@ -273,6 +271,7 @@ end
 
 shape = struct('p',1,'lo',lo,'up',up);
 [fluofit pp chi2]=splineFitCellCycle(fluo,nknots,shape);
+
 
 if numel(pp.breaks)<=nknots %wrong number of nodes found 
     return;
@@ -486,6 +485,7 @@ stats(a,cc)=mu_unbud; cc=cc+1; %   vol G2
 stats(a,cc)=mu_bud; cc=cc+1; % vol A
 
 stats(a,cc)=volume.AB/volume.AM; cc=cc+1; % asymmetry M/D at division
+
 
 out=at_checkOutlier(stats,a,mother);
 

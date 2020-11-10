@@ -33,11 +33,27 @@
 
 <dh>What's up with <tt>semilogx</tt>, <tt>semilogy</tt>, <tt>loglog</tt>, not producing log scales?</dh>
 
-<dd>If you call <tt>select()</tt> on a new panel, it creates an axis for you. To protect font styling, it sets its "NextPlot" property to "replacechildren" (the default for new axes is "replace"). The high-level plotting functions <tt>semilogx</tt>, <tt>semilogy</tt>, <tt>loglog</tt> will not work correctly after this. Therefore, to use these functions with Panel, call the plotting function first and then <tt>select()</tt> the axis it creates into the panel. An example is given below.
+<dd>If you call <tt>select()</tt> on a new panel, it creates an axis for you. To protect font styling, it sets its "NextPlot" property to "replacechildren" (the default for new axes is "replace"). The high-level plotting functions <tt>semilogx</tt>, <tt>semilogy</tt>, <tt>loglog</tt> will not work correctly after this. There are two workarounds:
+
+<div style='margin-left:32px'>
+
+<div style='margin-top:8px; font-style:italic'>1) Call the plotting function first (to create the axis) and then <tt>select()</tt> the newly-created axis into the panel (rather than allowing Panel to create the new axis for you).</div>
+
 <div class=snippet>
->> figure; p = panel;
->> semilogy(x,y,'r','linewidth',2.5);
->> p.select(gca);
+p = panel;
+semilogx(1:10);
+p.select(gca);
+</div>
+
+<div style='margin-top:8px; font-style:italic'>2) Set the axis scale type manually afterwards (this is all that semilogx does over plot).</div>
+
+<div class=snippet>
+p = panel;
+p.select();
+plot(1:10);
+set(gca, 'xscale', 'log');
+</div>
+
 </div>
 </dd>
 

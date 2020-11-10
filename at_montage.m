@@ -73,7 +73,6 @@ updateSequence(handles)
 %end
 
 
-
 % UIWAIT makes at_montage wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
@@ -274,6 +273,7 @@ function makeMovie_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global sequence segmentation
+
 
 sequence.param=get(handles.tableparameter,'Data');
 sequence.display=get(handles.tabledisplay,'Data');

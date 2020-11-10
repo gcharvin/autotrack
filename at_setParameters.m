@@ -16,10 +16,10 @@ if ~isfield(timeLapse.autotrack,'processing')
 else
     if usejava('jvm') && ~feature('ShowFigureWindows')
         %     % use text-based alternative (input)
-        button = input('Param already exist : change ? [Y]/[N]', 's');
-        if strcmp(button,'N')
+       % button = input('Param already exist : change ? [Y]/[N]', 's');
+       % if strcmp(button,'N')
             return;
-        end
+       % end
         
     else
         % use GUI dialogs (questdlg)

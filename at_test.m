@@ -1,5 +1,4 @@
-
-function at_test(frame,varargin)
+at_set  function at_test(frame,varargin)
 global timeLapse segmentation
 
 

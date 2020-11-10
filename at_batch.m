@@ -11,13 +11,21 @@
 %
 % other parameters must be defined using at_setParameters
 
-function at_batch(frames, position)
+function at_batch(frames, position, path)
 global segmentation timeLapse
 
 % test if projetct is loaded
 
+
 if ~isfield(timeLapse,'autotrack')
-    out=at_load;
+    
+    if nargin==3
+       out=at_load(path);
+    else
+       out=at_load; 
+    end
+    
+    
     if out==0
         disp('Loading project was canceled');
         return;
@@ -91,6 +99,7 @@ for l=position % loop on positions
     
     if timeLapse.autotrack.processing.segCells
         at_batch_segCells(pos,frames,timeLapse.autotrack.processing.cavity);
+        
     end
     
     if timeLapse.autotrack.processing.mapCells
@@ -111,11 +120,15 @@ for l=position % loop on positions
     end
    
     
+    load(fullfile(timeLapse.realPath,[timeLapse.filename '-project.mat'])); % had to do this to update timeLapse in case of parallel segmentation
+
     timeLapse.autotrack.position(pos).cells1Segmented=segmentation.cells1Segmented;
     timeLapse.autotrack.position(pos).nucleusSegmented=segmentation.nucleusSegmented;
     timeLapse.autotrack.position(pos).fociSegmented=segmentation.fociSegmented;
     timeLapse.autotrack.position(pos).nucleusMapped=segmentation.nucleusMapped;
     timeLapse.autotrack.position(pos).cells1Mapped=segmentation.cells1Mapped;
+    
+    save(fullfile(timeLapse.realPath,[timeLapse.filename '-project.mat']),'timeLapse');
     
     segmentation.frameChanged(frames(1):frames(end))=1;
     
@@ -134,6 +147,7 @@ for l=position % loop on positions
         fprintf(['Saving pos: ' num2str(pos) '\n\n']);
         fprintf(['//-----------------------------------//\n']);
         fprintf('\n');
+        
         
         at_save;
         at_log(['Segmentation saved : ' num2str(pos)],'a',pos,'batch')

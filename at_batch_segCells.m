@@ -25,6 +25,30 @@ for i=frames % loop on frames
     fprintf(['Segment Cells: \n']);
     imcell=segmentCells(i,cavity);
     
+    % in case there is a black frame, copy segmentation from previous frame
+   imcells=segmentation.cells1(i,1);
+   celltemp=segmentation.cells1(i-1,:);
+   
+   if imcells.n==0 & i>1
+        cells=[];
+        
+        for j=1:length(celltemp)
+        cells(j)=phy_Object();
+        cells(j).x=celltemp(j).x;
+        cells(j).y=celltemp(j).y;
+        cells(j).ox=celltemp(j).ox;
+        cells(j).oy=celltemp(j).oy;
+        cells(j).area=celltemp(j).area;
+        %cells(j).fluoMean(1)=celltemp(j).fluoMean(1);
+        %cells(j).fluoVar(1)=celltemp(j).fluoVar(1);
+        %cells(j).Nrpoints=k; % cavity number
+        cells(j).n=celltemp(j).n;
+
+        end
+        segmentation.cells1(i,:)=cells;
+   end
+    
+   
 end
 
        segmentation.cells1Segmented(frames(1):frames(end))=1;

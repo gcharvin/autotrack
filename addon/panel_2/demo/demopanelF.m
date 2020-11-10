@@ -36,9 +36,9 @@ p.fontname = 'Arial';
 % create
 figure(2)
 clf
-p = panel('no-manage-font');
-p.pack(2, 2);
-hh = p.select('all');
+q = panel('no-manage-font');
+q.pack(2, 2);
+hh = q.select('all');
 
 % create xlabels
 for h = hh
@@ -46,4 +46,4 @@ for h = hh
 end
 
 % attempt to manage fonts globally (no effect)
-p.fontname = 'Arial';
+q.fontname = 'Arial';

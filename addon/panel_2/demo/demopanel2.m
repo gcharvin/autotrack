@@ -21,7 +21,7 @@
 % thing in this case, but with a slightly different layout.
 
 N = 2;
-use_panel = 0;
+use_panel = 1;
 clf
 
 % PREPARE

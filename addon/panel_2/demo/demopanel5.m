@@ -63,24 +63,11 @@ p.identify();
 % as well - try "p(2).show()", for instance.
 p(2,6,2).show();
 
-% then, of course, we can select a panel of our choice and
-% plot something in it
+% just to prove the point, let's now select one of the
+% panels we've identified and plot something into it.
 p(2,4,1).select();
 plot(randn(100, 1))
 axis auto
-
-h=figure;
-q=panel();
-q = panel();
-
-q.pack(4);
-q(1).pack(1,5);
-q(2).pack(1,5);
-q(3).pack(1,5);
-q(4).pack(1,3);
-q.select('all');
-q.identify()
-
 
 
 

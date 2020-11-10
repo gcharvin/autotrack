@@ -144,20 +144,24 @@ stats=datastat(pix).stats;
 ind1=at_name(str1);
 ind2=at_name(str2);
 
+
+
 %ind2,val2
 dt1=stats(:,ind1);
 dt2=stats(:,ind2);
 
 %if val1>22 % plot total cel volume
-%   dt1=stats(:,ind+val1-10)+stats(:,ind+val1-15);
+  % dt1=stats(:,ind1)+stats(:,ind1+5);
 %end
 %if val2>22 % plot total cel volume
-%   dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
+   %dt2=stats(:,ind2+val2-10)+stats(:,ind2+val2-15);
 %end
 
+%dt2=stats(:,ind2)+stats(:,ind2+5);
 
 axes(handles.scatterplot);
 
+%figure;
 
 if ~strcmp(str1,str2)
     M=find(stats(:,5)==1 & stats(:,6)==0);
@@ -322,6 +326,8 @@ plot(x+(1:length(fi))-1,fi,'Color','r','LineWidth',2,'LineStyle','--'); hold off
 ylabel('HTB2 fluo');
 
 [out str]=at_checkOutlier(stats,ix,[],outlier);
+%out=0;
+
 if out==1
     % str
     title(str);
@@ -564,24 +570,71 @@ display5=at_name('vndiv','vng1','vns','vng2','vnana');
 display4=at_name('mub','mb','asy');
 %stats
 
-% if ~exist('convert','var')
+%  if ~exist('convert','var')
+% % 
+% % prefac=4/3*1/(pi^0.5);
+% % 
+% % %display2
+% % %size(stats)
+% % %a=stats(:,display2)
+% % 
+% % stats(:,display2)=prefac*stats(:,display2).^1.5*(0.073)^3; % real volume
+% % stats(:,display3)=prefac*stats(:,display3).^1.5*(0.073)^3; % real volume
+% % stats(:,display5)=prefac*stats(:,display5).^1.5*(0.073)^3; % real volume
+% % 
+% % stats(:,display4(3))=stats(:,display4(3)).^1.5; % real volume
+% % 
+% % stats(:,display4(1))= (stats(:,display2(2))-stats(:,display2(1)))./stats(:,display1(2)); % muunbud
+% % 
+% % stats(:,display4(2))= (stats(:,display3(5))+stats(:,display2(5))-stats(:,display3(3))-stats(:,display2(3)))./(stats(:,display1(5))+stats(:,display1(6))); % mubud
 % 
 % prefac=4/3*1/(pi^0.5);
 % 
-% %display2
-% %size(stats)
-% %a=stats(:,display2)
+% display1=at_name('tdiv','tg1','tbud','ts','tg2','tana');
+% display2=at_name('vdiv','vg1','vs','vg2','vana');
+% display3=at_name('vbdiv','vbg1','vbs','vbg2','vbana');
+% display5=at_name('vndiv','vng1','vns','vng2','vnana');
+% display4=at_name('mub','mb','asy');
+% 
+% display6=at_name('volbud');
+% display7=at_name('volcell');
+% 
+% display8=at_name('dvdiv','dvg1','dvs','dvg2','dvana');
+% 
+% display9=at_name('vcdiv','vcg1','vcs','vcg2','vcana');
+% 
+% %display10=at_name('strainID');
 % 
 % stats(:,display2)=prefac*stats(:,display2).^1.5*(0.073)^3; % real volume
 % stats(:,display3)=prefac*stats(:,display3).^1.5*(0.073)^3; % real volume
 % stats(:,display5)=prefac*stats(:,display5).^1.5*(0.073)^3; % real volume
+% 
+% stats(:,display6)=prefac*stats(:,display6).^1.5*(0.073)^3; % real volume for array of volume
+% stats(:,display7)=prefac*stats(:,display7).^1.5*(0.073)^3; % real volume for array of volume
+% 
+% prefactime=3; % 3 minutes per frame
+% 
+% stats(:,display1)=prefactime*stats(:,display1); % real volume
+% 
+% % change checksum
+% %stats(:,1)=list{i,3}; % integer checksum number
 % 
 % stats(:,display4(3))=stats(:,display4(3)).^1.5; % real volume
 % 
 % stats(:,display4(1))= (stats(:,display2(2))-stats(:,display2(1)))./stats(:,display1(2)); % muunbud
 % 
 % stats(:,display4(2))= (stats(:,display3(5))+stats(:,display2(5))-stats(:,display3(3))-stats(:,display2(3)))./(stats(:,display1(5))+stats(:,display1(6))); % mubud
-% end
+% 
+% siztot=stats(:,display2)+stats(:,display3); % add bud size
+% 
+% stats(:,display9)=siztot;
+% 
+% stats(:,display8(2:end))=siztot(:,2:end)-siztot(:,1:end-1); % deltavolume
+% stats(:,display8(1))=siztot(:,end)-siztot(:,1); % deltavolume
+% 
+% %stats(:,display10)= str2num(str(4:end));% strain ID
+% 
+%  end
 
 datastat(n).stats=stats;
 datastat(n).path=strcat(PathName,FileName{i});
@@ -598,6 +651,7 @@ end
 datastat(n-1).selected=1;
 
 updateDisplay(handles);
+
 
 function updateDisplay(handles)
 global datastat
@@ -619,6 +673,7 @@ pix=find(p==1,1,'first');
 if numel(pix)==0
     return;
 end
+
 
 set(handles.statlist,'String',str);
 set(handles.statlist,'Value',pix);

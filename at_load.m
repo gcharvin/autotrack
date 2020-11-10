@@ -27,7 +27,9 @@ else
 % PathName, FileName
 
 if numel(PathName)==0
-   PathName=pwd; 
+   PathName=[pwd '/']; 
+else
+   PathName=[PathName '/']; 
 end
 end
 
@@ -76,6 +78,8 @@ for i=1:numel(timeLapse.position.list)
    
    disp(['Position ' num2str(i) ' : ' num2str(fraC) ' seg. frames (cells); ' num2str(fraN) ' seg. frames (nucleus); ' num2str(mapC) ' mapped frames (cells); ' num2str(mapN) ' mapped frames (nucleus); ']);
 end
+
+save(fullfile(timeLapse.realPath,[timeLapse.filename '-project.mat']),'timeLapse');
 
 
 

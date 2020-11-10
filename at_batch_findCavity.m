@@ -28,6 +28,8 @@ if numel(cavity) & cavity>=0 %track cavities
             [x y theta ROI ~] = at_cavity(i,'range',30,'rotation',0.2,'npoints',9, 'init',[x y theta],'scale',0.2);
             [x y theta ROI outgrid] = at_cavity(i,'range',10,'npoints',15, 'init',[x y theta],'scale',0.5);%,'grid',grid);
             
+            pause(4);
+            close
             
             % use moving average over 5 frames to prevent defects in tracking
             if i>frames(1)

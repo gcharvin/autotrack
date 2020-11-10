@@ -39,7 +39,7 @@ cc=15;
 y=stats(a,cc:cc+100-1); pix2=y>0; y=y(pix2);
 yfit=stats(a,cc+100:cc+200-1); yfit=yfit(pix2);
 chi2=sum( (yfit-y).^2 ) / length(y);
-%max(y)
+%max(y),chi2
 chi2=chi2/max(y).^2;
 
 if mother==0
@@ -67,25 +67,27 @@ end
 
  if stats(a,11)*stats(a,216)<20*5*coef2 & mother==0 out=1; %'ok2',b=stats(a,11)
      str=[str '-vdiv x tg1'];
- end
+ end %CHECK
 
 if stats(a,11)< 3*coef2 && stats(a,13)< 3*coef2 out=1; %'ok2',b=stats(a,11)
     str=[str '-tg1&tg2'];
-    end
+end %CHECK
 
-
-% % 
 % if stats(a,11)< 0.5* stats(a,12) out=1; %'ok2',b=stats(a,11)
-%     str=[str '-tg1&ts'];
-% end
+%    str=[str '-tg1&ts'];
+% end CHECK
 % 
-% if stats(a,13)< 0.2* stats(a,12) out=1; %'ok2',b=stats(a,11)
+% if stats(a,13)< 0.1*stats(a,12) out=1; %'ok2',b=stats(a,11)
 %     str=[str '-tg2&ts'];
-% end
+% end %. CHECK
+
+
 
 if stats(a,14)< tana(1) || stats(a,14) > tana(2) out=1; %'ok5',b=stats(a,14)
     str=[str '-tana=' num2str(stats(a,14))];
 end
+
+
 if chi2> chi out=1; %chi2
     str=[str '-chi2=' num2str(chi2)];
 end
@@ -106,6 +108,7 @@ end
 % end
 
 
+
 if stats(a,217)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-VCellG1=' num2str(stats(a,217))];
 end
@@ -122,6 +125,7 @@ if stats(a,220)<= 0 out=1; %'ok1',b=stats(a,10)
     str=[str '-VCellA=' num2str(stats(a,220))];
 end
 
+
 %if stats(a,211)<= 0 out=1; %'ok1',b=stats(a,10)
 %    str=[str '-V_Bud_Div=' num2str(stats(a,221))];
 %end
@@ -131,9 +135,9 @@ end
 %end
 
 %%%
-% if stats(a,223)<= 0 out=1; %'ok1',b=stats(a,10)
-%  str=[str '-VBudS=' num2str(stats(a,223))];
-% end
+%if stats(a,223)<= 0 out=1; %'ok1',b=stats(a,10)
+% str=[str '-VBudS=' num2str(stats(a,223))];
+%end
 %%%
 
 
